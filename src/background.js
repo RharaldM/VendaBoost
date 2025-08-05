@@ -208,7 +208,32 @@ function waitForContentScript(tabId, timeout = 15000) {
 
 // Listener para mensagens do popup - VERSÃO SEM FIREBASE
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    console.log("[Background] Mensagem recebida:", request.action);
+    console.log("[Background] Mensagem recebida:", request.action || request.type);
+
+    // Handle authentication messages
+    if (request.type === 'LOGIN_SUCCESS') {
+        console.log('[Background] Login success received:', request.user?.username);
+        
+        // Store authentication data
+        chrome.storage.local.set({
+            vendaboost_auth_token: request.token,
+            vendaboost_user_data: request.user,
+            vendaboost_last_auth_check: Date.now()
+        }, () => {
+            console.log('[Background] Auth data stored successfully');
+            
+            // Notify all extension pages about successful login
+            chrome.runtime.sendMessage({
+                type: 'AUTH_STATUS_CHANGED',
+                authenticated: true,
+                user: request.user
+            }).catch(err => console.log('[Background] No listeners for auth update'));
+            
+            sendResponse({ success: true });
+        });
+        
+        return true; // Will respond asynchronously
+    }
 
     // Estrutura unificada para lidar com todas as ações
     (async () => {

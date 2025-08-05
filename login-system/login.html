@@ -12,58 +12,95 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 1rem;
+            line-height: 1.6;
         }
 
         .login-container {
             background: white;
+            border-radius: 12px;
             padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 400px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
         }
 
         .login-header {
             text-align: center;
             margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .login-header::before {
+            content: '🚀';
+            font-size: 2.5rem;
+            display: block;
+            margin-bottom: 0.75rem;
+            filter: drop-shadow(0 2px 4px rgba(102, 126, 234, 0.3));
         }
 
         .login-header h1 {
             color: #333;
             margin-bottom: 0.5rem;
+            font-size: 1.75rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .login-header p {
             color: #666;
             font-size: 0.9rem;
+            font-weight: 500;
         }
 
         .form-group {
             margin-bottom: 1.5rem;
+            position: relative;
         }
 
         label {
             display: block;
             margin-bottom: 0.5rem;
-            color: #333;
-            font-weight: 500;
+            color: #495057;
+            font-weight: 600;
+            font-size: 0.9rem;
+            letter-spacing: 0.02em;
         }
 
         input[type="text"],
         input[type="password"],
         input[type="email"] {
             width: 100%;
-            padding: 0.75rem;
-            border: 2px solid #e1e5e9;
-            border-radius: 5px;
+            padding: 0.875rem 1rem;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
             font-size: 1rem;
-            transition: border-color 0.3s ease;
+            font-weight: 500;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #fafbfc;
+            color: #495057;
         }
 
         input[type="text"]:focus,
@@ -71,140 +108,291 @@
         input[type="email"]:focus {
             outline: none;
             border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-1px);
+        }
+
+        input[type="text"]:hover,
+        input[type="password"]:hover,
+        input[type="email"]:hover {
+            border-color: #667eea;
+            background: white;
         }
 
         .btn {
             width: 100%;
-            padding: 0.75rem;
+            padding: 0.875rem 1.5rem;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-transform: none;
+            letter-spacing: 0.02em;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
         }
 
         .btn-primary {
-            background-color: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
         }
 
         .btn-primary:hover {
-            background-color: #5a6fd8;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
         }
 
         .btn-secondary {
-            background-color: #6c757d;
+            background: #6c757d;
             color: white;
             margin-top: 1rem;
+            box-shadow: 0 4px 15px rgba(108, 117, 125, 0.2);
         }
 
         .btn-secondary:hover {
-            background-color: #5a6268;
+            background: #5a6268;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(108, 117, 125, 0.3);
         }
 
         .alert {
-            padding: 0.75rem;
-            border-radius: 5px;
-            margin-bottom: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
             display: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            position: relative;
+            backdrop-filter: blur(5px);
         }
 
         .alert-success {
-            background-color: #d4edda;
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
             color: #155724;
-            border: 1px solid #c3e6cb;
+            border: 1px solid rgba(21, 87, 36, 0.2);
+        }
+
+        .alert-success::before {
+            content: '✅';
+            margin-right: 0.5rem;
         }
 
         .alert-error {
-            background-color: #f8d7da;
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
             color: #721c24;
-            border: 1px solid #f5c6cb;
+            border: 1px solid rgba(114, 28, 36, 0.2);
+        }
+
+        .alert-error::before {
+            content: '❌';
+            margin-right: 0.5rem;
         }
 
         .toggle-form {
             text-align: center;
-            margin-top: 1rem;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e9ecef;
         }
 
         .toggle-form a {
             color: #667eea;
             text-decoration: none;
-            font-weight: 500;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .toggle-form a:hover {
-            text-decoration: underline;
+            transform: translateY(-1px);
+            text-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
         }
 
         .loading {
             display: none;
             text-align: center;
-            margin-top: 1rem;
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 8px;
+            font-weight: 500;
+            color: #495057;
         }
 
         .spinner {
-            border: 2px solid #f3f3f3;
-            border-top: 2px solid #667eea;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
             border-radius: 50%;
-            width: 20px;
-            height: 20px;
+            width: 24px;
+            height: 24px;
             animation: spin 1s linear infinite;
             display: inline-block;
-            margin-right: 0.5rem;
+            margin-right: 0.75rem;
+            vertical-align: middle;
         }
 
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        .brand-subtitle {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 600;
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Animações suaves */
+        .login-container {
+            animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsividade */
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+            
+            .login-header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .btn {
+                padding: 1rem 1.5rem;
+            }
+        }
+
+        /* Estados de foco melhorados */
+        .form-group {
+            position: relative;
+        }
+
+        .form-group input:focus + label::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -2px;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 1px;
+        }
+
+        /* Efeito de hover nos formulários */
+        #loginForm,
+        #registerForm {
+            transition: all 0.3s ease;
+        }
+
+        .auth-branding {
+            text-align: center;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+            border-radius: 8px;
+            border: 1px solid rgba(102, 126, 234, 0.1);
+        }
+
+        .version-info {
+            font-size: 0.75rem;
+            color: #6c757d;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
     <div class="login-container">
-        <div class="login-header">
-            <h1>Authentication</h1>
-            <p>Login to access your extension</p>
+        <div class="auth-branding">
+            <div class="login-header">
+                <h1>VendaBoost</h1>
+                <div class="brand-subtitle">Facebook Marketplace Automation</div>
+                <p>Sistema de Autenticação</p>
+                <div class="version-info">v1.2.4 • Powered by AI</div>
+            </div>
         </div>
 
         <div id="alert" class="alert"></div>
         <div id="loading" class="loading">
             <div class="spinner"></div>
-            <span>Processing...</span>
+            <span>Processando...</span>
         </div>
 
         <!-- Login Form -->
         <form id="loginForm">
             <div class="form-group">
-                <label for="loginUsername">Username:</label>
-                <input type="text" id="loginUsername" name="username" required>
+                <label for="loginUsername">Usuário:</label>
+                <input type="text" id="loginUsername" name="username" required placeholder="Digite seu usuário">
             </div>
             <div class="form-group">
-                <label for="loginPassword">Password:</label>
-                <input type="password" id="loginPassword" name="password" required>
+                <label for="loginPassword">Senha:</label>
+                <input type="password" id="loginPassword" name="password" required placeholder="Digite sua senha">
             </div>
-            <button type="submit" class="btn btn-primary">Login</button>
+            <button type="submit" class="btn btn-primary">Entrar no VendaBoost</button>
         </form>
 
         <!-- Register Form (hidden by default) -->
         <form id="registerForm" style="display: none;">
             <div class="form-group">
-                <label for="registerUsername">Username:</label>
-                <input type="text" id="registerUsername" name="username" required>
+                <label for="registerUsername">Usuário:</label>
+                <input type="text" id="registerUsername" name="username" required placeholder="Escolha um nome de usuário">
             </div>
             <div class="form-group">
                 <label for="registerEmail">Email:</label>
-                <input type="email" id="registerEmail" name="email" required>
+                <input type="email" id="registerEmail" name="email" required placeholder="seu@email.com">
             </div>
             <div class="form-group">
-                <label for="registerPassword">Password:</label>
-                <input type="password" id="registerPassword" name="password" required>
+                <label for="registerPassword">Senha:</label>
+                <input type="password" id="registerPassword" name="password" required placeholder="Crie uma senha segura">
             </div>
-            <button type="submit" class="btn btn-primary">Register</button>
+            <button type="submit" class="btn btn-primary">Criar Conta</button>
         </form>
 
         <div class="toggle-form">
-            <a href="#" id="toggleForm">Don't have an account? Register here</a>
+            <a href="#" id="toggleForm">Não tem uma conta? Registre-se aqui</a>
         </div>
     </div>
 
@@ -225,13 +413,13 @@
             if (isLoginMode) {
                 loginForm.style.display = 'block';
                 registerForm.style.display = 'none';
-                toggleFormLink.textContent = "Don't have an account? Register here";
-                document.querySelector('.login-header p').textContent = 'Login to access your extension';
+                toggleFormLink.textContent = "Não tem uma conta? Registre-se aqui";
+                document.querySelector('.login-header p').textContent = 'Entre para acessar sua extensão';
             } else {
                 loginForm.style.display = 'none';
                 registerForm.style.display = 'block';
-                toggleFormLink.textContent = 'Already have an account? Login here';
-                document.querySelector('.login-header p').textContent = 'Create a new account';
+                toggleFormLink.textContent = 'Já tem uma conta? Entre aqui';
+                document.querySelector('.login-header p').textContent = 'Crie uma nova conta';
             }
             hideAlert();
         });
@@ -277,51 +465,75 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    showAlert('Login successful! You can now close this window.', 'success');
+                    showAlert('Login realizado com sucesso! Você pode fechar esta janela.', 'success');
                     
-                    // Store token for extension use
-                    if (window.chrome && chrome.storage) {
-                        chrome.storage.local.set({
-                            authToken: result.token,
-                            user: result.user
-                        });
-                    } else {
-                        localStorage.setItem('authToken', result.token);
-                        localStorage.setItem('user', JSON.stringify(result.user));
-                    }
+                    // Store token for extension use - multiple methods for compatibility
+                    const authData = {
+                        token: result.token,
+                        user: result.user
+                    };
 
-                    // Notify extension via chrome.runtime API
-                    if (window.chrome && chrome.runtime) {
+                    // Method 1: Try chrome.runtime API (if available)
+                    if (window.chrome && chrome.runtime && chrome.runtime.sendMessage) {
                         try {
                             chrome.runtime.sendMessage({
                                 type: 'LOGIN_SUCCESS',
                                 token: result.token,
                                 user: result.user
+                            }, (response) => {
+                                if (chrome.runtime.lastError) {
+                                    console.log('Runtime error:', chrome.runtime.lastError);
+                                } else {
+                                    console.log('Message sent to extension:', response);
+                                }
                             });
                         } catch (error) {
-                            console.log('Extension context not available:', error);
+                            console.log('Chrome runtime not available:', error);
                         }
                     }
                     
-                    // Fallback: postMessage for iframe/popup scenarios
-                    if (window.postMessage) {
-                        window.postMessage({
-                            type: 'LOGIN_SUCCESS',
-                            token: result.token,
-                            user: result.user
-                        }, '*');
+                    // Method 2: Store in chrome.storage (if available)
+                    if (window.chrome && chrome.storage && chrome.storage.local) {
+                        try {
+                            chrome.storage.local.set({
+                                vendaboost_auth_token: result.token,
+                                vendaboost_user_data: result.user,
+                                vendaboost_last_auth_check: Date.now()
+                            }, () => {
+                                if (chrome.runtime.lastError) {
+                                    console.log('Storage error:', chrome.runtime.lastError);
+                                } else {
+                                    console.log('Auth data stored in chrome.storage');
+                                }
+                            });
+                        } catch (error) {
+                            console.log('Chrome storage not available:', error);
+                        }
+                    }
+                    
+                    // Method 3: Fallback to localStorage
+                    try {
+                        localStorage.setItem('vendaboost_auth_token', result.token);
+                        localStorage.setItem('vendaboost_user_data', JSON.stringify(result.user));
+                        localStorage.setItem('vendaboost_last_auth_check', Date.now().toString());
+                        console.log('Auth data stored in localStorage');
+                    } catch (error) {
+                        console.log('localStorage not available:', error);
                     }
 
-                    // Auto close window after 2 seconds
+                    // Show success message and auto close
                     setTimeout(() => {
-                        window.close();
-                    }, 2000);
+                        showAlert('Redirecionando para a extensão...', 'success');
+                        setTimeout(() => {
+                            window.close();
+                        }, 1000);
+                    }, 1500);
                 } else {
-                    showAlert(result.message || 'Login failed');
+                    showAlert(result.message || 'Falha no login');
                 }
             } catch (error) {
                 console.error('Login error:', error);
-                showAlert('Connection error. Please try again.');
+                showAlert('Erro de conexão. Tente novamente.');
             } finally {
                 setLoading(false);
             }
@@ -352,7 +564,7 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    showAlert('Registration successful! Please login with your credentials.', 'success');
+                    showAlert('Registro realizado com sucesso! Faça login com suas credenciais.', 'success');
                     registerForm.reset();
                     
                     // Switch to login form after successful registration
@@ -360,11 +572,11 @@
                         toggleFormLink.click();
                     }, 2000);
                 } else {
-                    showAlert(result.message || 'Registration failed');
+                    showAlert(result.message || 'Falha no registro');
                 }
             } catch (error) {
                 console.error('Registration error:', error);
-                showAlert('Connection error. Please try again.');
+                showAlert('Erro de conexão. Tente novamente.');
             } finally {
                 setLoading(false);
             }

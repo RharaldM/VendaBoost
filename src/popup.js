@@ -360,6 +360,26 @@ class PopupManager {
                 this.showAuthScreen();
             }
         });
+
+        // Escutar mensagens do background sobre mudanças de auth
+        chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+            if (message.type === 'AUTH_STATUS_CHANGED') {
+                console.log('[Popup] Auth status changed:', message.authenticated);
+                
+                if (message.authenticated) {
+                    console.log('[Popup] User authenticated externally, hiding auth screen');
+                    this.hideAuthScreen();
+                    // Reinicializar o popup com o novo estado de autenticação
+                    setTimeout(() => {
+                        this.init();
+                    }, 100);
+                } else {
+                    this.showAuthScreen();
+                }
+                
+                sendResponse({ received: true });
+            }
+        });
     }
     
     hideAuthScreen() {
