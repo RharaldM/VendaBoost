@@ -3,7 +3,7 @@ services:
     name: vendaboost-login
     env: node
     plan: free
-    buildCommand: cd login-system && npm install
+    buildCommand: npm install --production && cd login-system && npm install --production
     startCommand: node app.cjs
     envVars:
       - key: NODE_ENV
