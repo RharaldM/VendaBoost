@@ -128,30 +128,47 @@ function createDefaultAdminIfNeeded() {
       return;
     }
     
+    console.log(`📊 Current user count: ${row.count}`);
+    
     if (row.count === 0) {
-      console.log('Creating default admin user...');
+      console.log('👤 Creating default admin user...');
       const defaultPassword = 'admin123';
       
       bcrypt.hash(defaultPassword, 10, (err, hashedPassword) => {
         if (err) {
-          console.error('Error hashing password:', err.message);
+          console.error('❌ Error hashing password:', err.message);
           return;
         }
+        
+        console.log('🔐 Password hashed successfully, inserting user...');
         
         db.run(
           'INSERT INTO users (username, password, email) VALUES (?, ?, ?)',
           ['admin', hashedPassword, 'admin@vendaboost.com'],
           function(err) {
             if (err) {
-              console.error('Error creating admin user:', err.message);
+              console.error('❌ Error creating admin user:', err.message);
             } else {
-              console.log('✅ Default admin user created:');
-              console.log('   Username: admin');
-              console.log('   Password: admin123');
-              console.log('   Email: admin@vendaboost.com');
+              console.log('✅ Default admin user created successfully!');
+              console.log('   🔑 Username: admin');
+              console.log('   🔑 Password: admin123');
+              console.log('   📧 Email: admin@vendaboost.com');
+              console.log('   🆔 User ID:', this.lastID);
             }
           }
         );
+      });
+    } else {
+      console.log(`👥 Database already has ${row.count} user(s)`);
+      
+      // List existing users for debug
+      db.all('SELECT id, username, email, created_at FROM users', (err, users) => {
+        if (!err && users) {
+          console.log('📋 Existing users:');
+          users.forEach(user => {
+            console.log(`   - ID: ${user.id}, Username: ${user.username}, Email: ${user.email}`);
+          });
+        }
       });
     }
   });
@@ -166,8 +183,10 @@ app.get('/', (req, res) => {
 app.post('/api/login', async (req, res) => {
   try {
     const { username, password } = req.body;
+    console.log(`🔐 Login attempt for username: ${username}`);
 
     if (!username || !password) {
+      console.log('❌ Missing username or password');
       return res.status(400).json({ 
         success: false, 
         message: 'Username and password are required' 
@@ -176,7 +195,7 @@ app.post('/api/login', async (req, res) => {
 
     db.get('SELECT * FROM users WHERE username = ?', [username], async (err, user) => {
       if (err) {
-        console.error('Database error:', err);
+        console.error('❌ Database error:', err);
         return res.status(500).json({ 
           success: false, 
           message: 'Internal server error' 
@@ -184,13 +203,25 @@ app.post('/api/login', async (req, res) => {
       }
 
       if (!user) {
+        console.log(`❌ User not found: ${username}`);
+        
+        // Debug: List all users in database
+        db.all('SELECT username, email FROM users', (err, users) => {
+          if (!err && users) {
+            console.log('📊 Available users in database:');
+            users.forEach(u => console.log(`   - ${u.username} (${u.email})`));
+          }
+        });
+        
         return res.status(401).json({ 
           success: false, 
           message: 'Invalid credentials' 
         });
       }
 
+      console.log(`✅ User found: ${user.username}`);
       const isValidPassword = await bcrypt.compare(password, user.password);
+      console.log(`🔑 Password validation: ${isValidPassword ? 'SUCCESS' : 'FAILED'}`);
       
       if (!isValidPassword) {
         return res.status(401).json({ 
@@ -205,6 +236,7 @@ app.post('/api/login', async (req, res) => {
         { expiresIn: '24h' }
       );
 
+      console.log(`🎉 Login successful for: ${user.username}`);
       res.json({
         success: true,
         message: 'Login successful',
@@ -217,7 +249,7 @@ app.post('/api/login', async (req, res) => {
       });
     });
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('❌ Login error:', error);
     res.status(500).json({ 
       success: false, 
       message: 'Internal server error' 
