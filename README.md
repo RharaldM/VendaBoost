@@ -1,9 +1,302 @@
-# VendaBoost - Enhanced v2.2 (OpenAI Integration)
-## Documentação Completa de Funcionalidades e Adições
+# VendaBoost - Facebook Marketplace Automation Extension
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Version](https://img.shields.io/badge/version-1.2.4-blue.svg)](https://github.com/RharaldM/VendaBoost)
+[![Node.js](https://img.shields.io/badge/node-%3E%3D16.0.0-brightgreen.svg)](https://nodejs.org/)
+
+> 🚀 **VendaBoost** is an advanced browser extension for automating and scheduling posts on Facebook Marketplace with intelligent content generation and secure user authentication.
+
+## 🏗️ Project Architecture
+
+This is a **monorepo** containing two main components:
+
+```
+VendaBoost/
+├── 📁 Extension (Frontend)     # Browser extension files
+│   ├── src/                   # Extension source code
+│   ├── public/               # Static assets & manifest
+│   └── package.json          # Extension dependencies
+│
+├── 📁 login-system/ (Backend) # Authentication server
+│   ├── app.js                # Express server
+│   ├── login.html           # Login interface  
+│   ├── init_db.js           # Database setup
+│   └── package.json         # Server dependencies
+│
+└── 📁 docs/                  # Documentation
+    └── LOGIN_SYSTEM.md       # Auth system docs
+```
+
+## 🚀 Quick Start
+
+### 1. Complete Setup (Recommended)
+```bash
+# Clone repository
+git clone https://github.com/RharaldM/VendaBoost.git
+cd VendaBoost
+
+# Install all dependencies (extension + auth server)
+npm run setup
+
+# Initialize authentication database
+npm run setup:auth
+```
+
+### 2. Start Development
+```bash
+# Terminal 1: Start extension development
+npm run dev
+
+# Terminal 2: Start authentication server  
+npm run start:auth
+```
+
+### 3. Load Extension in Browser
+1. Open Chrome → `chrome://extensions/`
+2. Enable "Developer mode" 
+3. Click "Load unpacked" → Select `dist/` folder
+
+## ✨ Key Features
+
+### 🤖 **Smart Automation**
+- **Automated Posting**: Schedule and auto-post to Facebook Marketplace
+- **AI Content Generation**: OpenAI integration for smart descriptions
+- **Bulk Operations**: Handle multiple products efficiently
+- **Category Detection**: Automatic product categorization
+
+### 🔐 **Secure Authentication**  
+- **JWT-based Login**: Stateless authentication with tokens
+- **User Management**: Complete registration and user management
+- **SQLite Database**: Robust data storage with audit trails
+- **Password Security**: Bcrypt hashing with session management
+
+### 📊 **Data Management**
+- **IndexedDB Integration**: Local storage with Dexie.js
+- **Cloud Sync**: Optional synchronization capabilities  
+- **Data Migration**: Seamless version upgrade tools
+- **Backup & Restore**: Comprehensive data management
+
+### 🎨 **Modern Interface**
+- **Responsive Design**: Clean, intuitive popup interface
+- **Real-time Updates**: Live status and notifications
+- **Multi-language**: Support for multiple languages
+- **Theme Support**: Adaptive UI design
+
+## 🛠️ Development Commands
+
+### Extension Commands
+```bash
+npm run dev              # Start development server
+npm run build            # Build for production
+npm run build:extension  # Build extension specifically
+npm run preview          # Preview built extension
+```
+
+### Authentication Server Commands  
+```bash
+npm run start:auth       # Start production auth server
+npm run dev:auth         # Start development auth server  
+npm run setup:auth       # Initialize database
+npm run add:user         # Add new user interactively
+```
+
+### Combined Commands
+```bash
+npm run setup           # Install all dependencies
+npm run build:all       # Build everything for production
+```
+
+## 🔧 Configuration
+
+### Default Authentication Credentials
+After running `npm run setup:auth`, default admin user is created:
+- **Username**: `admin`
+- **Password**: `admin123`
+- **Server**: `http://localhost:3000`
+
+⚠️ **Security Notice**: Change the default password immediately!
+
+### Environment Variables
+Create `.env` file in `login-system/` folder:
+```bash
+JWT_SECRET=your-super-secret-jwt-key-change-this
+NODE_ENV=development
+PORT=3000
+```
+
+## 📱 Extension Integration
+
+### Manifest Permissions
+The extension requires these permissions:
+```json
+{
+  "permissions": ["storage", "activeTab", "tabs"],
+  "host_permissions": [
+    "https://*.facebook.com/*",
+    "http://localhost:3000/*"
+  ]
+}
+```
+
+### Usage Example
+```javascript
+// Check authentication in extension
+chrome.storage.local.get(['authToken'], (result) => {
+  if (result.authToken) {
+    // User is authenticated - proceed with marketplace operations
+    validateTokenAndProceed(result.authToken);
+  } else {
+    // Redirect to login system
+    chrome.tabs.create({ url: 'http://localhost:3000' });
+  }
+});
+```
+
+## 🚀 Production Deployment
+
+### Extension Distribution
+```bash
+# Build optimized extension
+npm run build:all
+
+# The extension files will be in dist/ folder
+# Create .zip for Chrome Web Store upload
+```
+
+### Authentication Server (Render/Heroku)
+```bash
+# Deploy login-system folder to your hosting service
+cd login-system
+# Set environment variables on hosting platform:
+# - JWT_SECRET (required)
+# - NODE_ENV=production
+# - PORT (optional, defaults to 3000)
+```
+
+## 📚 Documentation
+
+- **[Login System Documentation](docs/LOGIN_SYSTEM.md)** - Complete auth system guide
+- **[API Documentation](docs/LOGIN_SYSTEM.md#api-endpoints)** - Authentication endpoints
+- **[Extension Integration](docs/LOGIN_SYSTEM.md#extension-integration)** - How to integrate with extension
+
+## 🧪 Testing
+
+### Manual Testing Checklist
+- [ ] Extension loads without errors
+- [ ] Authentication flow works (login/register)
+- [ ] Facebook Marketplace integration functions
+- [ ] Data persistence works correctly
+- [ ] AI content generation operates properly
+
+### Automated Testing (Future)
+```bash
+# When implemented
+npm test                # Run all tests
+npm run test:extension  # Test extension only
+npm run test:auth      # Test auth server only
+```
+
+## 🔐 Security Features
+
+- **🔒 JWT Authentication**: Secure token-based authentication
+- **🛡️ Password Hashing**: Bcrypt with salt rounds
+- **🚫 SQL Injection Protection**: Parameterized queries
+- **⏰ Session Management**: Automatic token expiration  
+- **📝 Audit Logging**: Comprehensive activity logs
+- **🌐 CORS Protection**: Configured for browser extensions
+
+## 📊 Technology Stack
+
+### Extension (Frontend)
+- **Build System**: Vite
+- **Database**: IndexedDB with Dexie.js  
+- **APIs**: Chrome Extension APIs
+- **AI Integration**: OpenAI GPT models
+
+### Authentication Server (Backend)  
+- **Runtime**: Node.js
+- **Framework**: Express.js
+- **Database**: SQLite3
+- **Authentication**: JWT + Bcrypt
+- **Security**: CORS, Input validation
+
+## 🤝 Contributing
+
+1. **Fork** the repository
+2. **Create** feature branch (`git checkout -b feature/amazing-feature`)
+3. **Commit** changes (`git commit -m 'Add amazing feature'`)
+4. **Push** to branch (`git push origin feature/amazing-feature`)  
+5. **Open** Pull Request
+
+### Development Guidelines
+- Follow existing code style
+- Add tests for new features
+- Update documentation
+- Test in multiple browsers
+
+## 📝 Changelog
+
+### Version 1.2.4 (Current)
+- ✅ Complete JWT authentication system
+- ✅ SQLite database with user management
+- ✅ Enhanced security with audit logging
+- ✅ Improved build system with workspace management
+- ✅ Comprehensive documentation structure
+- ✅ Production-ready deployment configuration
+
+### Version 1.2.3
+- ✅ Enhanced OpenAI integration
+- ✅ Improved performance optimizations  
+- ✅ Better error handling and logging
+
+## 🐛 Known Issues & Roadmap
+
+### Current Issues
+- [ ] OAuth integration with Facebook (pending)
+- [ ] Mobile responsiveness improvements needed
+- [ ] Rate limiting implementation for API calls
+
+### Upcoming Features
+- [ ] Multi-language marketplace support
+- [ ] Advanced scheduling capabilities
+- [ ] Analytics dashboard
+- [ ] Cloud synchronization
+- [ ] Mobile app companion
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 👥 Authors & Contributors
+
+- **RharaldM** - *Lead Developer* - [GitHub](https://github.com/RharaldM)
+
+## 🙏 Acknowledgments
+
+- **OpenAI** - AI content generation capabilities
+- **Dexie.js** - IndexedDB management library
+- **Vite** - Modern build system
+- **Express.js** - Web server framework
+- **SQLite** - Reliable database engine
+
+## 📞 Support & Community
+
+### Getting Help
+- 📧 **Issues**: [GitHub Issues](https://github.com/RharaldM/VendaBoost/issues)
+- 📖 **Documentation**: Check `/docs` folder
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/RharaldM/VendaBoost/discussions)
+
+### Quick Links
+- 🚀 [Quick Start Guide](#quick-start)
+- 🔐 [Authentication Setup](docs/LOGIN_SYSTEM.md)
+- 🛠️ [Development Commands](#development-commands)
+- 🚀 [Deployment Guide](#production-deployment)
 
 ---
 
-## 🆕 Novidades da Versão v2.3 (Janeiro 2025)
+**⭐ If you find this project useful, please give it a star on GitHub!**
+
+**🔗 [Repository](https://github.com/RharaldM/VendaBoost) • [Issues](https://github.com/RharaldM/VendaBoost/issues) • [Documentation](docs/)**
 
 ### 🎨 **Geração e Edição de Imagens com DALL-E 3 e GPT-4 Vision**
 - **DALL-E 3 Integration**: Geração avançada de imagens com prompts detalhados

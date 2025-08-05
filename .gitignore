@@ -1,68 +1,92 @@
-# Dependências
+# ================================
+# Node.js & Dependencies
+# ================================
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+package-lock.json
 
-# Build
+# ================================
+# Build Outputs & Distribution
+# ================================
 dist/
 build/
-
-# Logs
-logs
-*.log
-
-# Runtime data
-pids
-*.pid
-*.seed
-*.pid.lock
-
-# Arquivos de sistema
-.DS_Store
-Thumbs.db
-
-# IDEs
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# Temporários
-*.tmp
-*.temp
-
-# Chrome Extension
-*.crx
-*.pem
-
-# Firebase - Credenciais Administrativas (NUNCA COMMITAR)
-config/*firebase-adminsdk*.json
-*firebase-adminsdk*.json
-
-# Scripts de correção/teste temporários
-Corrigir*.cjs
-Testar*.cjs
-*Correcao*.cjs
-*Teste*.cjs
-
-# Login system database and dependencies
-login-system/users.db
-login-system/node_modules/
-
-# Zip files and build artifacts
 *.zip
 public.zip
 scripts.zip
 src.zip
 vendaboost-extension.zip
 
-# Old versions and temporary files
-versao_antiga/
+# ================================
+# Development & IDE
+# ================================
+.vscode/
+.idea/
+*.swp
+*.swo
+logs/
+*.log
+
+# ================================
+# Runtime & Temporary Files
+# ================================
+pids/
+*.pid
+*.seed
+*.pid.lock
+*.tmp
+*.temp
 temp_old.txt
 result.txt
 
-# Database files
+# ================================
+# Operating System Files
+# ================================
+.DS_Store
+Thumbs.db
+
+# ================================
+# Browser Extension Specific
+# ================================
+*.crx
+*.pem
+
+# ================================
+# Authentication System
+# ================================
+# Database files (contain sensitive user data)
+login-system/users.db
+login-system/node_modules/
 *.db
 *.sqlite
 *.sqlite3
+
+# Environment variables (contain secrets)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ================================
+# Firebase & Cloud Services
+# ================================
+# Firebase credentials (NEVER COMMIT)
+config/*firebase-adminsdk*.json
+*firebase-adminsdk*.json
+
+# ================================
+# Legacy & Cleanup
+# ================================
+# Old versions and test files
+versao_antiga/
+Corrigir*.cjs
+Testar*.cjs
+*Correcao*.cjs
+*Teste*.cjs
+
+# ================================
+# Editor & Personal Settings
+# ================================
+.claude/settings.local.json
