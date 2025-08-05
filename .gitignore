@@ -68,6 +68,7 @@ login-system/node_modules/
 .env.development.local
 .env.test.local
 .env.production.local
+login-system/.env
 
 # ================================
 # Firebase & Cloud Services

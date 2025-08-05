@@ -1,4 +1,8 @@
+// Load environment variables
+require('dotenv').config();
+
 const express = require('express');
+const session = require('express-session');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
@@ -14,6 +18,16 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-producti
 app.use(cors({
   origin: ['chrome-extension://*', 'moz-extension://*', 'http://localhost:*'],
   credentials: true
+}));
+app.use(session({
+  secret: process.env.SESSION_SECRET || '181c6b8a73ce337a2af1cc03a3ff76ff',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: false, // Set to true if using HTTPS
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
 }));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
