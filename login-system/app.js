@@ -33,14 +33,129 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname)));
 
-// Database connection
+// Database connection with initialization
 const db = new sqlite3.Database('./users.db', (err) => {
   if (err) {
     console.error('Error opening database:', err.message);
   } else {
     console.log('Connected to SQLite database');
+    // Initialize database tables if they don't exist
+    initializeDatabaseTables();
   }
 });
+
+// Function to initialize database tables
+function initializeDatabaseTables() {
+  // Create users table
+  const createUsersTable = `
+    CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      username TEXT UNIQUE NOT NULL,
+      password TEXT NOT NULL,
+      email TEXT UNIQUE NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      is_active BOOLEAN DEFAULT 1,
+      last_login DATETIME,
+      login_attempts INTEGER DEFAULT 0,
+      locked_until DATETIME
+    )
+  `;
+
+  // Create sessions table
+  const createSessionsTable = `
+    CREATE TABLE IF NOT EXISTS sessions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      token TEXT UNIQUE NOT NULL,
+      expires_at DATETIME NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      ip_address TEXT,
+      user_agent TEXT,
+      is_active BOOLEAN DEFAULT 1,
+      FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+    )
+  `;
+
+  // Create logs table
+  const createLogsTable = `
+    CREATE TABLE IF NOT EXISTS logs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER,
+      action TEXT NOT NULL,
+      details TEXT,
+      ip_address TEXT,
+      user_agent TEXT,
+      timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE SET NULL
+    )
+  `;
+
+  // Execute table creation
+  db.run(createUsersTable, (err) => {
+    if (err) {
+      console.error('Error creating users table:', err.message);
+    } else {
+      console.log('✅ Users table initialized');
+    }
+  });
+
+  db.run(createSessionsTable, (err) => {
+    if (err) {
+      console.error('Error creating sessions table:', err.message);
+    } else {
+      console.log('✅ Sessions table initialized');
+    }
+  });
+
+  db.run(createLogsTable, (err) => {
+    if (err) {
+      console.error('Error creating logs table:', err.message);
+    } else {
+      console.log('✅ Logs table initialized');
+    }
+  });
+
+  // Create default admin user if no users exist
+  createDefaultAdminIfNeeded();
+}
+
+// Create default admin user if database is empty
+function createDefaultAdminIfNeeded() {
+  db.get('SELECT COUNT(*) as count FROM users', (err, row) => {
+    if (err) {
+      console.error('Error checking user count:', err.message);
+      return;
+    }
+    
+    if (row.count === 0) {
+      console.log('Creating default admin user...');
+      const defaultPassword = 'admin123';
+      
+      bcrypt.hash(defaultPassword, 10, (err, hashedPassword) => {
+        if (err) {
+          console.error('Error hashing password:', err.message);
+          return;
+        }
+        
+        db.run(
+          'INSERT INTO users (username, password, email) VALUES (?, ?, ?)',
+          ['admin', hashedPassword, 'admin@vendaboost.com'],
+          function(err) {
+            if (err) {
+              console.error('Error creating admin user:', err.message);
+            } else {
+              console.log('✅ Default admin user created:');
+              console.log('   Username: admin');
+              console.log('   Password: admin123');
+              console.log('   Email: admin@vendaboost.com');
+            }
+          }
+        );
+      });
+    }
+  });
+}
 
 // Serve login page
 app.get('/', (req, res) => {
