@@ -56,13 +56,26 @@ class PopupManager {
     async init() {
         console.log('[Popup] Inicializando...');
         
-        // PRIMEIRO: Verificar autenticação
-        const isAuthenticated = await authManager.checkAuthStatus();
-        
-        if (!isAuthenticated) {
-            console.log('[Popup] Usuário não autenticado - configurando tela de login');
-            this.showAuthScreen();
-            return; // Parar inicialização até login
+        try {
+            // PRIMEIRO: Verificar autenticação
+            const isAuthenticated = await authManager.checkAuthStatus();
+            console.log('[Popup] Status de autenticação:', isAuthenticated);
+            
+            if (!isAuthenticated) {
+                console.log('[Popup] Usuário não autenticado - configurando tela de login');
+                // Aguardar um pouco para garantir que o DOM está pronto
+                setTimeout(() => {
+                    this.showAuthScreen();
+                }, 100);
+                return; // Parar inicialização até login
+            }
+        } catch (error) {
+            console.error('[Popup] Erro na verificação de auth:', error);
+            // Em caso de erro, mostrar tela de login
+            setTimeout(() => {
+                this.showAuthScreen();
+            }, 100);
+            return;
         }
         
         console.log('[Popup] Usuário autenticado - continuando inicialização');
@@ -104,10 +117,16 @@ class PopupManager {
         console.log('[Popup] Mostrando tela de autenticação');
         
         // Esconder conteúdo principal
-        const mainContent = document.querySelector('body');
-        if (mainContent) {
-            mainContent.style.display = 'none';
-        }
+        const mainContent = document.querySelector('body > *:not(#authScreen)');
+        document.querySelectorAll('body > *:not(#authScreen)').forEach(el => {
+            el.style.display = 'none';
+        });
+        
+        // Configurar dimensões do body para popup
+        document.body.style.width = '400px';
+        document.body.style.height = '600px';
+        document.body.style.margin = '0';
+        document.body.style.padding = '0';
         
         // Criar tela de auth se não existir
         let authScreen = document.getElementById('authScreen');
@@ -116,7 +135,7 @@ class PopupManager {
             document.body.appendChild(authScreen);
         }
         
-        authScreen.style.display = 'flex';
+        authScreen.style.display = 'block';
         
         // Configurar listeners dos botões de auth
         this.setupAuthButtons();
@@ -174,53 +193,53 @@ class PopupManager {
         const styles = `
             <style>
                 #authScreen {
-                    position: fixed;
-                    top: 0;
-                    left: 0;
                     width: 100%;
-                    height: 100vh;
+                    height: 100%;
+                    min-height: 600px;
                     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    z-index: 10000;
                     font-family: 'Inter', sans-serif;
+                    box-sizing: border-box;
+                    padding: 1rem;
                 }
                 
                 .auth-container {
                     background: white;
                     border-radius: 12px;
-                    padding: 2rem;
-                    max-width: 400px;
-                    width: 90%;
+                    padding: 1.5rem;
+                    width: 100%;
+                    max-width: 360px;
                     box-shadow: 0 20px 40px rgba(0,0,0,0.1);
                     text-align: center;
+                    box-sizing: border-box;
                 }
                 
                 .auth-header {
-                    margin-bottom: 2rem;
+                    margin-bottom: 1.5rem;
                 }
                 
                 .auth-logo {
-                    width: 48px;
-                    height: 48px;
+                    width: 40px;
+                    height: 40px;
                     color: #667eea;
-                    margin-bottom: 1rem;
+                    margin-bottom: 0.75rem;
                 }
                 
                 .auth-header h1 {
                     color: #333;
                     margin-bottom: 0.5rem;
-                    font-size: 1.5rem;
+                    font-size: 1.3rem;
                 }
                 
                 .auth-header p {
                     color: #666;
-                    font-size: 0.9rem;
+                    font-size: 0.85rem;
                 }
                 
                 .auth-message {
-                    margin-bottom: 2rem;
+                    margin-bottom: 1.5rem;
                 }
                 
                 .auth-message h2 {
@@ -349,10 +368,14 @@ class PopupManager {
             authScreen.style.display = 'none';
         }
         
-        const mainContent = document.querySelector('body');
-        if (mainContent) {
-            mainContent.style.display = 'block';
-        }
+        // Restaurar elementos principais
+        document.querySelectorAll('body > *:not(#authScreen)').forEach(el => {
+            el.style.display = '';
+        });
+        
+        // Resetar estilos do body
+        document.body.style.width = '';
+        document.body.style.height = '';
     }
     
     updateUserInfo() {
