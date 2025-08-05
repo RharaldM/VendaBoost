@@ -1,10 +1,14 @@
 // Redirect to the actual login system app
 // This file exists because Render defaults to running 'node app.js' from root
+import path from 'path';
+import { spawn } from 'child_process';
+import { fileURLToPath } from 'url';
+
 console.log('Starting VendaBoost Login System...');
 
-// Import and run the actual app from login-system directory
-const path = require('path');
-const { spawn } = require('child_process');
+// Get current directory in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Change to login-system directory and run the app
 process.chdir(path.join(__dirname, 'login-system'));
