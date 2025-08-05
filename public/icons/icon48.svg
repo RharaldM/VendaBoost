@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#c52c3e"/>
+        <stop offset="100%" style="stop-color:#df2f45"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10b981"/>
+      <stop offset="100%" style="stop-color:#059669"/>
+    </linearGradient>
+  </defs>
+  <rect width="48" height="48" rx="8" fill="url(#bg)"/>
+  <rect x="6" y="8" width="24" height="20" rx="2" fill="white"/>
+  <rect x="6" y="8" width="24" height="6" fill="url(#accent)"/>
+  <rect x="10" y="4" width="2" height="8" rx="1" fill="white"/>
+  <rect x="22" y="4" width="2" height="8" rx="1" fill="white"/>
+  <line x1="10" y1="18" x2="26" y2="18" stroke="#e5e7eb" stroke-width="1"/>
+  <line x1="10" y1="22" x2="26" y2="22" stroke="#e5e7eb" stroke-width="1"/>
+  <circle cx="12" cy="20" r="1" fill="#c52c3e"/>
+  <circle cx="16" cy="20" r="1" fill="#64748b"/>
+  <circle cx="20" cy="20" r="1" fill="#ef4444"/>
+  <circle cx="24" cy="20" r="1" fill="#10b981"/>
+  <circle cx="36" cy="36" r="6" fill="url(#accent)"/>
+  <circle cx="36" cy="36" r="4" fill="white"/>
+  <line x1="36" y1="36" x2="36" y2="32" stroke="#374151" stroke-width="1" stroke-linecap="round"/>
+  <line x1="36" y1="36" x2="39" y2="36" stroke="#374151" stroke-width="1" stroke-linecap="round"/>
+  <circle cx="36" cy="36" r="0.5" fill="#374151"/>
+</svg>

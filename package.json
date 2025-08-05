@@ -1,0 +1,21 @@
+{
+  "name": "vendaboost-extension",
+  "version": "1.0.0",
+  "description": "Extensão avançada para automação e agendamento de postagens no Facebook Marketplace",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && npm run copy:static",
+    "build:extension": "vite build && npm run copy:static",
+    "copy:static": "node scripts/copy-static.js",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.251",
+    "vite": "^5.0.0"
+  },
+  "dependencies": {
+    "dexie": "^4.0.11",
+    "fs-extra": "^11.2.0"
+  }
+}

@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Extension Authentication</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-header h1 {
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-header p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 500;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="email"] {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus,
+        input[type="email"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #5a6fd8;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+            margin-top: 1rem;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        .alert {
+            padding: 0.75rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .toggle-form {
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .toggle-form a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .toggle-form a:hover {
+            text-decoration: underline;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .spinner {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h1>Authentication</h1>
+            <p>Login to access your extension</p>
+        </div>
+
+        <div id="alert" class="alert"></div>
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <span>Processing...</span>
+        </div>
+
+        <!-- Login Form -->
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="loginUsername">Username:</label>
+                <input type="text" id="loginUsername" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="loginPassword">Password:</label>
+                <input type="password" id="loginPassword" name="password" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Login</button>
+        </form>
+
+        <!-- Register Form (hidden by default) -->
+        <form id="registerForm" style="display: none;">
+            <div class="form-group">
+                <label for="registerUsername">Username:</label>
+                <input type="text" id="registerUsername" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="registerEmail">Email:</label>
+                <input type="email" id="registerEmail" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="registerPassword">Password:</label>
+                <input type="password" id="registerPassword" name="password" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Register</button>
+        </form>
+
+        <div class="toggle-form">
+            <a href="#" id="toggleForm">Don't have an account? Register here</a>
+        </div>
+    </div>
+
+    <script>
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const toggleFormLink = document.getElementById('toggleForm');
+        const alertDiv = document.getElementById('alert');
+        const loadingDiv = document.getElementById('loading');
+
+        let isLoginMode = true;
+
+        // Toggle between login and register forms
+        toggleFormLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            isLoginMode = !isLoginMode;
+            
+            if (isLoginMode) {
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+                toggleFormLink.textContent = "Don't have an account? Register here";
+                document.querySelector('.login-header p').textContent = 'Login to access your extension';
+            } else {
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'block';
+                toggleFormLink.textContent = 'Already have an account? Login here';
+                document.querySelector('.login-header p').textContent = 'Create a new account';
+            }
+            hideAlert();
+        });
+
+        // Show alert message
+        function showAlert(message, type = 'error') {
+            alertDiv.textContent = message;
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.style.display = 'block';
+        }
+
+        // Hide alert message
+        function hideAlert() {
+            alertDiv.style.display = 'none';
+        }
+
+        // Show/hide loading
+        function setLoading(show) {
+            loadingDiv.style.display = show ? 'block' : 'none';
+        }
+
+        // Handle login form submission
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideAlert();
+            setLoading(true);
+
+            const formData = new FormData(loginForm);
+            const loginData = {
+                username: formData.get('username'),
+                password: formData.get('password')
+            };
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(loginData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert('Login successful! You can now close this window.', 'success');
+                    
+                    // Store token for extension use
+                    if (window.chrome && chrome.storage) {
+                        chrome.storage.local.set({
+                            authToken: result.token,
+                            user: result.user
+                        });
+                    } else {
+                        localStorage.setItem('authToken', result.token);
+                        localStorage.setItem('user', JSON.stringify(result.user));
+                    }
+
+                    // Notify extension (if applicable)
+                    if (window.postMessage) {
+                        window.postMessage({
+                            type: 'LOGIN_SUCCESS',
+                            token: result.token,
+                            user: result.user
+                        }, '*');
+                    }
+
+                    // Auto close window after 2 seconds
+                    setTimeout(() => {
+                        window.close();
+                    }, 2000);
+                } else {
+                    showAlert(result.message || 'Login failed');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showAlert('Connection error. Please try again.');
+            } finally {
+                setLoading(false);
+            }
+        });
+
+        // Handle register form submission
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideAlert();
+            setLoading(true);
+
+            const formData = new FormData(registerForm);
+            const registerData = {
+                username: formData.get('username'),
+                email: formData.get('email'),
+                password: formData.get('password')
+            };
+
+            try {
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(registerData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert('Registration successful! Please login with your credentials.', 'success');
+                    registerForm.reset();
+                    
+                    // Switch to login form after successful registration
+                    setTimeout(() => {
+                        toggleFormLink.click();
+                    }, 2000);
+                } else {
+                    showAlert(result.message || 'Registration failed');
+                }
+            } catch (error) {
+                console.error('Registration error:', error);
+                showAlert('Connection error. Please try again.');
+            } finally {
+                setLoading(false);
+            }
+        });
+
+        // Handle messages from extension
+        window.addEventListener('message', (event) => {
+            if (event.data.type === 'CHECK_AUTH') {
+                // Extension is checking authentication status
+                const token = localStorage.getItem('authToken');
+                const user = localStorage.getItem('user');
+                
+                event.source.postMessage({
+                    type: 'AUTH_STATUS',
+                    authenticated: !!token,
+                    token: token,
+                    user: user ? JSON.parse(user) : null
+                }, event.origin);
+            }
+        });
+    </script>
+</body>
+</html>

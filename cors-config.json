@@ -1,0 +1,14 @@
+[
+  {
+    "origin": ["chrome-extension://*"],
+    "method": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    "responseHeader": ["*"],
+    "maxAgeSeconds": 3600
+  },
+  {
+    "origin": ["https://*.firebaseapp.com", "https://*.web.app"],
+    "method": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    "responseHeader": ["*"],
+    "maxAgeSeconds": 3600
+  }
+] 

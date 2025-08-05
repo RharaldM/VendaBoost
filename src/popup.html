@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VendaBoost Pro</title>
+    <link rel="stylesheet" href="popup.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- ============ LOADING OVERLAY ============ -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner">
+            <svg class="spinner-icon" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none" opacity="0.25"/>
+                <path fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 0 1 4 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" opacity="0.75"/>
+            </svg>
+            <span class="loading-text">Carregando...</span>
+        </div>
+    </div>
+
+    <!-- ============ HEADER ============ -->
+    <header class="header">
+        <div class="header-content">
+            <div class="brand">
+                <svg class="brand-logo" viewBox="0 0 24 24" fill="none">
+                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <h1 class="brand-title">VendaBoost Pro</h1>
+            </div>
+            
+            <div class="header-status">
+                <div class="connection-indicator">
+                    <div id="connectionStatus" class="status-dot status-connected"></div>
+                    <span class="status-label">Conectado</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ============ NAVIGATION TABS ============ -->
+    <nav class="tab-navigation">
+        <button class="tab-button active" data-tab="create">
+            <svg class="tab-icon" viewBox="0 0 24 24" fill="none">
+                <path d="M12 2v20m10-10H2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <span class="tab-label">Criar</span>
+        </button>
+        
+        <button class="tab-button" data-tab="scheduled">
+            <svg class="tab-icon" viewBox="0 0 24 24" fill="none">
+                <path d="M8 2v4m8-4v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <span class="tab-label">Agendados</span>
+            <span id="scheduledBadge" class="tab-badge">0</span>
+        </button>
+        
+        <button class="tab-button" data-tab="groups">
+            <svg class="tab-icon" viewBox="0 0 24 24" fill="none">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2m8-10a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm8 0v6m0 0v6m0-6h6m-6 0h-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <span class="tab-label">Grupos</span>
+        </button>
+        
+        <button class="tab-button" data-tab="settings">
+            <svg class="tab-icon" viewBox="0 0 24 24" fill="none">
+                <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" stroke="currentColor" stroke-width="2"/>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <span class="tab-label">Config</span>
+        </button>
+        
+        <button class="tab-button" data-tab="database">
+            <svg class="tab-icon" viewBox="0 0 24 24" fill="none">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <span class="tab-label">Banco</span>
+        </button>
+    </nav>
+
+    <!-- ============ TAB CONTENTS ============ -->
+    
+    <!-- ============ CREATE/SCHEDULE TAB ============ -->
+    <div id="create" class="tab-content active">
+        <div class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">Criar Post</h2>
+                <p class="section-subtitle">Configure e agende sua publicação para o Marketplace e grupos</p>
+            </div>
+
+            <form id="postForm" class="post-form">
+                <!-- Post Type Selection -->
+                <div class="form-group">
+                    <label class="form-label">Destino da Publicação</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="targetType" value="marketplace" checked>
+                            <span class="radio-custom"></span>
+                            <div class="radio-content">
+                                <span class="radio-title">Marketplace</span>
+                                <span class="radio-desc">Publicar apenas no Facebook Marketplace</span>
+                            </div>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="targetType" value="groups">
+                            <span class="radio-custom"></span>
+                            <div class="radio-content">
+                                <span class="radio-title">Grupos</span>
+                                <span class="radio-desc">Publicar apenas nos grupos selecionados</span>
+                            </div>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="targetType" value="both">
+                            <span class="radio-custom"></span>
+                            <div class="radio-content">
+                                <span class="radio-title">Ambos</span>
+                                <span class="radio-desc">Marketplace + Grupos selecionados</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Basic Information -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="title" class="form-label">Título *</label>
+                        <input type="text" id="title" name="title" class="form-input" placeholder="Ex: iPhone 13 Pro Max 128GB" maxlength="100" required>
+                        <div class="char-counter">0/100</div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group flex-2">
+                        <label for="price" class="form-label">Preço *</label>
+                        <div class="input-group">
+                            <span class="input-prefix">R$</span>
+                            <input type="text" id="price" name="price" class="form-input" placeholder="1.500,00" required>
+                        </div>
+                    </div>
+                    <div class="form-group flex-3">
+                        <label for="location" class="form-label">Localização</label>
+                        <input type="text" id="location" name="location" class="form-input" placeholder="Ex: São Paulo, SP">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="description" class="form-label">Descrição *</label>
+                    <div class="textarea-container">
+                        <textarea id="description" name="description" class="form-textarea" placeholder="Descreva detalhadamente seu produto..." maxlength="500" required></textarea>
+                        <button type="button" id="improveDescription" class="improve-btn">
+                            <svg class="improve-icon" viewBox="0 0 24 24" fill="none">
+                                <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 1 1 7.072 0l-.548.547A3.374 3.374 0 0 0 14 18.469V19a2 2 0 1 1-4 0v-.531c0-.895-.356-1.754-.988-2.386L9.663 17z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            Melhorar com IA
+                        </button>
+                    </div>
+                    <div class="char-counter">0/500</div>
+                </div>
+
+                <!-- Category and Condition -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="categoria-principal" class="form-label">Categoria</label>
+                        <select id="categoria-principal" name="categoria-principal" class="form-select">
+                            <option value="" disabled selected>Escolha uma categoria</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="condition" class="form-label">Condição</label>
+                        <select id="condition" name="condition" class="form-select">
+                            <option value="" disabled selected>Estado do produto</option>
+                            <option value="novo">Novo</option>
+                            <option value="usado-estado-de-novo">Usado - Estado de novo</option>
+                            <option value="usado-boas-condicoes">Usado - Em boas condições</option>
+                            <option value="usado-condicoes-razoaveis">Usado - Em condições razoáveis</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Additional Options -->
+                <div class="form-group">
+                    <label for="disponibilidade" class="form-label">Disponibilidade</label>
+                    <select id="disponibilidade" name="disponibilidade" class="form-select">
+                        <option value="">Selecione</option>
+                        <option value="em-estoque">Anunciar como Em estoque</option>
+                        <option value="item-unico">Anunciar como item único</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="delivery" name="delivery">
+                        <span class="checkbox-custom"></span>
+                        <span class="checkbox-label">Oferecer entrega</span>
+                    </label>
+                </div>
+
+                <!-- Image Upload -->
+                <div class="form-group">
+                    <label class="form-label">Imagens (máx. 10)</label>
+                    <div class="image-upload-area">
+                        <input type="file" id="images" name="images" multiple accept="image/*" class="image-input">
+                        <div class="upload-placeholder">
+                            <svg class="upload-icon" viewBox="0 0 24 24" fill="none">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span class="upload-text">Arraste imagens aqui ou clique para selecionar</span>
+                            <span class="upload-hint">PNG, JPG, GIF até 5MB cada</span>
+                        </div>
+                    </div>
+                    <div id="imagePreview" class="image-preview-grid"></div>
+                    <div class="reorder-instructions" style="display: none;">
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <path d="M12 5v14M5 12l7 7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Arraste as imagens para reordená-las
+                    </div>
+                </div>
+
+                <!-- Groups Selection (shown when targeting groups) -->
+                <div class="form-group groups-section">
+                    <label class="form-label">Grupos Selecionados</label>
+                    
+                    <div class="groups-controls">
+                        <!-- Search Bar -->
+                        <div class="search-controls">
+                            <div class="search-input-group">
+                                <svg class="search-icon" viewBox="0 0 24 24" fill="none">
+                                    <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+                                    <path d="m21 21-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                                <input type="text" id="createGroupSearchInput" class="search-input" placeholder="Buscar grupos...">
+                            </div>
+                        </div>
+                        
+                        <!-- Action Buttons Row -->
+                        <div class="group-action-row">
+                            <div class="group-selection-buttons">
+                                <button type="button" id="selectAllGroupsBtn" class="btn btn-secondary btn-compact">
+                                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none">
+                                        <polyline points="9,11 12,14 22,4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    Todos
+                                </button>
+                                <button type="button" id="deselectAllGroupsBtn" class="btn btn-secondary btn-compact">
+                                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none">
+                                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2" fill="none"/>
+                                    </svg>
+                                    Limpar
+                                </button>
+                            </div>
+                            
+                            <div class="random-selector">
+                                <input type="number" id="randomGroupCount" class="random-input" placeholder="5" min="1" max="50">
+                                <button type="button" id="selectRandomGroupsBtn" class="btn btn-secondary btn-compact">
+                                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none">
+                                        <path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7L12 8l5.3 8.3c.8 1.1 2 1.7 3.3 1.7H22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                        <path d="M2 6h1.9c.5 0 .9.3 1.1.7L7 10l2-4 2 4 2.1-3.3c.2-.4.6-.7 1.1-.7H22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                    </svg>
+                                    Sortear
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="groupsChecklistContainer" class="groups-checklist">
+                        <div class="empty-state-small">Nenhum grupo salvo. Vá para a aba "Grupos" para escanear.</div>
+                    </div>
+                </div>
+
+                <!-- Schedule Options -->
+                <div class="form-group">
+                    <label class="form-label">Agendamento</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="scheduleType" value="now" checked>
+                            <span class="radio-custom"></span>
+                            <div class="radio-content">
+                                <span class="radio-title">Publicar Agora</span>
+                                <span class="radio-desc">Publicação imediata</span>
+                            </div>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="scheduleType" value="later">
+                            <span class="radio-custom"></span>
+                            <div class="radio-content">
+                                <span class="radio-title">Agendar para Depois</span>
+                                <span class="radio-desc">Escolha data e hora específicas</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Date/Time Inputs (shown when scheduling) -->
+                <div class="schedule-inputs" style="display: none;">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="scheduleDate" class="form-label">Data</label>
+                            <input type="date" id="scheduleDate" name="scheduleDate" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="scheduleTime" class="form-label">Hora</label>
+                            <input type="time" id="scheduleTime" name="scheduleTime" class="form-input">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <button type="button" id="clearForm" class="btn btn-secondary">
+                        <svg class="btn-icon" viewBox="0 0 24 24" fill="none">
+                            <path d="M3 6h18m-2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        Limpar
+                    </button>
+                    <button type="submit" id="submitBtn" class="btn btn-primary">
+                        <svg class="btn-icon" viewBox="0 0 24 24" fill="none">
+                            <path d="M8 2v4m8-4v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        Agendar Post
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============ SCHEDULED TAB ============ -->
+    <div id="scheduled" class="tab-content">
+        <div class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">Posts Agendados</h2>
+                <p class="section-subtitle">Gerencie suas publicações programadas</p>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon stat-scheduled">
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <path d="M8 2v4m8-4v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-label">Agendados</div>
+                        <div id="stats-total-scheduled" class="stat-value">0</div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon stat-completed">
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <polyline points="9,11 12,14 22,4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-label">Publicados</div>
+                        <div id="stats-total-published" class="stat-value">0</div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon stat-failed">
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                            <line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-label">Falharam</div>
+                        <div id="stats-total-failed" class="stat-value">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="scheduled-controls">
+                <div class="filter-group">
+                    <svg class="filter-icon" viewBox="0 0 24 24" fill="none">
+                        <path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <label for="statusFilter" class="filter-label">Filtrar por status:</label>
+                    <select id="statusFilter" class="filter-select">
+                        <option value="">Todos</option>
+                        <option value="scheduled">Agendados</option>
+                        <option value="posting">Publicando</option>
+                        <option value="completed">Completados</option>
+                        <option value="failed">Falhou</option>
+                    </select>
+                </div>
+
+                <div class="action-buttons">
+                    <button id="refreshScheduled" class="btn btn-secondary">
+                        <svg class="btn-icon" viewBox="0 0 24 24" fill="none">
+                            <path d="M1 4v6h6M23 20v-6h-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Atualizar
+                    </button>
+                    <button id="clearCompleted" class="btn btn-secondary">
+                        <svg class="btn-icon" viewBox="0 0 24 24" fill="none">
+                            <path d="M3 6h18m-2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        Limpar Concluídos
+                    </button>
+                    <button id="checkDuplicates" class="btn btn-secondary">
+                        <svg class="btn-icon" viewBox="0 0 24 24" fill="none">
+                            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" stroke="currentColor" stroke-width="2"/>
+                            <rect x="8" y="2" width="8" height="4" rx="1" ry="1" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        Verificar Duplicatas
+                    </button>
+                </div>
+            </div>
+
+            <!-- Posts List -->
+            <div id="scheduledList" class="scheduled-list">
+                <div class="empty-state">
+                    <svg class="empty-icon" viewBox="0 0 24 24" fill="none">
+                        <path d="M8 2v4m8-4v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                    <h3 class="empty-title">Nenhum post agendado</h3>
+                    <p class="empty-description">Crie seu primeiro post na aba "Criar" para começar</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ GROUPS TAB ============ -->
+    <div id="groups" class="tab-content">
+        <div class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">Gerenciar Grupos</h2>
+                <p class="section-subtitle">Detecte e organize seus grupos do Facebook</p>
+            </div>
+
+            <!-- Group Stats -->
+            <div class="group-stats">
+                <div class="stat-item">
+                    <span class="stat-label">Grupos detectados:</span>
+                    <span id="groupCount" class="stat-number">0</span>
+                </div>
+            </div>
+
+            <!-- Group Controls -->
+            <div class="group-controls">
+                <div class="detection-buttons">
+                    <button id="detectGroupsBtn" class="btn btn-primary">
+                        <svg class="btn-icon" viewBox="0 0 24 24" fill="none">
+                            <path d="M21 21l-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        Detectar Grupos
+                    </button>
+                </div>
+                
+                <div class="action-buttons">
+                    <button id="saveGroups" class="btn btn-success">
+                        <svg class="btn-icon" viewBox="0 0 24 24" fill="none">
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" stroke="currentColor" stroke-width="2"/>
+                            <polyline points="17,21 17,13 7,13 7,21" stroke="currentColor" stroke-width="2"/>
+                            <polyline points="7,3 7,8 15,8" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        Salvar
+                    </button>
+                    <button id="deleteAllGroups" class="btn btn-danger">
+                        <svg class="btn-icon" viewBox="0 0 24 24" fill="none">
+                            <path d="M3 6h18m-2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        Excluir Todos
+                    </button>
+                </div>
+            </div>
+
+            <!-- Status Section -->
+            <div id="groupsScanStatus" class="scan-status" style="display: none;"></div>
+
+            <!-- Groups Search -->
+            <div class="search-section">
+                <div class="search-input-group">
+                    <svg class="search-icon" viewBox="0 0 24 24" fill="none">
+                        <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+                        <path d="m21 21-4.35-4.35" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                    <input type="text" id="groupsManagerSearchInput" class="search-input" placeholder="Buscar grupos...">
+                </div>
+            </div>
+
+            <!-- Groups List Container -->
+            <div id="groupsContainer" class="groups-container">
+                <div class="empty-state">
+                    <svg class="empty-icon" viewBox="0 0 24 24" fill="none">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2m8-10a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                    <h3 class="empty-title">Nenhum grupo detectado</h3>
+                    <p class="empty-description">Clique em "Detectar Grupos" para encontrar seus grupos do Facebook</p>
+                </div>
+            </div>
+
+            <!-- Legacy Groups List -->
+            <div id="groupsList" class="groups-list" style="display: none;"></div>
+        </div>
+    </div>
+
+    <!-- ============ SETTINGS TAB ============ -->
+    <div id="settings" class="tab-content">
+        <div class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">Configurações</h2>
+                <p class="section-subtitle">Personalize o comportamento da extensão</p>
+            </div>
+
+            <!-- Post Settings -->
+            <div class="settings-group">
+                <h3 class="settings-group-title">Configurações de Postagem</h3>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <label for="postInterval" class="setting-label">Intervalo entre posts</label>
+                        <p class="setting-description">Tempo de espera entre publicações em grupos (em segundos)</p>
+                    </div>
+                    <div class="setting-control">
+                        <input type="range" id="postInterval" min="5" max="60" value="15" class="range-input">
+                        <span id="postIntervalValue" class="range-value">15</span>
+                    </div>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <label for="retryAttempts" class="setting-label">Tentativas de reenvio</label>
+                        <p class="setting-description">Número de tentativas em caso de falha</p>
+                    </div>
+                    <div class="setting-control">
+                        <input type="range" id="retryAttempts" min="1" max="5" value="3" class="range-input">
+                        <span id="retryAttemptsValue" class="range-value">3</span>
+                    </div>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <label for="enableNotifications" class="setting-label">Notificações</label>
+                        <p class="setting-description">Receber notificações sobre o status das publicações</p>
+                    </div>
+                    <div class="setting-control">
+                        <span class="toggle-status-text" id="status-enableNotifications">Ativo</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="enableNotifications" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <label for="autoRetry" class="setting-label">Reenvio automático</label>
+                        <p class="setting-description">Tentar reenviar automaticamente em caso de falha</p>
+                    </div>
+                    <div class="setting-control">
+                        <span class="toggle-status-text" id="status-autoRetry">Ativo</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="autoRetry" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <label for="autoPostToGroups" class="setting-label">Auto-publicar em grupos</label>
+                        <p class="setting-description">Publicar automaticamente nos grupos selecionados</p>
+                    </div>
+                    <div class="setting-control">
+                        <span class="toggle-status-text" id="status-autoPostToGroups">Inativo</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="autoPostToGroups">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- OpenAI Settings -->
+            <div class="settings-group">
+                <h3 class="settings-group-title">
+                    <svg class="section-icon" viewBox="0 0 24 24" fill="none">
+                        <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 1 1 7.072 0l-.548.547A3.374 3.374 0 0 0 14 18.469V19a2 2 0 1 1-4 0v-.531c0-.895-.356-1.754-.988-2.386L9.663 17z" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                    Integração OpenAI
+                </h3>
+                
+                <div class="setting-item api-key-setting">
+                    <div class="setting-info">
+                        <label for="openaiApiKey" class="setting-label">
+                            <svg class="label-icon" viewBox="0 0 24 24" fill="none">
+                                <rect x="3" y="11" width="18" height="10" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
+                                <circle cx="12" cy="16" r="1" fill="currentColor"/>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                            Chave API OpenAI
+                        </label>
+                        <p class="setting-description">
+                            <span class="description-text">Para melhoramento automático de descrições</span>
+                            <span class="description-link">
+                                <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer">
+                                    Obter chave API
+                                    <svg class="external-link-icon" viewBox="0 0 24 24" fill="none">
+                                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </a>
+                            </span>
+                        </p>
+                    </div>
+                    <div class="setting-control">
+                        <div class="api-key-input-container">
+                            <div class="api-key-input-group">
+                                <div class="input-prefix">
+                                    <svg class="key-icon" viewBox="0 0 24 24" fill="none">
+                                        <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" stroke="currentColor" stroke-width="2"/>
+                                    </svg>
+                                </div>
+                                <input type="password" id="openaiApiKey" class="api-key-input" placeholder="sk-proj-..." autocomplete="off" spellcheck="false">
+                                <button type="button" id="toggleApiKey" class="toggle-visibility-btn" title="Mostrar/Ocultar chave">
+                                    <svg class="eye-icon" viewBox="0 0 24 24" fill="none">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/>
+                                        <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+                                    </svg>
+                                    <svg class="eye-off-icon" viewBox="0 0 24 24" fill="none" style="display: none;">
+                                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <line x1="1" y1="1" x2="23" y2="23" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </button>
+                                <div class="input-validation">
+                                    <svg class="validation-icon success-icon" viewBox="0 0 24 24" fill="none">
+                                        <polyline points="9,11 12,14 22,4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    <svg class="validation-icon error-icon" viewBox="0 0 24 24" fill="none">
+                                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                                        <line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                        <line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="api-key-hints">
+                                <span class="hint-item">
+                                    <svg class="hint-icon" viewBox="0 0 24 24" fill="none">
+                                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <circle cx="12" cy="17" r=".5" fill="currentColor"/>
+                                    </svg>
+                                    Formato: sk-proj-...
+                                </span>
+                                <span class="hint-item">
+                                    <svg class="hint-icon" viewBox="0 0 24 24" fill="none">
+                                        <rect x="3" y="11" width="18" height="10" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
+                                        <circle cx="12" cy="16" r="1" fill="currentColor"/>
+                                        <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" stroke-width="2"/>
+                                    </svg>
+                                    Armazenado localmente
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="api-key-actions">
+                    <button id="saveApiKey" class="btn btn-success api-action-btn">
+                        <div class="btn-content">
+                            <svg class="btn-icon" viewBox="0 0 24 24" fill="none">
+                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" stroke="currentColor" stroke-width="2"/>
+                                <polyline points="17,21 17,13 7,13 7,21" stroke="currentColor" stroke-width="2"/>
+                                <polyline points="7,3 7,8 15,8" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                            <span class="btn-text">Salvar Chave</span>
+                        </div>
+                    </button>
+                    <button id="testApiKey" class="btn btn-secondary api-action-btn">
+                        <div class="btn-content">
+                            <svg class="btn-icon" viewBox="0 0 24 24" fill="none">
+                                <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 1 1 7.072 0l-.548.547A3.374 3.374 0 0 0 14 18.469V19a2 2 0 1 1-4 0v-.531c0-.895-.356-1.754-.988-2.386L9.663 17z" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                            <span class="btn-text">Testar Conexão</span>
+                        </div>
+                    </button>
+                    <button id="removeApiKey" class="btn btn-danger api-action-btn">
+                        <div class="btn-content">
+                            <svg class="btn-icon" viewBox="0 0 24 24" fill="none">
+                                <path d="M3 6h18m-2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="currentColor" stroke-width="2"/>
+                                <line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                <line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            <span class="btn-text">Remover</span>
+                        </div>
+                    </button>
+                </div>
+
+                <div id="apiKeyStatus" class="api-key-status"></div>
+            </div>
+
+            <!-- Data Management -->
+            <div class="settings-group">
+                <h3 class="settings-group-title">Gerenciamento de Dados</h3>
+                
+                <div class="data-actions">
+                    <button id="exportData" class="btn btn-secondary">
+                        <svg class="btn-icon" viewBox="0 0 24 24" fill="none">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Exportar Dados
+                    </button>
+                    <button id="testDatabaseLocal" class="btn btn-secondary">
+                        <svg class="btn-icon" viewBox="0 0 24 24" fill="none">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" stroke="currentColor" stroke-width="2"/>
+                            <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        Testar Banco Local
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ DATABASE TAB ============ -->
+    <div id="database" class="tab-content">
+        <div class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">Banco de Dados Local</h2>
+                <p class="section-subtitle">Sistema de armazenamento usando IndexedDB (Dexie)</p>
+            </div>
+
+            <!-- Database Status -->
+            <div class="database-status">
+                <div class="status-indicator">
+                    <div id="databaseStatusDot" class="status-dot"></div>
+                    <span id="databaseStatusText" class="status-text">Verificando banco local...</span>
+                </div>
+            </div>
+
+            <!-- Database Info -->
+            <div class="auth-form">
+                <div class="info-card">
+                    <h3>🗄️ Sistema Offline</h3>
+                    <p>Esta extensão agora funciona 100% offline usando IndexedDB através da biblioteca Dexie para armazenamento local seguro.</p>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <span class="stat-label">Posts Agendados:</span>
+                            <span id="stats-total-scheduled" class="stat-value">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Publicados:</span>
+                            <span id="stats-total-published" class="stat-value">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Falharam:</span>
+                            <span id="stats-total-failed" class="stat-value">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="auth-actions">
+                    <button id="testDatabaseConnection" class="btn btn-primary">
+                        <svg class="btn-icon" viewBox="0 0 24 24" fill="none">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        Testar Banco de Dados
+                    </button>
+                    <button id="registerButton" class="btn btn-secondary">
+                        <svg class="btn-icon" viewBox="0 0 24 24" fill="none">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2m8-10a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Criar Conta
+                    </button>
+                </div>
+            </div>
+
+            <!-- User Info (shown when logged in) -->
+            <div id="userInfo" class="user-info" style="display: none;">
+                <div class="user-avatar">
+                    <svg viewBox="0 0 24 24" fill="none">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2m8-10a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="user-details">
+                    <div id="userEmail" class="user-email">usuário@exemplo.com</div>
+                    <div id="userId" class="user-id">ID: 12345678</div>
+                </div>
+                <button id="logoutButton" class="btn btn-danger">
+                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Sair
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ TOAST NOTIFICATIONS ============ -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- ============ TEMPLATES ============ -->
+    
+    <!-- Scheduled Post Template -->
+    <template id="scheduledPostTemplate">
+        <div class="scheduled-post-card">
+            <div class="post-header">
+                <div class="post-thumbnail"></div>
+                <div class="post-main-info">
+                    <div class="post-title-row">
+                        <h3 class="post-title"></h3>
+                        <div class="post-status">
+                            <span class="status-badge"></span>
+                        </div>
+                    </div>
+                    <div class="post-meta-row">
+                        <span class="post-schedule"></span>
+                        <span class="post-price"></span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="post-content">
+                <p class="post-description"></p>
+            </div>
+
+            <div class="post-actions">
+                <button class="btn-edit post-action-btn post-action-edit" data-id="">
+                    <div class="action-icon-wrapper">
+                        <svg class="action-icon" viewBox="0 0 24 24" fill="none">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="2"/>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <span class="action-label">Editar</span>
+                </button>
+                <button class="btn-delete post-action-btn post-action-delete" data-id="">
+                    <div class="action-icon-wrapper">
+                        <svg class="action-icon" viewBox="0 0 24 24" fill="none">
+                            <path d="M3 6h18m-2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <span class="action-label">Excluir</span>
+                </button>
+            </div>
+        </div>
+    </template>
+
+    <!-- Toast Notification Template -->
+    <template id="toastTemplate">
+        <div class="toast">
+            <div class="toast-icon"></div>
+            <div class="toast-content">
+                <div class="toast-message"></div>
+            </div>
+            <button class="toast-close">
+                <svg viewBox="0 0 24 24" fill="none">
+                    <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+        </div>
+    </template>
+
+    <script type="module" src="popup.js"></script>
+</body>
+</html>

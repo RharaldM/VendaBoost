@@ -1,0 +1,68 @@
+# Dependências
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build
+dist/
+build/
+
+# Logs
+logs
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Arquivos de sistema
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporários
+*.tmp
+*.temp
+
+# Chrome Extension
+*.crx
+*.pem
+
+# Firebase - Credenciais Administrativas (NUNCA COMMITAR)
+config/*firebase-adminsdk*.json
+*firebase-adminsdk*.json
+
+# Scripts de correção/teste temporários
+Corrigir*.cjs
+Testar*.cjs
+*Correcao*.cjs
+*Teste*.cjs
+
+# Login system database and dependencies
+login-system/users.db
+login-system/node_modules/
+
+# Zip files and build artifacts
+*.zip
+public.zip
+scripts.zip
+src.zip
+vendaboost-extension.zip
+
+# Old versions and temporary files
+versao_antiga/
+temp_old.txt
+result.txt
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
