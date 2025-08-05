@@ -46,6 +46,8 @@ const db = new sqlite3.Database('./users.db', (err) => {
 
 // Function to initialize database tables
 function initializeDatabaseTables() {
+  console.log('🔧 Starting database table initialization...');
+  
   // Create users table
   const createUsersTable = `
     CREATE TABLE IF NOT EXISTS users (
@@ -91,33 +93,41 @@ function initializeDatabaseTables() {
     )
   `;
 
-  // Execute table creation
-  db.run(createUsersTable, (err) => {
-    if (err) {
-      console.error('Error creating users table:', err.message);
-    } else {
-      console.log('✅ Users table initialized');
-    }
-  });
+  // Execute table creation sequentially to ensure proper order
+  db.serialize(() => {
+    // Create users table first
+    db.run(createUsersTable, (err) => {
+      if (err) {
+        console.error('❌ Error creating users table:', err.message);
+      } else {
+        console.log('✅ Users table initialized');
+      }
+    });
 
-  db.run(createSessionsTable, (err) => {
-    if (err) {
-      console.error('Error creating sessions table:', err.message);
-    } else {
-      console.log('✅ Sessions table initialized');
-    }
-  });
+    // Create sessions table
+    db.run(createSessionsTable, (err) => {
+      if (err) {
+        console.error('❌ Error creating sessions table:', err.message);
+      } else {
+        console.log('✅ Sessions table initialized');
+      }
+    });
 
-  db.run(createLogsTable, (err) => {
-    if (err) {
-      console.error('Error creating logs table:', err.message);
-    } else {
-      console.log('✅ Logs table initialized');
-    }
-  });
+    // Create logs table
+    db.run(createLogsTable, (err) => {
+      if (err) {
+        console.error('❌ Error creating logs table:', err.message);
+      } else {
+        console.log('✅ Logs table initialized');
+      }
+    });
 
-  // Create default admin user if no users exist
-  createDefaultAdminIfNeeded();
+    // Create default admin user AFTER all tables are created
+    setTimeout(() => {
+      console.log('⏱️ Waiting for tables to be ready...');
+      createDefaultAdminIfNeeded();
+    }, 1000); // Wait 1 second to ensure tables are created
+  });
 }
 
 // Create default admin user if database is empty
