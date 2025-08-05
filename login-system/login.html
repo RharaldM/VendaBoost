@@ -290,7 +290,20 @@
                         localStorage.setItem('user', JSON.stringify(result.user));
                     }
 
-                    // Notify extension (if applicable)
+                    // Notify extension via chrome.runtime API
+                    if (window.chrome && chrome.runtime) {
+                        try {
+                            chrome.runtime.sendMessage({
+                                type: 'LOGIN_SUCCESS',
+                                token: result.token,
+                                user: result.user
+                            });
+                        } catch (error) {
+                            console.log('Extension context not available:', error);
+                        }
+                    }
+                    
+                    // Fallback: postMessage for iframe/popup scenarios
                     if (window.postMessage) {
                         window.postMessage({
                             type: 'LOGIN_SUCCESS',

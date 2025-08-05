@@ -27,7 +27,8 @@
     "https://analytics.google.com/*",
     "https://*.google-analytics.com/*",
     "https://region1.google-analytics.com/*",
-    "https://api.openai.com/*"
+    "https://api.openai.com/*",
+    "https://*.onrender.com/*"
   ],
   "background": {
     "service_worker": "background.js",

@@ -11,6 +11,9 @@ import { initializeStorage, storageManager } from './database.js';
 // Importar integração OpenAI
 import openAIIntegration from './openai-integration.js';
 
+// Importar sistema de autenticação
+import authManager from './auth.js';
+
 // Estrutura de dados para categorias
 // Os 'id's aqui devem corresponder exatamente às chaves no CATEGORY_MAP do content.js
 const CATEGORY_DATA = [
@@ -53,30 +56,315 @@ class PopupManager {
     async init() {
         console.log('[Popup] Inicializando...');
         
+        // PRIMEIRO: Verificar autenticação
+        const isAuthenticated = await authManager.checkAuthStatus();
+        
+        if (!isAuthenticated) {
+            console.log('[Popup] Usuário não autenticado - configurando tela de login');
+            this.showAuthScreen();
+            return; // Parar inicialização até login
+        }
+        
+        console.log('[Popup] Usuário autenticado - continuando inicialização');
+        
+        // Configurar listener para mudanças de auth
+        this.setupAuthListeners();
+        
         // Inicializar o Dexie (IndexedDB)
         await initializeStorage();
         
-        // Configurar UI básica PRIMEIRO
+        // Configurar UI básica
         this.setupTabNavigation();
         this.setupEventListeners();
         this.setupSettingsListeners();
         this.setupCategoryListeners();
         this.setupGroupControlsListeners();
-        await this.loadSettings(); // Carregar configurações salvas
+        await this.loadSettings();
         
-        // Sistema agora funciona 100% offline com Dexie
-        
-        // NOVO: Carregar dados do formulário da sessão
+        // Carregar dados do formulário da sessão
         await this.loadFormData();
         
-        // NOVO: Configurar listeners para persistência do formulário
+        // Configurar listeners para persistência do formulário
         this.setupFormPersistenceListeners();
         
         this.updateUI();
-        this.setupBackgroundPostListeners(); // NOVO: Configura os listeners para posts em segundo plano
-        this.updateConnectionIndicator(true); // NOVO: Inicializar indicador de conexão
+        this.setupBackgroundPostListeners();
+        this.updateConnectionIndicator(true);
+        this.updateUserInfo(); // Mostrar info do usuário logado
         
-        // Sistema offline - não precisa mais de autenticação externa
+        // Iniciar verificação periódica de auth
+        authManager.startPeriodicAuthCheck();
+    }
+
+    // ============================================
+    // 🔐 Authentication Methods
+    // ============================================
+    
+    showAuthScreen() {
+        console.log('[Popup] Mostrando tela de autenticação');
+        
+        // Esconder conteúdo principal
+        const mainContent = document.querySelector('body');
+        if (mainContent) {
+            mainContent.style.display = 'none';
+        }
+        
+        // Criar tela de auth se não existir
+        let authScreen = document.getElementById('authScreen');
+        if (!authScreen) {
+            authScreen = this.createAuthScreen();
+            document.body.appendChild(authScreen);
+        }
+        
+        authScreen.style.display = 'flex';
+        
+        // Configurar listeners dos botões de auth
+        this.setupAuthButtons();
+    }
+    
+    createAuthScreen() {
+        const authScreen = document.createElement('div');
+        authScreen.id = 'authScreen';
+        authScreen.innerHTML = `
+            <div class="auth-container">
+                <div class="auth-header">
+                    <svg class="auth-logo" viewBox="0 0 24 24" fill="none">
+                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <h1>VendaBoost Pro</h1>
+                    <p>Sistema de automação para Facebook Marketplace</p>
+                </div>
+                
+                <div class="auth-content">
+                    <div class="auth-message">
+                        <h2>🔐 Autenticação Necessária</h2>
+                        <p>Para usar o VendaBoost, você precisa fazer login ou criar uma conta.</p>
+                    </div>
+                    
+                    <div class="auth-actions">
+                        <button id="authLoginBtn" class="btn btn-primary auth-btn">
+                            <svg class="btn-icon" viewBox="0 0 24 24" fill="none">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Fazer Login
+                        </button>
+                        
+                        <button id="authRegisterBtn" class="btn btn-secondary auth-btn">
+                            <svg class="btn-icon" viewBox="0 0 24 24" fill="none">
+                                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2m8-10a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Criar Conta
+                        </button>
+                    </div>
+                    
+                    <div class="auth-info">
+                        <p><strong>💡 Como funciona:</strong></p>
+                        <ol>
+                            <li>Clique em "Criar Conta" ou "Fazer Login"</li>
+                            <li>Uma nova aba será aberta com o sistema de login</li>
+                            <li>Após fazer login, volte para esta extensão</li>
+                            <li>A extensão será desbloqueada automaticamente</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Adicionar estilos
+        const styles = `
+            <style>
+                #authScreen {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100vh;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 10000;
+                    font-family: 'Inter', sans-serif;
+                }
+                
+                .auth-container {
+                    background: white;
+                    border-radius: 12px;
+                    padding: 2rem;
+                    max-width: 400px;
+                    width: 90%;
+                    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+                    text-align: center;
+                }
+                
+                .auth-header {
+                    margin-bottom: 2rem;
+                }
+                
+                .auth-logo {
+                    width: 48px;
+                    height: 48px;
+                    color: #667eea;
+                    margin-bottom: 1rem;
+                }
+                
+                .auth-header h1 {
+                    color: #333;
+                    margin-bottom: 0.5rem;
+                    font-size: 1.5rem;
+                }
+                
+                .auth-header p {
+                    color: #666;
+                    font-size: 0.9rem;
+                }
+                
+                .auth-message {
+                    margin-bottom: 2rem;
+                }
+                
+                .auth-message h2 {
+                    color: #333;
+                    margin-bottom: 1rem;
+                    font-size: 1.2rem;
+                }
+                
+                .auth-message p {
+                    color: #666;
+                    line-height: 1.5;
+                }
+                
+                .auth-actions {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 1rem;
+                    margin-bottom: 2rem;
+                }
+                
+                .auth-btn {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 0.5rem;
+                    padding: 0.75rem 1.5rem;
+                    border: none;
+                    border-radius: 6px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                }
+                
+                .btn-primary {
+                    background: #667eea;
+                    color: white;
+                }
+                
+                .btn-primary:hover {
+                    background: #5a6fd8;
+                    transform: translateY(-1px);
+                }
+                
+                .btn-secondary {
+                    background: #6c757d;
+                    color: white;
+                }
+                
+                .btn-secondary:hover {
+                    background: #5a6268;
+                    transform: translateY(-1px);
+                }
+                
+                .btn-icon {
+                    width: 18px;
+                    height: 18px;
+                }
+                
+                .auth-info {
+                    background: #f8f9fa;
+                    padding: 1rem;
+                    border-radius: 6px;
+                    text-align: left;
+                    font-size: 0.85rem;
+                }
+                
+                .auth-info p {
+                    margin-bottom: 0.5rem;
+                    font-weight: 600;
+                    color: #495057;
+                }
+                
+                .auth-info ol {
+                    margin: 0;
+                    padding-left: 1rem;
+                    color: #6c757d;
+                }
+                
+                .auth-info li {
+                    margin-bottom: 0.25rem;
+                    line-height: 1.4;
+                }
+            </style>
+        `;
+        
+        authScreen.innerHTML = styles + authScreen.innerHTML;
+        return authScreen;
+    }
+    
+    setupAuthButtons() {
+        const loginBtn = document.getElementById('authLoginBtn');
+        const registerBtn = document.getElementById('authRegisterBtn');
+        
+        if (loginBtn) {
+            loginBtn.addEventListener('click', () => {
+                console.log('[Auth] Login button clicked');
+                authManager.login();
+            });
+        }
+        
+        if (registerBtn) {
+            registerBtn.addEventListener('click', () => {
+                console.log('[Auth] Register button clicked');
+                authManager.register();
+            });
+        }
+    }
+    
+    setupAuthListeners() {
+        // Escutar eventos de mudança de autenticação
+        authManager.onAuthChange((type, data) => {
+            console.log('[Popup] Auth event:', type, data);
+            
+            if (type === 'login') {
+                this.hideAuthScreen();
+                this.init(); // Reinicializar popup após login
+            } else if (type === 'logout') {
+                this.showAuthScreen();
+            }
+        });
+    }
+    
+    hideAuthScreen() {
+        const authScreen = document.getElementById('authScreen');
+        if (authScreen) {
+            authScreen.style.display = 'none';
+        }
+        
+        const mainContent = document.querySelector('body');
+        if (mainContent) {
+            mainContent.style.display = 'block';
+        }
+    }
+    
+    updateUserInfo() {
+        const userInfo = document.getElementById('userInfo');
+        const userEmail = document.getElementById('userEmail');
+        const userId = document.getElementById('userId');
+        
+        if (authManager.isAuthenticated && authManager.currentUser) {
+            if (userEmail) userEmail.textContent = authManager.currentUser.email;
+            if (userId) userId.textContent = `ID: ${authManager.currentUser.id}`;
+            if (userInfo) userInfo.style.display = 'flex';
+        }
     }
 
     // Configurar navegação entre abas - VERSÃO ROBUSTA
@@ -671,6 +959,32 @@ class PopupManager {
     
     // Configurar event listeners
     setupEventListeners() {
+        // ============================================
+        // 🔐 Authentication Buttons
+        // ============================================
+        
+        // Botão "Criar Conta" na aba Database
+        const registerButton = document.getElementById('registerButton');
+        if (registerButton) {
+            registerButton.addEventListener('click', () => {
+                console.log('[Auth] Register button clicked (database tab)');
+                authManager.register();
+            });
+        }
+        
+        // Botão "Logout" na aba Database
+        const logoutButton = document.getElementById('logoutButton');
+        if (logoutButton) {
+            logoutButton.addEventListener('click', async () => {
+                console.log('[Auth] Logout button clicked');
+                await authManager.logout();
+            });
+        }
+        
+        // ============================================
+        // 📝 Form Events
+        // ============================================
+        
         // Formulário de agendamento
         const scheduleForm = document.getElementById('postForm');
         if (scheduleForm) {
