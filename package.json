@@ -11,7 +11,7 @@
     "preview": "vite preview",
     "setup": "npm install && cd login-system && npm install",
     "setup:auth": "cd login-system && npm run init-db",
-    "start": "cd login-system && npm start",
+    "start": "node app.cjs",
     "start:auth": "cd login-system && npm start",
     "dev:auth": "cd login-system && npm run dev",
     "add:user": "cd login-system && npm run add-user",
