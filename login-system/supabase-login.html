@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Extension Authentication</title>
+    <title>VendaBoost - Supabase Authentication</title>
     <style>
         * {
             margin: 0;
@@ -22,7 +22,7 @@
             line-height: 1.6;
         }
 
-        .login-container {
+        .auth-container {
             background: white;
             border-radius: 12px;
             padding: 2rem;
@@ -34,7 +34,7 @@
             overflow: hidden;
         }
 
-        .login-container::before {
+        .auth-container::before {
             content: '';
             position: absolute;
             top: 0;
@@ -44,13 +44,13 @@
             background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
         }
 
-        .login-header {
+        .auth-header {
             text-align: center;
             margin-bottom: 2rem;
             position: relative;
         }
 
-        .login-header::before {
+        .auth-header::before {
             content: '🚀';
             font-size: 2.5rem;
             display: block;
@@ -58,7 +58,7 @@
             filter: drop-shadow(0 2px 4px rgba(102, 126, 234, 0.3));
         }
 
-        .login-header h1 {
+        .auth-header h1 {
             color: #333;
             margin-bottom: 0.5rem;
             font-size: 1.75rem;
@@ -69,10 +69,27 @@
             background-clip: text;
         }
 
-        .login-header p {
+        .auth-header p {
             color: #666;
             font-size: 0.9rem;
             font-weight: 500;
+        }
+
+        .brand-subtitle {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 600;
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+        }
+
+        .version-info {
+            font-size: 0.75rem;
+            color: #6c757d;
+            font-weight: 500;
+            margin-top: 0.5rem;
         }
 
         .form-group {
@@ -89,9 +106,8 @@
             letter-spacing: 0.02em;
         }
 
-        input[type="text"],
-        input[type="password"],
-        input[type="email"] {
+        input[type="email"],
+        input[type="password"] {
             width: 100%;
             padding: 0.875rem 1rem;
             border: 2px solid #e9ecef;
@@ -103,9 +119,8 @@
             color: #495057;
         }
 
-        input[type="text"]:focus,
-        input[type="password"]:focus,
-        input[type="email"]:focus {
+        input[type="email"]:focus,
+        input[type="password"]:focus {
             outline: none;
             border-color: #667eea;
             background: white;
@@ -113,9 +128,8 @@
             transform: translateY(-1px);
         }
 
-        input[type="text"]:hover,
-        input[type="password"]:hover,
-        input[type="email"]:hover {
+        input[type="email"]:hover,
+        input[type="password"]:hover {
             border-color: #667eea;
             background: white;
         }
@@ -212,6 +226,17 @@
             margin-right: 0.5rem;
         }
 
+        .alert-info {
+            background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+            color: #0c5460;
+            border: 1px solid rgba(12, 84, 96, 0.2);
+        }
+
+        .alert-info::before {
+            content: 'ℹ️';
+            margin-right: 0.5rem;
+        }
+
         .toggle-form {
             text-align: center;
             margin-top: 1.5rem;
@@ -264,18 +289,16 @@
             100% { transform: rotate(360deg); }
         }
 
-        .brand-subtitle {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            font-weight: 600;
-            font-size: 0.8rem;
-            margin-top: 0.25rem;
+        .auth-branding {
+            text-align: center;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+            border-radius: 8px;
+            border: 1px solid rgba(102, 126, 234, 0.1);
         }
 
-        /* Animações suaves */
-        .login-container {
+        .auth-container {
             animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
@@ -290,14 +313,13 @@
             }
         }
 
-        /* Responsividade */
         @media (max-width: 480px) {
-            .login-container {
+            .auth-container {
                 padding: 1.5rem;
                 margin: 1rem;
             }
             
-            .login-header h1 {
+            .auth-header h1 {
                 font-size: 1.5rem;
             }
             
@@ -306,53 +328,31 @@
             }
         }
 
-        /* Estados de foco melhorados */
-        .form-group {
-            position: relative;
-        }
-
-        .form-group input:focus + label::after {
-            content: '';
-            position: absolute;
-            left: 0;
-            bottom: -2px;
-            width: 100%;
-            height: 2px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 1px;
-        }
-
-        /* Efeito de hover nos formulários */
-        #loginForm,
-        #registerForm {
-            transition: all 0.3s ease;
-        }
-
-        .auth-branding {
-            text-align: center;
+        .supabase-info {
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(139, 195, 74, 0.1) 100%);
+            border: 1px solid rgba(76, 175, 80, 0.2);
+            padding: 0.75rem;
+            border-radius: 6px;
             margin-bottom: 1rem;
-            padding: 1rem;
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
-            border-radius: 8px;
-            border: 1px solid rgba(102, 126, 234, 0.1);
-        }
-
-        .version-info {
-            font-size: 0.75rem;
-            color: #6c757d;
-            font-weight: 500;
+            font-size: 0.8rem;
+            color: #2e7d32;
+            text-align: center;
         }
     </style>
 </head>
 <body>
-    <div class="login-container">
+    <div class="auth-container">
         <div class="auth-branding">
-            <div class="login-header">
+            <div class="auth-header">
                 <h1>VendaBoost</h1>
                 <div class="brand-subtitle">Facebook Marketplace Automation</div>
-                <p>Sistema de Autenticação</p>
-                <div class="version-info">v1.2.4 • Powered by AI</div>
+                <p>Sistema de Autenticação Supabase</p>
+                <div class="version-info">v1.2.4 • Powered by Supabase</div>
             </div>
+        </div>
+
+        <div class="supabase-info">
+            🔒 Autenticação segura com Supabase
         </div>
 
         <div id="alert" class="alert"></div>
@@ -364,8 +364,8 @@
         <!-- Login Form -->
         <form id="loginForm">
             <div class="form-group">
-                <label for="loginUsername">Usuário:</label>
-                <input type="text" id="loginUsername" name="username" required placeholder="Digite seu usuário">
+                <label for="loginEmail">Email:</label>
+                <input type="email" id="loginEmail" name="email" required placeholder="seu@email.com">
             </div>
             <div class="form-group">
                 <label for="loginPassword">Senha:</label>
@@ -377,16 +377,12 @@
         <!-- Register Form (hidden by default) -->
         <form id="registerForm" style="display: none;">
             <div class="form-group">
-                <label for="registerUsername">Usuário:</label>
-                <input type="text" id="registerUsername" name="username" required placeholder="Escolha um nome de usuário">
-            </div>
-            <div class="form-group">
                 <label for="registerEmail">Email:</label>
                 <input type="email" id="registerEmail" name="email" required placeholder="seu@email.com">
             </div>
             <div class="form-group">
                 <label for="registerPassword">Senha:</label>
-                <input type="password" id="registerPassword" name="password" required placeholder="Crie uma senha segura">
+                <input type="password" id="registerPassword" name="password" required placeholder="Crie uma senha segura (mín. 6 caracteres)">
             </div>
             <button type="submit" class="btn btn-primary">Criar Conta</button>
         </form>
@@ -396,7 +392,18 @@
         </div>
     </div>
 
-    <script>
+    <script type="module">
+        // Supabase configuration
+        const SUPABASE_URL = 'https://xcjrvacqztpjsuoweztr.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjanJ2YWNxenRwanN1b3dlenRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0NDU5NDcsImV4cCI6MjA3MDAyMTk0N30.N0ks34HGzaQQxyoMDK1a0lDUzVo577AuILNd_QM-9H4';
+
+        const headers = {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+            'Content-Type': 'application/json'
+        };
+
+        // DOM elements
         const loginForm = document.getElementById('loginForm');
         const registerForm = document.getElementById('registerForm');
         const toggleFormLink = document.getElementById('toggleForm');
@@ -414,12 +421,12 @@
                 loginForm.style.display = 'block';
                 registerForm.style.display = 'none';
                 toggleFormLink.textContent = "Não tem uma conta? Registre-se aqui";
-                document.querySelector('.login-header p').textContent = 'Entre para acessar sua extensão';
+                document.querySelector('.auth-header p').textContent = 'Entre para acessar sua extensão';
             } else {
                 loginForm.style.display = 'none';
                 registerForm.style.display = 'block';
                 toggleFormLink.textContent = 'Já tem uma conta? Entre aqui';
-                document.querySelector('.login-header p').textContent = 'Crie uma nova conta';
+                document.querySelector('.auth-header p').textContent = 'Crie uma nova conta';
             }
             hideAlert();
         });
@@ -448,38 +455,38 @@
             setLoading(true);
 
             const formData = new FormData(loginForm);
-            const loginData = {
-                username: formData.get('username'),
-                password: formData.get('password')
-            };
+            const email = formData.get('email');
+            const password = formData.get('password');
 
             try {
-                const response = await fetch('/api/login', {
+                const response = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(loginData)
+                    headers: headers,
+                    body: JSON.stringify({
+                        email: email,
+                        password: password
+                    })
                 });
 
                 const result = await response.json();
 
-                if (result.success) {
+                if (response.ok && result.access_token) {
                     showAlert('Login realizado com sucesso! Você pode fechar esta janela.', 'success');
                     
-                    // Store token for extension use - multiple methods for compatibility
+                    // Store authentication data for extension use
                     const authData = {
-                        token: result.token,
-                        user: result.user
+                        access_token: result.access_token,
+                        refresh_token: result.refresh_token,
+                        user: result.user,
+                        expires_at: new Date(Date.now() + (result.expires_in * 1000)).toISOString()
                     };
 
                     // Method 1: Try chrome.runtime API (if available)
                     if (window.chrome && chrome.runtime && chrome.runtime.sendMessage) {
                         try {
                             chrome.runtime.sendMessage({
-                                type: 'LOGIN_SUCCESS',
-                                token: result.token,
-                                user: result.user
+                                type: 'SUPABASE_LOGIN_SUCCESS',
+                                authData: authData
                             }, (response) => {
                                 if (chrome.runtime.lastError) {
                                     console.log('Runtime error:', chrome.runtime.lastError);
@@ -496,8 +503,10 @@
                     if (window.chrome && chrome.storage && chrome.storage.local) {
                         try {
                             chrome.storage.local.set({
-                                vendaboost_auth_token: result.token,
+                                vendaboost_access_token: result.access_token,
+                                vendaboost_refresh_token: result.refresh_token,
                                 vendaboost_user_data: result.user,
+                                vendaboost_token_expires: authData.expires_at,
                                 vendaboost_last_auth_check: Date.now()
                             }, () => {
                                 if (chrome.runtime.lastError) {
@@ -513,8 +522,10 @@
                     
                     // Method 3: Fallback to localStorage
                     try {
-                        localStorage.setItem('vendaboost_auth_token', result.token);
+                        localStorage.setItem('vendaboost_access_token', result.access_token);
+                        localStorage.setItem('vendaboost_refresh_token', result.refresh_token);
                         localStorage.setItem('vendaboost_user_data', JSON.stringify(result.user));
+                        localStorage.setItem('vendaboost_token_expires', authData.expires_at);
                         localStorage.setItem('vendaboost_last_auth_check', Date.now().toString());
                         console.log('Auth data stored in localStorage');
                     } catch (error) {
@@ -529,7 +540,7 @@
                         }, 1000);
                     }, 1500);
                 } else {
-                    showAlert(result.message || 'Falha no login');
+                    showAlert(result.error_description || result.message || 'Falha no login');
                 }
             } catch (error) {
                 console.error('Login error:', error);
@@ -546,31 +557,29 @@
             setLoading(true);
 
             const formData = new FormData(registerForm);
-            const registerData = {
-                username: formData.get('username'),
-                email: formData.get('email'),
-                password: formData.get('password')
-            };
+            const email = formData.get('email');
+            const password = formData.get('password');
 
             try {
-                const response = await fetch('/api/register', {
+                const response = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(registerData)
+                    headers: headers,
+                    body: JSON.stringify({
+                        email: email,
+                        password: password
+                    })
                 });
 
                 const result = await response.json();
 
-                if (result.success) {
-                    showAlert('Registro realizado com sucesso! Faça login com suas credenciais.', 'success');
+                if (response.ok) {
+                    showAlert('Registro realizado com sucesso! Verifique seu email para confirmar a conta.', 'info');
                     registerForm.reset();
                     
                     // Switch to login form after successful registration
                     setTimeout(() => {
                         toggleFormLink.click();
-                    }, 2000);
+                    }, 3000);
                 } else {
                     showAlert(result.message || 'Falha no registro');
                 }
@@ -585,14 +594,13 @@
         // Handle messages from extension
         window.addEventListener('message', (event) => {
             if (event.data.type === 'CHECK_AUTH') {
-                // Extension is checking authentication status
-                const token = localStorage.getItem('authToken');
-                const user = localStorage.getItem('user');
+                const accessToken = localStorage.getItem('vendaboost_access_token');
+                const user = localStorage.getItem('vendaboost_user_data');
                 
                 event.source.postMessage({
                     type: 'AUTH_STATUS',
-                    authenticated: !!token,
-                    token: token,
+                    authenticated: !!accessToken,
+                    token: accessToken,
                     user: user ? JSON.parse(user) : null
                 }, event.origin);
             }

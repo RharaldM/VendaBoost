@@ -19,7 +19,7 @@
     "https://facebook.com/*",
     "https://m.facebook.com/*",
     "https://api.openai.com/*",
-    "https://*.onrender.com/*"
+    "https://xcjrvacqztpjsuoweztr.supabase.co/*"
   ],
   "background": {
     "service_worker": "background.js",
@@ -65,9 +65,13 @@
     {
       "resources": ["chunks/*"],
       "matches": ["<all_urls>"]
+    },
+    {
+      "resources": ["login-system/supabase-login.html"],
+      "matches": ["<all_urls>"]
     }
   ],
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://api.openai.com https://*.onrender.com"
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://api.openai.com https://xcjrvacqztpjsuoweztr.supabase.co"
   }
 }

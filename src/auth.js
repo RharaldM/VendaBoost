@@ -1,24 +1,25 @@
 // ============================================
-// 🔐 VendaBoost Authentication Module
+// 🔐 VendaBoost Authentication Module (Supabase)
 // ============================================
-// Modular auth system - easy to upgrade from simple redirect to full integration
+// Updated to use Supabase authentication
+
+import supabaseAuthManager from './supabase-auth.js';
 
 class AuthManager {
     constructor() {
-        // Configuration - easily changeable for different integration types
+        // Configuration - updated for Supabase
         this.config = {
-            // Current: Simple redirect mode
-            mode: 'redirect', // 'redirect' | 'embedded' | 'popup'
+            mode: 'supabase', // 'supabase' | 'redirect' | 'embedded'
             
-            // URLs - centralized for easy management
-            loginUrl: 'https://vendaboost-login.onrender.com', // Your Render URL
-            registerUrl: 'https://vendaboost-login.onrender.com',
-            validateUrl: 'https://vendaboost-login.onrender.com/api/validate',
+            // URLs - Supabase hosted login page
+            loginUrl: 'https://xcjrvacqztpjsuoweztr.supabase.co',
             
             // Storage keys
             storageKeys: {
-                token: 'vendaboost_auth_token',
+                accessToken: 'vendaboost_access_token',
+                refreshToken: 'vendaboost_refresh_token',
                 user: 'vendaboost_user_data',
+                expiresAt: 'vendaboost_token_expires',
                 lastAuth: 'vendaboost_last_auth_check'
             },
             
@@ -29,6 +30,7 @@ class AuthManager {
         this.isAuthenticated = false;
         this.currentUser = null;
         this.authCheckTimer = null;
+        this.supabaseAuth = supabaseAuthManager;
     }
 
     // ============================================
@@ -36,34 +38,21 @@ class AuthManager {
     // ============================================
     
     async checkAuthStatus() {
-        console.log('[Auth] Checking authentication status...');
+        console.log('[Auth] Checking authentication status with Supabase...');
         
         try {
-            const token = await this.getStoredToken();
+            const isAuthenticated = await this.supabaseAuth.checkAuthStatus();
             
-            if (!token) {
-                console.log('[Auth] No token found');
+            if (isAuthenticated) {
+                this.isAuthenticated = true;
+                this.currentUser = this.supabaseAuth.getCurrentUser();
+                console.log('[Auth] User authenticated:', this.currentUser?.email);
+                return true;
+            } else {
                 this.isAuthenticated = false;
+                this.currentUser = null;
                 return false;
             }
-
-            // For simple mode, just check if token exists and is not expired
-            if (this.config.mode === 'redirect') {
-                const user = await this.getStoredUser();
-                if (user) {
-                    this.isAuthenticated = true;
-                    this.currentUser = user;
-                    console.log('[Auth] User authenticated:', user.username);
-                    return true;
-                }
-            }
-
-            // Future: For embedded mode, validate token with server
-            // if (this.config.mode === 'embedded') {
-            //     return await this.validateTokenWithServer(token);
-            // }
-
-            return false;
             
         } catch (error) {
             console.error('[Auth] Error checking auth status:', error);
@@ -77,36 +66,23 @@ class AuthManager {
     // ============================================
     
     async getStoredToken() {
-        return new Promise((resolve) => {
-            chrome.storage.local.get([this.config.storageKeys.token], (result) => {
-                resolve(result[this.config.storageKeys.token] || null);
-            });
-        });
+        return await this.supabaseAuth.getStoredAccessToken();
     }
 
     async setStoredToken(token) {
-        return new Promise((resolve) => {
-            chrome.storage.local.set({
-                [this.config.storageKeys.token]: token,
-                [this.config.storageKeys.lastAuth]: Date.now()
-            }, resolve);
-        });
+        // This is handled by Supabase auth manager
+        console.warn('[Auth] setStoredToken is deprecated with Supabase');
+        return true;
     }
 
     async getStoredUser() {
-        return new Promise((resolve) => {
-            chrome.storage.local.get([this.config.storageKeys.user], (result) => {
-                resolve(result[this.config.storageKeys.user] || null);
-            });
-        });
+        return await this.supabaseAuth.getStoredUser();
     }
 
     async setStoredUser(userData) {
-        return new Promise((resolve) => {
-            chrome.storage.local.set({
-                [this.config.storageKeys.user]: userData
-            }, resolve);
-        });
+        // This is handled by Supabase auth manager
+        console.warn('[Auth] setStoredUser is deprecated with Supabase');
+        return true;
     }
 
     // ============================================
@@ -114,48 +90,43 @@ class AuthManager {
     // ============================================
     
     async login() {
-        console.log('[Auth] Initiating login...');
+        console.log('[Auth] Initiating Supabase login...');
         
-        if (this.config.mode === 'redirect') {
-            // Simple mode: Open login page in new tab
-            chrome.tabs.create({
-                url: this.config.loginUrl,
-                active: true
-            });
-            
-            // Set up listener for successful login
-            this.setupLoginSuccessListener();
-            
-        } else if (this.config.mode === 'embedded') {
-            // Future: Show embedded login form
-            console.log('[Auth] Embedded login not implemented yet');
-            
-        } else if (this.config.mode === 'popup') {
-            // Future: Open popup window
-            console.log('[Auth] Popup login not implemented yet');
-        }
+        // For Supabase, we can open the local login page or redirect to Supabase UI
+        const loginPagePath = chrome.runtime.getURL('login-system/supabase-login.html');
+        
+        chrome.tabs.create({
+            url: loginPagePath,
+            active: true
+        });
+        
+        // Set up listener for successful login
+        this.setupLoginSuccessListener();
     }
 
     async register() {
-        console.log('[Auth] Initiating registration...');
+        console.log('[Auth] Initiating Supabase registration...');
         
-        if (this.config.mode === 'redirect') {
-            // Simple mode: Open register page in new tab
-            chrome.tabs.create({
-                url: this.config.registerUrl + '?mode=register',
-                active: true
-            });
-            
-            // Set up listener for successful registration
-            this.setupLoginSuccessListener();
-        }
+        // Open the same login page but in register mode
+        const loginPagePath = chrome.runtime.getURL('login-system/supabase-login.html#register');
+        
+        chrome.tabs.create({
+            url: loginPagePath,
+            active: true
+        });
+        
+        // Set up listener for successful registration
+        this.setupLoginSuccessListener();
     }
 
     async logout() {
-        console.log('[Auth] Logging out...');
+        console.log('[Auth] Logging out from Supabase...');
         
-        // Clear stored data
-        await this.clearAuthData();
+        try {
+            await this.supabaseAuth.signOut();
+        } catch (error) {
+            console.error('[Auth] Supabase logout error:', error);
+        }
         
         // Update state
         this.isAuthenticated = false;
@@ -171,13 +142,7 @@ class AuthManager {
     }
 
     async clearAuthData() {
-        return new Promise((resolve) => {
-            chrome.storage.local.remove([
-                this.config.storageKeys.token,
-                this.config.storageKeys.user,
-                this.config.storageKeys.lastAuth
-            ], resolve);
-        });
+        return await this.supabaseAuth.clearAuthData();
     }
 
     // ============================================
@@ -185,14 +150,27 @@ class AuthManager {
     // ============================================
     
     setupLoginSuccessListener() {
-        // Listen for messages from login page
+        // Listen for messages from Supabase login page
         const messageListener = (message, sender, sendResponse) => {
-            if (message.type === 'LOGIN_SUCCESS' && message.token && message.user) {
-                console.log('[Auth] Login success received:', message.user.username);
+            if (message.type === 'SUPABASE_LOGIN_SUCCESS' && message.authData) {
+                console.log('[Auth] Supabase login success received:', message.authData.user?.email);
                 
-                // Store auth data
-                this.setStoredToken(message.token);
-                this.setStoredUser(message.user);
+                // Update state
+                this.isAuthenticated = true;
+                this.currentUser = message.authData.user;
+                
+                // Emit login event
+                this.emitAuthEvent('login', message.authData.user);
+                
+                // Remove listener
+                chrome.runtime.onMessage.removeListener(messageListener);
+                
+                sendResponse({ success: true });
+            }
+            
+            // Also handle legacy login success for backward compatibility
+            if (message.type === 'LOGIN_SUCCESS' && message.token && message.user) {
+                console.log('[Auth] Legacy login success received:', message.user.username);
                 
                 // Update state
                 this.isAuthenticated = true;
@@ -247,20 +225,19 @@ class AuthManager {
     }
 
     // ============================================
-    // 🔧 Configuration & Upgrade Path
+    // 🔧 Configuration & Utility Methods
     // ============================================
     
-    // Easy method to upgrade to embedded mode later
-    async upgradeToEmbedded(embeddedConfig = {}) {
-        console.log('[Auth] Upgrading to embedded mode...');
-        
-        this.config.mode = 'embedded';
-        
-        // Merge custom config
-        Object.assign(this.config, embeddedConfig);
-        
-        // Future: Initialize embedded UI
-        // this.initializeEmbeddedUI();
+    getCurrentUser() {
+        return this.currentUser || this.supabaseAuth.getCurrentUser();
+    }
+
+    getAccessToken() {
+        return this.supabaseAuth.getAccessToken();
+    }
+
+    isUserAuthenticated() {
+        return this.isAuthenticated || this.supabaseAuth.isUserAuthenticated();
     }
 
     // Get current auth info for debugging
@@ -269,8 +246,19 @@ class AuthManager {
             mode: this.config.mode,
             isAuthenticated: this.isAuthenticated,
             currentUser: this.currentUser,
-            loginUrl: this.config.loginUrl
+            supabaseUrl: this.config.loginUrl,
+            supabaseAuth: this.supabaseAuth.getAuthInfo()
         };
+    }
+
+    // ============================================
+    // 🔄 Backward Compatibility Methods
+    // ============================================
+    
+    // Easy method to upgrade to embedded mode later
+    async upgradeToEmbedded(embeddedConfig = {}) {
+        console.log('[Auth] Embedded mode upgrade not applicable for Supabase');
+        return false;
     }
 }
 

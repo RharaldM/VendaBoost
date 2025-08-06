@@ -212,21 +212,49 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
     // Handle authentication messages
     if (request.type === 'LOGIN_SUCCESS') {
-        console.log('[Background] Login success received:', request.user?.username);
+        console.log('[Background] Legacy login success received:', request.user?.username);
         
-        // Store authentication data
+        // Store legacy authentication data
         chrome.storage.local.set({
             vendaboost_auth_token: request.token,
             vendaboost_user_data: request.user,
             vendaboost_last_auth_check: Date.now()
         }, () => {
-            console.log('[Background] Auth data stored successfully');
+            console.log('[Background] Legacy auth data stored successfully');
             
             // Notify all extension pages about successful login
             chrome.runtime.sendMessage({
                 type: 'AUTH_STATUS_CHANGED',
                 authenticated: true,
                 user: request.user
+            }).catch(err => console.log('[Background] No listeners for auth update'));
+            
+            sendResponse({ success: true });
+        });
+        
+        return true; // Will respond asynchronously
+    }
+
+    // Handle Supabase authentication messages
+    if (request.type === 'SUPABASE_LOGIN_SUCCESS') {
+        console.log('[Background] Supabase login success received:', request.authData?.user?.email);
+        
+        // Store Supabase authentication data
+        chrome.storage.local.set({
+            vendaboost_access_token: request.authData.access_token,
+            vendaboost_refresh_token: request.authData.refresh_token,
+            vendaboost_user_data: request.authData.user,
+            vendaboost_token_expires: request.authData.expires_at,
+            vendaboost_last_auth_check: Date.now()
+        }, () => {
+            console.log('[Background] Supabase auth data stored successfully');
+            
+            // Notify all extension pages about successful login
+            chrome.runtime.sendMessage({
+                type: 'AUTH_STATUS_CHANGED',
+                authenticated: true,
+                user: request.authData.user,
+                provider: 'supabase'
             }).catch(err => console.log('[Background] No listeners for auth update'));
             
             sendResponse({ success: true });

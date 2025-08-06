@@ -1,33 +1,24 @@
 // ============================================
-// 🔐 VendaBoost Authentication Client
+// 🔐 VendaBoost Authentication Client (Supabase)
 // ============================================
-// Integrates with the Node.js login-system server
+// Updated to use Supabase authentication
+
+import supabaseAuthManager from './supabase-auth.js';
 
 class AuthClient {
     constructor() {
+        this.authManager = supabaseAuthManager;
         this.config = {
-            // Server URLs - update these to match your login-system server
-            serverUrl: 'https://vendaboost-login.onrender.com', // Servidor no Render.com
-            endpoints: {
-                login: '/api/login',
-                validate: '/api/validate',
-                logout: '/api/logout'
-            },
-            
-            // Storage keys
+            // Storage keys for backward compatibility
             storageKeys: {
-                token: 'vendaboost_auth_token',
+                token: 'vendaboost_access_token',
                 user: 'vendaboost_user_data',
                 lastAuth: 'vendaboost_last_auth_check'
-            },
-            
-            // Auth check interval (5 minutes)
-            tokenCheckInterval: 5 * 60 * 1000
+            }
         };
         
         this.isAuthenticated = false;
         this.currentUser = null;
-        this.authCheckTimer = null;
     }
 
     // ============================================
@@ -35,58 +26,19 @@ class AuthClient {
     // ============================================
     
     async checkAuthStatus() {
-        console.log('[AuthClient] Checking authentication status...');
+        console.log('[AuthClient] Checking authentication status with Supabase...');
         
         try {
-            const token = await this.getStoredToken();
+            const isAuthenticated = await this.authManager.checkAuthStatus();
             
-            if (!token) {
-                console.log('[AuthClient] No token found');
-                this.isAuthenticated = false;
-                return false;
-            }
-
-            // Check if we have a recent successful auth check
-            const lastAuthCheck = await this.getLastAuthCheck();
-            const now = Date.now();
-            const timeSinceLastCheck = now - (lastAuthCheck || 0);
-            
-            // If last check was less than 30 minutes ago, consider user authenticated
-            // This prevents logout on temporary connection issues
-            if (timeSinceLastCheck < 30 * 60 * 1000) { // 30 minutes
-                const user = await this.getStoredUser();
-                if (user) {
-                    this.isAuthenticated = true;
-                    this.currentUser = user;
-                    console.log('[AuthClient] Using cached authentication:', user?.username);
-                    
-                    // Try to validate with server in background (don't wait for result)
-                    this.validateTokenWithServer(token).then(isValid => {
-                        if (isValid) {
-                            this.updateLastAuthCheck();
-                        }
-                    }).catch(() => {
-                        // Ignore server validation errors for cached auth
-                    });
-                    
-                    return true;
-                }
-            }
-
-            // If no recent cache, validate with server
-            const isValid = await this.validateTokenWithServer(token);
-            
-            if (isValid) {
-                const user = await this.getStoredUser();
+            if (isAuthenticated) {
                 this.isAuthenticated = true;
-                this.currentUser = user;
-                await this.updateLastAuthCheck();
-                console.log('[AuthClient] User authenticated via server:', user?.username);
+                this.currentUser = this.authManager.getCurrentUser();
+                console.log('[AuthClient] User authenticated:', this.currentUser?.email);
                 return true;
             } else {
-                // Only clear data if we're sure the token is invalid (not just server unreachable)
-                console.log('[AuthClient] Token validation failed');
-                await this.clearAuthData();
+                this.isAuthenticated = false;
+                this.currentUser = null;
                 return false;
             }
             
@@ -98,214 +50,120 @@ class AuthClient {
     }
 
     // ============================================
-    // 🔑 Server Communication
+    // 🔑 Authentication Actions
     // ============================================
     
-    async validateTokenWithServer(token) {
+    async signIn(email, password) {
+        console.log('[AuthClient] Attempting sign in...');
+        
         try {
-            const response = await fetch(`${this.config.serverUrl}${this.config.endpoints.validate}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                // Add timeout to avoid hanging
-                signal: AbortSignal.timeout(10000) // 10 seconds timeout
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                return data.valid === true;
-            } else if (response.status === 401 || response.status === 403) {
-                // Token is definitely invalid
-                console.log('[AuthClient] Token is invalid (401/403)');
-                return false;
+            const result = await this.authManager.signIn(email, password);
+            
+            if (result.success) {
+                this.isAuthenticated = true;
+                this.currentUser = result.user;
+                return result;
             } else {
-                // Server error - don't assume token is invalid
-                console.warn('[AuthClient] Server error during validation:', response.status);
-                throw new Error(`Server error: ${response.status}`);
+                throw new Error('Sign in failed');
             }
             
         } catch (error) {
-            if (error.name === 'AbortError') {
-                console.warn('[AuthClient] Token validation timeout');
-            } else {
-                console.warn('[AuthClient] Network error during token validation:', error.message);
-            }
-            // Don't return false for network errors - let calling function handle it
+            console.error('[AuthClient] Sign in error:', error);
             throw error;
         }
     }
 
-    // ============================================
-    // 🚪 Login Method
-    // ============================================
-    
-    async login(username, password) {
-        console.log('[AuthClient] Attempting login for:', username);
+    // Legacy method for backward compatibility
+    async login(email, password) {
+        return await this.signIn(email, password);
+    }
+
+    async signUp(email, password, userData = {}) {
+        console.log('[AuthClient] Attempting sign up...');
         
         try {
-            const response = await fetch(`${this.config.serverUrl}${this.config.endpoints.login}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ username, password })
-            });
-
-            const data = await response.json();
-
-            if (response.ok && data.success) {
-                // Store token and user data
-                await this.setStoredToken(data.token);
-                await this.setStoredUser(data.user);
-                await this.updateLastAuthCheck();
-                
-                this.isAuthenticated = true;
-                this.currentUser = data.user;
-                
-                console.log('[AuthClient] Login successful');
-                this.startAuthCheckTimer();
-                
-                return {
-                    success: true,
-                    user: data.user,
-                    message: 'Login realizado com sucesso!'
-                };
-            } else {
-                console.log('[AuthClient] Login failed:', data.message);
-                return {
-                    success: false,
-                    message: data.message || 'Erro ao fazer login'
-                };
-            }
+            const result = await this.authManager.signUp(email, password, userData);
+            return result;
             
         } catch (error) {
-            console.error('[AuthClient] Login error:', error);
-            return {
-                success: false,
-                message: 'Erro de conexão com o servidor'
-            };
+            console.error('[AuthClient] Sign up error:', error);
+            throw error;
         }
     }
 
-    // ============================================
-    //  Logout Method
-    // ============================================
-    
+    async signOut() {
+        console.log('[AuthClient] Signing out...');
+        
+        try {
+            await this.authManager.signOut();
+            this.isAuthenticated = false;
+            this.currentUser = null;
+            
+        } catch (error) {
+            console.error('[AuthClient] Sign out error:', error);
+            throw error;
+        }
+    }
+
+    // Legacy method for backward compatibility
     async logout() {
-        console.log('[AuthClient] Logging out...');
-        
-        try {
-            const token = await this.getStoredToken();
-            
-            if (token) {
-                // Notify server about logout
-                fetch(`${this.config.serverUrl}${this.config.endpoints.logout}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    }
-                }).catch(err => console.log('[AuthClient] Server logout notification failed:', err));
-            }
-            
-            // Clear local data
-            await this.clearAuthData();
-            this.stopAuthCheckTimer();
-            
-            console.log('[AuthClient] Logout successful');
-            return { success: true };
-            
-        } catch (error) {
-            console.error('[AuthClient] Logout error:', error);
-            return { success: false, message: 'Erro ao fazer logout' };
-        }
+        return await this.signOut();
     }
 
     // ============================================
-    // 💾 Storage Management
+    // 🔄 Token Management (Backward Compatibility)
     // ============================================
     
     async getStoredToken() {
-        return new Promise((resolve) => {
-            chrome.storage.local.get([this.config.storageKeys.token], (result) => {
-                resolve(result[this.config.storageKeys.token] || null);
-            });
-        });
-    }
-
-    async setStoredToken(token) {
-        return new Promise((resolve) => {
-            chrome.storage.local.set({
-                [this.config.storageKeys.token]: token,
-                [this.config.storageKeys.lastAuth]: Date.now()
-            }, resolve);
-        });
+        return await this.authManager.getStoredAccessToken();
     }
 
     async getStoredUser() {
-        return new Promise((resolve) => {
-            chrome.storage.local.get([this.config.storageKeys.user], (result) => {
-                resolve(result[this.config.storageKeys.user] || null);
-            });
-        });
-    }
-
-    async setStoredUser(userData) {
-        return new Promise((resolve) => {
-            chrome.storage.local.set({
-                [this.config.storageKeys.user]: userData
-            }, resolve);
-        });
-    }
-
-    async clearAuthData() {
-        return new Promise((resolve) => {
-            chrome.storage.local.remove([
-                this.config.storageKeys.token,
-                this.config.storageKeys.user,
-                this.config.storageKeys.lastAuth
-            ], () => {
-                this.isAuthenticated = false;
-                this.currentUser = null;
-                resolve();
-            });
-        });
+        return await this.authManager.getStoredUser();
     }
 
     async getLastAuthCheck() {
-        return new Promise((resolve) => {
-            chrome.storage.local.get([this.config.storageKeys.lastAuth], (result) => {
-                resolve(result[this.config.storageKeys.lastAuth] || 0);
-            });
-        });
+        return await this.authManager.getLastAuthCheck();
+    }
+
+    async setStoredToken(token) {
+        // This method is deprecated as Supabase handles token storage
+        console.warn('[AuthClient] setStoredToken is deprecated with Supabase');
+        return true;
+    }
+
+    async setStoredUser(userData) {
+        // This method is deprecated as Supabase handles user data storage
+        console.warn('[AuthClient] setStoredUser is deprecated with Supabase');
+        return true;
+    }
+
+    async clearAuthData() {
+        return await this.authManager.clearAuthData();
     }
 
     async updateLastAuthCheck() {
-        return new Promise((resolve) => {
-            chrome.storage.local.set({
-                [this.config.storageKeys.lastAuth]: Date.now()
-            }, resolve);
-        });
+        return await this.authManager.updateLastAuthCheck();
     }
 
     // ============================================
-    // ⏰ Auto Auth Check Timer
+    // 🎧 Event System
+    // ============================================
+    
+    onAuthChange(callback) {
+        this.authManager.onAuthChange(callback);
+    }
+
+    // ============================================
+    // ⏰ Timer Management
     // ============================================
     
     startAuthCheckTimer() {
-        this.stopAuthCheckTimer();
-        this.authCheckTimer = setInterval(() => {
-            this.checkAuthStatus();
-        }, this.config.tokenCheckInterval);
+        this.authManager.startPeriodicAuthCheck();
     }
 
     stopAuthCheckTimer() {
-        if (this.authCheckTimer) {
-            clearInterval(this.authCheckTimer);
-            this.authCheckTimer = null;
-        }
+        this.authManager.stopPeriodicAuthCheck();
     }
 
     // ============================================
@@ -313,25 +171,52 @@ class AuthClient {
     // ============================================
     
     getCurrentUser() {
-        return this.currentUser;
+        return this.currentUser || this.authManager.getCurrentUser();
+    }
+
+    getAccessToken() {
+        return this.authManager.getAccessToken();
     }
 
     isUserAuthenticated() {
-        return this.isAuthenticated;
+        return this.isAuthenticated || this.authManager.isUserAuthenticated();
     }
 
-    // Test server connection
+    // Test Supabase connection
     async testConnection() {
         try {
-            const response = await fetch(`${this.config.serverUrl}/api/health`, {
-                method: 'GET'
+            // Simple ping to Supabase
+            const response = await fetch(`${this.authManager.authManager.config.url}/rest/v1/`, {
+                method: 'HEAD',
+                headers: {
+                    'apikey': this.authManager.authManager.config.anonKey
+                }
             });
             
             return response.ok;
         } catch (error) {
-            console.error('[AuthClient] Connection test failed:', error);
+            console.error('[AuthClient] Supabase connection test failed:', error);
             return false;
         }
+    }
+
+    // Get current auth info for debugging
+    getAuthInfo() {
+        return {
+            ...this.authManager.getAuthInfo(),
+            clientAuthenticated: this.isAuthenticated,
+            clientUser: this.currentUser
+        };
+    }
+
+    // ============================================
+    // 📱 Legacy Server Validation (Deprecated)
+    // ============================================
+    
+    async validateTokenWithServer(token) {
+        // This method is deprecated but kept for backward compatibility
+        console.warn('[AuthClient] validateTokenWithServer is deprecated. Using Supabase validation instead.');
+        return await this.checkAuthStatus();
     }
 }
 
