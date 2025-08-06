@@ -13,6 +13,7 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 10000;
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+const ADMIN_SECRET = process.env.ADMIN_SECRET || 'vb_admin_2024_a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6';
 
 // Middleware
 app.use(cors({
@@ -170,8 +171,6 @@ function createDefaultAdminIfNeeded() {
       });
     } else {
       console.log(`👥 Database already has ${row.count} user(s)`);
-      
-      // List existing users for debug
       db.all('SELECT id, username, email, created_at FROM users', (err, users) => {
         if (!err && users) {
           console.log('📋 Existing users:');
@@ -188,6 +187,16 @@ function createDefaultAdminIfNeeded() {
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'login.html'));
 });
+
+// ==== NOVA ROTA ADMIN SEGURA PARA LISTAR USUÁRIOS ====
+app.get('/admin/users', (req, res) => {
+  if (req.query.admin_secret !== ADMIN_SECRET) return res.status(403).send('Forbidden');
+  db.all('SELECT id, username, email, created_at FROM users', [], (err, rows) => {
+    if (err) return res.status(500).send('DB error');
+    res.json(rows);
+  });
+});
+// ======================================================
 
 // Login endpoint
 app.post('/api/login', async (req, res) => {
@@ -214,15 +223,12 @@ app.post('/api/login', async (req, res) => {
 
       if (!user) {
         console.log(`❌ User not found: ${username}`);
-        
-        // Debug: List all users in database
         db.all('SELECT username, email FROM users', (err, users) => {
           if (!err && users) {
             console.log('📊 Available users in database:');
             users.forEach(u => console.log(`   - ${u.username} (${u.email})`));
           }
         });
-        
         return res.status(401).json({ 
           success: false, 
           message: 'Invalid credentials' 
@@ -269,11 +275,13 @@ app.post('/api/login', async (req, res) => {
 
 // Validate token endpoint
 app.post('/api/validate', (req, res) => {
-  const { token } = req.body;
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.startsWith('Bearer ') ? 
+    authHeader.substring(7) : req.body.token;
 
   if (!token) {
-    return res.status(400).json({ 
-      success: false, 
+    return res.status(401).json({ 
+      valid: false, 
       message: 'Token is required' 
     });
   }
@@ -281,7 +289,7 @@ app.post('/api/validate', (req, res) => {
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
     res.json({
-      success: true,
+      valid: true,
       user: {
         userId: decoded.userId,
         username: decoded.username
@@ -289,13 +297,13 @@ app.post('/api/validate', (req, res) => {
     });
   } catch (error) {
     res.status(401).json({ 
-      success: false, 
+      valid: false, 
       message: 'Invalid token' 
     });
   }
 });
 
-// Register endpoint (optional)
+// Register endpoint (optional, can remove to restrict register)
 app.post('/api/register', async (req, res) => {
   try {
     const { username, password, email } = req.body;

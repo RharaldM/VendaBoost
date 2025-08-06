@@ -26,6 +26,14 @@ async function copyStaticFiles() {
     // Não precisamos mais copiar os módulos do Firebase, pois estamos usando o pacote npm
     console.log('✅ Usando módulos do Firebase do pacote npm');
     
+    // Copia auth-styles.css para o dist
+    const authStylesSrc = path.join(srcDir, 'auth-styles.css');
+    const authStylesDest = path.join(distDir, 'auth-styles.css');
+    if (await fs.pathExists(authStylesSrc)) {
+      await fs.copy(authStylesSrc, authStylesDest);
+      console.log('✅ auth-styles.css copiado');
+    }
+    
     // Move popup.html do src/ para a raiz do dist/
     const popupHtmlSrc = path.join(distDir, 'src', 'popup.html');
     const popupHtmlDest = path.join(distDir, 'popup.html');

@@ -3008,7 +3008,7 @@ async function clicarBotaoPublicar(postData = null) {
                             
                             if (settings.autoPostToGroups) {
                                 console.log("[Content Script] 🎯 Iniciando postagem automática nos grupos...");
-                                await postarNosGrupos();
+                                await postarNosGrupos(postData?.selectedGroups);
                             } else {
                                 console.log("[Content Script] ℹ️ Postagem automática nos grupos está desativada");
                             }
@@ -3242,7 +3242,7 @@ async function verificarPaginaPostPublicacao() {
 }
 
 // Função principal para postar nos grupos após publicação
-async function postarNosGrupos() {
+async function postarNosGrupos(selectedGroups = null) {
     console.log("[Content Script] 🎯 Iniciando processo de postagem nos grupos...");
     
     try {
@@ -3270,7 +3270,7 @@ async function postarNosGrupos() {
         await new Promise(resolve => setTimeout(resolve, 3000));
         
         // Passo 3: Selecionar os grupos disponíveis
-        const gruposSelecionados = await selecionarGruposDisponiveis();
+        const gruposSelecionados = await selecionarGruposDisponiveis(selectedGroups);
         console.log(`[Content Script] ✅ Processo concluído! ${gruposSelecionados} grupos selecionados.`);
         
         return true;
@@ -3439,15 +3439,90 @@ async function clicarAnunciarMaisLocais() {
 }
 
 // Função para selecionar os grupos disponíveis (ignorando sugestões)
-async function selecionarGruposDisponiveis() {
+async function selecionarGruposDisponiveis(selectedGroups = null) {
     console.log("[Content Script] Procurando grupos disponíveis para seleção...");
+    
+    // Initialize the counter variable
+    let gruposSelecionados = 0;
+    
+    if (selectedGroups && selectedGroups.length > 0) {
+        console.log(`[Content Script] Usando grupos específicos selecionados: ${selectedGroups.length} grupos`);
+        console.log("[Content Script] Grupos selecionados:", selectedGroups.map(g => g.name));
+    } else {
+        console.log("[Content Script] Nenhum grupo específico fornecido, selecionando todos os grupos disponíveis");
+    }
     
     // Aguardar a página carregar
     await new Promise(resolve => setTimeout(resolve, 3000));
+
+    // Se grupos específicos foram fornecidos, tentar encontrá-los pelo nome
+    if (selectedGroups && selectedGroups.length > 0) {
+        console.log("[Content Script] 🎯 Tentando selecionar grupos específicos por nome...");
+        
+        // Função para encontrar checkbox por nome do grupo
+        function encontrarCheckboxPorNome(nomeGrupo) {
+            const seletores = [
+                'div[role="checkbox"]',
+                'input[type="checkbox"]',
+                '[role="checkbox"]'
+            ];
+            
+            for (const seletor of seletores) {
+                const checkboxes = document.querySelectorAll(seletor);
+                for (const checkbox of checkboxes) {
+                    // Procurar texto do grupo nos elementos pai ou irmãos
+                    const elementoPai = checkbox.closest('div') || checkbox.parentElement;
+                    if (elementoPai) {
+                        const textoElemento = elementoPai.textContent || '';
+                        if (textoElemento.toLowerCase().includes(nomeGrupo.toLowerCase())) {
+                            console.log(`[Content Script] ✅ Encontrado checkbox para grupo: ${nomeGrupo}`);
+                            return checkbox;
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+        
+        // Tentar selecionar cada grupo específico
+        for (const grupo of selectedGroups) {
+            try {
+                const checkbox = encontrarCheckboxPorNome(grupo.name);
+                if (checkbox) {
+                    const isChecked = checkbox.getAttribute('aria-checked') === 'true' || checkbox.checked;
+                    if (!isChecked) {
+                        checkbox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        await new Promise(resolve => setTimeout(resolve, 500));
+                        checkbox.click();
+                        gruposSelecionados++;
+                        console.log(`[Content Script] ✅ Selecionado grupo: ${grupo.name}`);
+                        await new Promise(resolve => setTimeout(resolve, 800));
+                    } else {
+                        console.log(`[Content Script] ℹ️ Grupo já selecionado: ${grupo.name}`);
+                    }
+                } else {
+                    console.log(`[Content Script] ⚠️ Não foi possível encontrar checkbox para grupo: ${grupo.name}`);
+                }
+            } catch (error) {
+                console.error(`[Content Script] ❌ Erro ao selecionar grupo ${grupo.name}:`, error);
+            }
+        }
+        
+        // Se conseguiu selecionar os grupos específicos, retornar
+        if (gruposSelecionados > 0) {
+            console.log(`[Content Script] ✅ Selecionados ${gruposSelecionados} grupos específicos com sucesso!`);
+            await procurarBotaoConfirmarGrupos();
+            return gruposSelecionados;
+        } else {
+            console.log("[Content Script] ⚠️ Não foi possível selecionar grupos específicos, recorrendo ao método padrão...");
+        }
+    }
+
+    // Método padrão: selecionar grupos pelos checkboxes (usado quando não há grupos específicos ou como fallback)
+    console.log("[Content Script] 🔄 Usando método padrão de seleção de grupos...");
     
     const seletorCheckbox = 'div[role="checkbox"].x1i10hfl.x1qjc9v5.xjbqb8w.xjqpnuy.xc5r6h4.xqeqjp1.x1phubyo.x13fuv20.x18b5jzi.x1q0q8m5.x1t7ytsu.x972fbf.x10w94by.x1qhh985.x14e42zd.x9f619.x1ypdohk.xdl72j9.x2lah0s.xe8uvvx.xdj266r.x14z9mp.xat24cr.x1lziwak.x2lwn1j.xeuugli.xexx8yu.xyri2b.x18d9i69.x1c1uobl.x1n2onr6.x16tdsg8.x1hl2dhg.xggy1nq.x1ja2u2z.x1t137rt.x1fmog5m.xu25z0z.x140muxe.xo1y3bh.x1q0g3np.x87ps6o.x1lku1pv.x1a2a7pz.x1lliihq';
     
-    let gruposSelecionados = 0;
     let tentativas = 0;
     const maxTentativas = 5;
     
@@ -3468,12 +3543,18 @@ async function selecionarGruposDisponiveis() {
         for (let i = 0; i < checkboxes.length; i++) {
             const checkbox = checkboxes[i];
             
+            // Se foram especificados grupos específicos, parar quando atingir o número
+            if (selectedGroups && selectedGroups.length > 0 && gruposSelecionados >= selectedGroups.length) {
+                console.log(`[Content Script] ✅ Selecionados ${gruposSelecionados} grupos conforme especificado pelo usuário`);
+                break;
+            }
+            
             // Verificar se não está marcado (aria-checked="false")
             const isChecked = checkbox.getAttribute('aria-checked') === 'true';
             
             if (!isChecked && checkbox.offsetParent !== null) {
                 try {
-                    console.log(`[Content Script] Selecionando grupo ${i + 1}...`);
+                    console.log(`[Content Script] Selecionando grupo ${i + 1}${selectedGroups ? ` (${gruposSelecionados + 1}/${selectedGroups.length})` : ''}...`);
                     
                     // Scroll para garantir que está visível
                     checkbox.scrollIntoView({ behavior: 'smooth', block: 'center' });

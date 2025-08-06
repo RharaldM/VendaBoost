@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "VendaBoost",
   "version": "1.0.0",
-  "description": "Extensão avançada para automação e agendamento de postagens no Facebook Marketplace com recursos aprimorados de segurança e performance",
+  "description": "Automatize suas vendas no Facebook Marketplace com agendamento inteligente de posts, gerenciamento de grupos e interface moderna",
   "permissions": [
     "storage",
     "alarms",
@@ -18,15 +18,6 @@
     "https://web.facebook.com/*",
     "https://facebook.com/*",
     "https://m.facebook.com/*",
-    "https://www.gstatic.com/*",
-    "https://firebaseapp.com/*",
-    "https://*.firebaseio.com/*",
-    "https://*.firebasestorage.app/*",
-    "https://*.firestore.googleapis.com/*",
-    "https://www.google-analytics.com/*",
-    "https://analytics.google.com/*",
-    "https://*.google-analytics.com/*",
-    "https://region1.google-analytics.com/*",
     "https://api.openai.com/*",
     "https://*.onrender.com/*"
   ],
@@ -72,11 +63,11 @@
       ]
     },
     {
-      "resources": ["firebase-config.js", "firebase-integration.js", "chunks/*"],
+      "resources": ["chunks/*"],
       "matches": ["<all_urls>"]
     }
   ],
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://*.firestore.googleapis.com https://*.google-analytics.com wss://*.firebaseio.com https://*.firebasestorage.app https://api.openai.com"
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://api.openai.com https://*.onrender.com"
   }
 }

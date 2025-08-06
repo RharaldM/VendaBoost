@@ -11,8 +11,8 @@ import { initializeStorage, storageManager } from './database.js';
 // Importar integração OpenAI
 import openAIIntegration from './openai-integration.js';
 
-// Importar sistema de autenticação
-import authManager from './auth.js';
+// Importar cliente de autenticação
+import AuthClient from './auth-client.js';
 
 // Estrutura de dados para categorias
 // Os 'id's aqui devem corresponder exatamente às chaves no CATEGORY_MAP do content.js
@@ -50,41 +50,22 @@ class PopupManager {
             enableNotifications: true,
             autoRetry: true
         };
+        
+        // Inicializar cliente de autenticação
+        this.authClient = new AuthClient();
+        this.isAuthenticated = false;
+        
         this.init();
     }
 
     async init() {
         console.log('[Popup] Inicializando...');
         
-        try {
-            // PRIMEIRO: Verificar autenticação
-            const isAuthenticated = await authManager.checkAuthStatus();
-            console.log('[Popup] Status de autenticação:', isAuthenticated);
-            
-            if (!isAuthenticated) {
-                console.log('[Popup] Usuário não autenticado - configurando tela de login');
-                // Aguardar um pouco para garantir que o DOM está pronto
-                setTimeout(() => {
-                    this.showAuthScreen();
-                }, 100);
-                return; // Parar inicialização até login
-            }
-        } catch (error) {
-            console.error('[Popup] Erro na verificação de auth:', error);
-            // Em caso de erro, mostrar tela de login
-            setTimeout(() => {
-                this.showAuthScreen();
-            }, 100);
-            return;
-        }
-        
-        console.log('[Popup] Usuário autenticado - continuando inicialização');
-        
-        // Configurar listener para mudanças de auth
-        this.setupAuthListeners();
-        
         // Inicializar o Dexie (IndexedDB)
         await initializeStorage();
+        
+        // Verificar status de autenticação
+        await this.checkAuthentication();
         
         // Configurar UI básica
         this.setupTabNavigation();
@@ -92,6 +73,7 @@ class PopupManager {
         this.setupSettingsListeners();
         this.setupCategoryListeners();
         this.setupGroupControlsListeners();
+        this.setupAuthListeners(); // Novo: listeners de autenticação
         await this.loadSettings();
         
         // Carregar dados do formulário da sessão
@@ -103,310 +85,194 @@ class PopupManager {
         this.updateUI();
         this.setupBackgroundPostListeners();
         this.updateConnectionIndicator(true);
-        this.updateUserInfo(); // Mostrar info do usuário logado
         
-        // Iniciar verificação periódica de auth
-        authManager.startPeriodicAuthCheck();
+        // Mostrar modal de autenticação se necessário
+        this.showAuthModalIfNeeded();
     }
 
     // ============================================
     // 🔐 Authentication Methods
     // ============================================
     
-    showAuthScreen() {
-        console.log('[Popup] Mostrando tela de autenticação');
+    async checkAuthentication() {
+        console.log('[Popup] Verificando autenticação...');
+        this.isAuthenticated = await this.authClient.checkAuthStatus();
         
-        // Esconder conteúdo principal
-        const mainContent = document.querySelector('body > *:not(#authScreen)');
-        document.querySelectorAll('body > *:not(#authScreen)').forEach(el => {
-            el.style.display = 'none';
-        });
-        
-        // Configurar dimensões do body para popup
-        document.body.style.width = '400px';
-        document.body.style.height = '600px';
-        document.body.style.margin = '0';
-        document.body.style.padding = '0';
-        
-        // Criar tela de auth se não existir
-        let authScreen = document.getElementById('authScreen');
-        if (!authScreen) {
-            authScreen = this.createAuthScreen();
-            document.body.appendChild(authScreen);
+        if (this.isAuthenticated) {
+            console.log('[Popup] Usuário autenticado:', this.authClient.getCurrentUser());
+            this.updateUserUI();
+        } else {
+            console.log('[Popup] Usuário não autenticado');
         }
         
-        authScreen.style.display = 'block';
-        
-        // Configurar listeners dos botões de auth
-        this.setupAuthButtons();
+        return this.isAuthenticated;
     }
-    
-    createAuthScreen() {
-        const authScreen = document.createElement('div');
-        authScreen.id = 'authScreen';
-        authScreen.innerHTML = `
-            <div class="auth-container">
-                <div class="auth-header">
-                    <svg class="auth-logo" viewBox="0 0 24 24" fill="none">
-                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    <h1>VendaBoost Pro</h1>
-                    <p>Sistema de automação para Facebook Marketplace</p>
-                </div>
-                
-                <div class="auth-content">
-                    <div class="auth-message">
-                        <h2>🔐 Autenticação Necessária</h2>
-                        <p>Para usar o VendaBoost, você precisa fazer login ou criar uma conta.</p>
-                    </div>
-                    
-                    <div class="auth-actions">
-                        <button id="authLoginBtn" class="btn btn-primary auth-btn">
-                            <svg class="btn-icon" viewBox="0 0 24 24" fill="none">
-                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                            Fazer Login
-                        </button>
-                        
-                        <button id="authRegisterBtn" class="btn btn-secondary auth-btn">
-                            <svg class="btn-icon" viewBox="0 0 24 24" fill="none">
-                                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2m8-10a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                            Criar Conta
-                        </button>
-                    </div>
-                    
-                    <div class="auth-info">
-                        <p><strong>💡 Como funciona:</strong></p>
-                        <ol>
-                            <li>Clique em "Criar Conta" ou "Fazer Login"</li>
-                            <li>Uma nova aba será aberta com o sistema de login</li>
-                            <li>Após fazer login, volte para esta extensão</li>
-                            <li>A extensão será desbloqueada automaticamente</li>
-                        </ol>
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        // Adicionar estilos
-        const styles = `
-            <style>
-                #authScreen {
-                    width: 100%;
-                    height: 100%;
-                    min-height: 600px;
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-family: 'Inter', sans-serif;
-                    box-sizing: border-box;
-                    padding: 1rem;
-                }
-                
-                .auth-container {
-                    background: white;
-                    border-radius: 12px;
-                    padding: 1.5rem;
-                    width: 100%;
-                    max-width: 360px;
-                    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-                    text-align: center;
-                    box-sizing: border-box;
-                }
-                
-                .auth-header {
-                    margin-bottom: 1.5rem;
-                }
-                
-                .auth-logo {
-                    width: 40px;
-                    height: 40px;
-                    color: #667eea;
-                    margin-bottom: 0.75rem;
-                }
-                
-                .auth-header h1 {
-                    color: #333;
-                    margin-bottom: 0.5rem;
-                    font-size: 1.3rem;
-                }
-                
-                .auth-header p {
-                    color: #666;
-                    font-size: 0.85rem;
-                }
-                
-                .auth-message {
-                    margin-bottom: 1.5rem;
-                }
-                
-                .auth-message h2 {
-                    color: #333;
-                    margin-bottom: 1rem;
-                    font-size: 1.2rem;
-                }
-                
-                .auth-message p {
-                    color: #666;
-                    line-height: 1.5;
-                }
-                
-                .auth-actions {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 1rem;
-                    margin-bottom: 2rem;
-                }
-                
-                .auth-btn {
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 0.5rem;
-                    padding: 0.75rem 1.5rem;
-                    border: none;
-                    border-radius: 6px;
-                    font-weight: 600;
-                    cursor: pointer;
-                    transition: all 0.2s;
-                }
-                
-                .btn-primary {
-                    background: #667eea;
-                    color: white;
-                }
-                
-                .btn-primary:hover {
-                    background: #5a6fd8;
-                    transform: translateY(-1px);
-                }
-                
-                .btn-secondary {
-                    background: #6c757d;
-                    color: white;
-                }
-                
-                .btn-secondary:hover {
-                    background: #5a6268;
-                    transform: translateY(-1px);
-                }
-                
-                .btn-icon {
-                    width: 18px;
-                    height: 18px;
-                }
-                
-                .auth-info {
-                    background: #f8f9fa;
-                    padding: 1rem;
-                    border-radius: 6px;
-                    text-align: left;
-                    font-size: 0.85rem;
-                }
-                
-                .auth-info p {
-                    margin-bottom: 0.5rem;
-                    font-weight: 600;
-                    color: #495057;
-                }
-                
-                .auth-info ol {
-                    margin: 0;
-                    padding-left: 1rem;
-                    color: #6c757d;
-                }
-                
-                .auth-info li {
-                    margin-bottom: 0.25rem;
-                    line-height: 1.4;
-                }
-            </style>
-        `;
-        
-        authScreen.innerHTML = styles + authScreen.innerHTML;
-        return authScreen;
-    }
-    
-    setupAuthButtons() {
-        const loginBtn = document.getElementById('authLoginBtn');
-        const registerBtn = document.getElementById('authRegisterBtn');
-        
-        if (loginBtn) {
-            loginBtn.addEventListener('click', () => {
-                console.log('[Auth] Login button clicked');
-                authManager.login();
-            });
-        }
-        
-        if (registerBtn) {
-            registerBtn.addEventListener('click', () => {
-                console.log('[Auth] Register button clicked');
-                authManager.register();
-            });
+
+    showAuthModalIfNeeded() {
+        if (!this.isAuthenticated) {
+            this.showAuthModal();
         }
     }
-    
+
+    showAuthModal() {
+        const authModal = document.getElementById('authModal');
+        if (authModal) {
+            authModal.style.display = 'flex';
+            this.showLoginForm();
+        }
+    }
+
+    hideAuthModal() {
+        const authModal = document.getElementById('authModal');
+        if (authModal) {
+            authModal.style.display = 'none';
+        }
+    }
+
+    showLoginForm() {
+        document.getElementById('loginForm').style.display = 'block';
+        this.clearAuthMessage();
+    }
+
     setupAuthListeners() {
-        // Escutar eventos de mudança de autenticação
-        authManager.onAuthChange((type, data) => {
-            console.log('[Popup] Auth event:', type, data);
-            
-            if (type === 'login') {
-                this.hideAuthScreen();
-                this.init(); // Reinicializar popup após login
-            } else if (type === 'logout') {
-                this.showAuthScreen();
-            }
+        // Password toggle button
+        document.getElementById('toggleLoginPassword')?.addEventListener('click', () => {
+            this.togglePasswordVisibility('loginPassword');
         });
 
-        // Escutar mensagens do background sobre mudanças de auth
-        chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-            if (message.type === 'AUTH_STATUS_CHANGED') {
-                console.log('[Popup] Auth status changed:', message.authenticated);
-                
-                if (message.authenticated) {
-                    console.log('[Popup] User authenticated externally, hiding auth screen');
-                    this.hideAuthScreen();
-                    // Reinicializar o popup com o novo estado de autenticação
-                    setTimeout(() => {
-                        this.init();
-                    }, 100);
-                } else {
-                    this.showAuthScreen();
-                }
-                
-                sendResponse({ received: true });
-            }
+        // Form submissions
+        document.getElementById('authLoginForm')?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.handleLogin();
+        });
+
+        // Logout button
+        document.getElementById('logoutButton')?.addEventListener('click', () => {
+            this.handleLogout();
+        });
+
+        // Database buttons that might need auth
+        document.getElementById('testDatabaseConnection')?.addEventListener('click', () => {
+            this.testDatabase();
         });
     }
-    
-    hideAuthScreen() {
-        const authScreen = document.getElementById('authScreen');
-        if (authScreen) {
-            authScreen.style.display = 'none';
+
+    togglePasswordVisibility(inputId) {
+        const input = document.getElementById(inputId);
+        const isPassword = input.type === 'password';
+        input.type = isPassword ? 'text' : 'password';
+        
+        // Update icon (could add this logic if needed)
+    }
+
+    async handleLogin() {
+        const form = document.getElementById('authLoginForm');
+        const formData = new FormData(form);
+        const username = formData.get('username');
+        const password = formData.get('password');
+
+        if (!username || !password) {
+            this.showAuthMessage('Por favor, preencha todos os campos.', 'error');
+            return;
         }
+
+        const submitBtn = document.getElementById('loginSubmitBtn');
+        const originalText = submitBtn.innerHTML;
         
-        // Restaurar elementos principais
-        document.querySelectorAll('body > *:not(#authScreen)').forEach(el => {
-            el.style.display = '';
-        });
-        
-        // Resetar estilos do body
-        document.body.style.width = '';
-        document.body.style.height = '';
+        // Show loading state
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<svg class="btn-icon animate-spin" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" opacity="0.25"/><path fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 0 1 4 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" opacity="0.75"/></svg> Entrando...';
+
+        try {
+            const result = await this.authClient.login(username, password);
+            
+            if (result.success) {
+                this.isAuthenticated = true;
+                this.showAuthMessage(result.message, 'success');
+                
+                setTimeout(() => {
+                    this.hideAuthModal();
+                    this.updateUserUI();
+                    this.showToast('Login realizado com sucesso!', 'success');
+                }, 1500);
+                
+            } else {
+                this.showAuthMessage(result.message, 'error');
+            }
+            
+        } catch (error) {
+            console.error('[Popup] Login error:', error);
+            this.showAuthMessage('Erro interno. Tente novamente.', 'error');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+        }
     }
-    
-    updateUserInfo() {
+
+    async handleLogout() {
+        try {
+            await this.authClient.logout();
+            this.isAuthenticated = false;
+            this.updateUserUI();
+            this.showAuthModal();
+            this.showToast('Logout realizado com sucesso!', 'info');
+        } catch (error) {
+            console.error('[Popup] Logout error:', error);
+            this.showToast('Erro ao fazer logout', 'error');
+        }
+    }
+
+    showAuthMessage(message, type = 'info') {
+        const messageEl = document.getElementById('authMessage');
+        if (messageEl) {
+            messageEl.textContent = message;
+            messageEl.className = `auth-message ${type}`;
+            messageEl.style.display = 'block';
+        }
+    }
+
+    clearAuthMessage() {
+        const messageEl = document.getElementById('authMessage');
+        if (messageEl) {
+            messageEl.style.display = 'none';
+        }
+    }
+
+    updateUserUI() {
         const userInfo = document.getElementById('userInfo');
-        const userEmail = document.getElementById('userEmail');
-        const userId = document.getElementById('userId');
-        
-        if (authManager.isAuthenticated && authManager.currentUser) {
-            if (userEmail) userEmail.textContent = authManager.currentUser.email;
-            if (userId) userId.textContent = `ID: ${authManager.currentUser.id}`;
+        const logoutButton = document.getElementById('logoutButton');
+
+        if (this.isAuthenticated && this.authClient.getCurrentUser()) {
+            const user = this.authClient.getCurrentUser();
+            
+            // Update user info
+            document.getElementById('userEmail').textContent = user.email || user.username;
+            document.getElementById('userId').textContent = `ID: ${user.id}`;
+            
+            // Show user info and logout button
             if (userInfo) userInfo.style.display = 'flex';
+            if (logoutButton) logoutButton.style.display = 'block';
+            
+        } else {
+            // Hide user info and logout button
+            if (userInfo) userInfo.style.display = 'none';
+            if (logoutButton) logoutButton.style.display = 'none';
+        }
+    }
+
+    async testDatabase() {
+        if (!this.isAuthenticated) {
+            this.showToast('Faça login para testar o banco de dados', 'warning');
+            this.showAuthModal();
+            return;
+        }
+
+        // Test local database
+        try {
+            const posts = await storageManager.getAllScheduledPosts();
+            this.showToast(`Banco local OK - ${posts.length} posts encontrados`, 'success');
+        } catch (error) {
+            this.showToast('Erro no banco local: ' + error.message, 'error');
         }
     }
 
@@ -1003,29 +869,7 @@ class PopupManager {
     // Configurar event listeners
     setupEventListeners() {
         // ============================================
-        // 🔐 Authentication Buttons
-        // ============================================
-        
-        // Botão "Criar Conta" na aba Database
-        const registerButton = document.getElementById('registerButton');
-        if (registerButton) {
-            registerButton.addEventListener('click', () => {
-                console.log('[Auth] Register button clicked (database tab)');
-                authManager.register();
-            });
-        }
-        
-        // Botão "Logout" na aba Database
-        const logoutButton = document.getElementById('logoutButton');
-        if (logoutButton) {
-            logoutButton.addEventListener('click', async () => {
-                console.log('[Auth] Logout button clicked');
-                await authManager.logout();
-            });
-        }
-        
-        // ============================================
-        // 📝 Form Events
+        //  Form Events
         // ============================================
         
         // Formulário de agendamento
@@ -1465,9 +1309,9 @@ class PopupManager {
         // 2. Coletar dados do formulário e dos grupos selecionados
         const formData = await this.getFormData();
         
-        // Only get selected groups if target type is "groups"
+        // Get selected groups if target type is "groups" or "both"
         let selectedGroups = [];
-        if (formData.targetType === 'groups') {
+        if (formData.targetType === 'groups' || formData.targetType === 'both') {
             selectedGroups = Array.from(document.querySelectorAll('#groupsChecklistContainer .group-toggle-button.selected'))
                 .map(toggleButton => ({ 
                     id: toggleButton.getAttribute('data-group-id'), 
@@ -1482,8 +1326,8 @@ class PopupManager {
             return;
         }
 
-        // 4. Verificar se há grupos selecionados (apenas para posts em grupos)
-        if (formData.targetType === 'groups' && selectedGroups.length === 0) {
+        // 4. Verificar se há grupos selecionados (para posts em grupos ou ambos)
+        if ((formData.targetType === 'groups' || formData.targetType === 'both') && selectedGroups.length === 0) {
             this.showError('Selecione pelo menos um grupo para publicar.');
             return;
         }
@@ -1509,8 +1353,8 @@ class PopupManager {
         formData.id = Date.now().toString();
         formData.createdAt = new Date().toISOString();
         
-        // Only add groups for group posts
-        if (formData.targetType === 'groups') {
+        // Add groups for group posts or both
+        if (formData.targetType === 'groups' || formData.targetType === 'both') {
             formData.selectedGroups = selectedGroups;
             console.log(`[Popup] Grupos selecionados para postagem imediata: ${selectedGroups.length}`);
         } else {
@@ -1524,7 +1368,14 @@ class PopupManager {
                 postData: formData 
             }, (response) => {
                 if (response?.success) {
-                    const target = formData.targetType === 'groups' ? `${selectedGroups.length} grupos` : 'Marketplace';
+                    let target;
+                    if (formData.targetType === 'groups') {
+                        target = `${selectedGroups.length} grupos`;
+                    } else if (formData.targetType === 'both') {
+                        target = `Marketplace + ${selectedGroups.length} grupos`;
+                    } else {
+                        target = 'Marketplace';
+                    }
                     this.showSuccess(`Postagem iniciada com sucesso para ${target}!`);
                     this.clearForm();
                 } else {
@@ -1592,8 +1443,8 @@ class PopupManager {
                     id: this.editingPostId || `single_${Date.now()}`
                 };
                 
-                // Only add group info if posting to groups
-                if (formData.targetType === 'groups' && selectedGroups.length > 0) {
+                // Only add group info if posting to groups or both
+                if ((formData.targetType === 'groups' || formData.targetType === 'both') && selectedGroups.length > 0) {
                     postData.groupId = selectedGroups[0].id;
                     postData.groupName = selectedGroups[0].name;
                 }
@@ -3582,6 +3433,88 @@ class PopupManager {
     }
 
     // === FIM DAS FUNÇÕES DE REMOÇÃO DE DUPLICATAS ===
+
+    // ============================================
+    // 🔔 Toast Notification System
+    // ============================================
+    
+    showToast(message, type = 'info', duration = 4000) {
+        console.log(`[Toast] ${type.toUpperCase()}: ${message}`);
+        
+        const toastContainer = document.getElementById('toastContainer');
+        if (!toastContainer) {
+            console.warn('[Toast] Toast container not found');
+            return;
+        }
+
+        // Create toast element
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        
+        // Toast content
+        toast.innerHTML = `
+            <div class="toast-icon">
+                ${this.getToastIcon(type)}
+            </div>
+            <div class="toast-content">
+                <div class="toast-message">${message}</div>
+            </div>
+            <button class="toast-close" onclick="this.parentElement.remove()">
+                <svg viewBox="0 0 24 24" fill="none">
+                    <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+        `;
+
+        // Add to container
+        toastContainer.appendChild(toast);
+
+        // Auto remove after duration
+        setTimeout(() => {
+            if (toast.parentElement) {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100%)';
+                setTimeout(() => toast.remove(), 300);
+            }
+        }, duration);
+
+        // Manual close functionality
+        const closeBtn = toast.querySelector('.toast-close');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100%)';
+                setTimeout(() => toast.remove(), 300);
+            });
+        }
+    }
+
+    getToastIcon(type) {
+        const icons = {
+            success: `<svg viewBox="0 0 24 24" fill="none">
+                <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+            </svg>`,
+            error: `<svg viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+                <line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>`,
+            warning: `<svg viewBox="0 0 24 24" fill="none">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke="currentColor" stroke-width="2"/>
+                <line x1="12" y1="9" x2="12" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <circle cx="12" cy="17" r="1" fill="currentColor"/>
+            </svg>`,
+            info: `<svg viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+                <path d="M12 8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <circle cx="12" cy="8" r="1" fill="currentColor"/>
+            </svg>`
+        };
+        
+        return icons[type] || icons.info;
+    }
 }
 
 

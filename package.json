@@ -15,10 +15,14 @@
     "start:auth": "cd login-system && npm start",
     "dev:auth": "cd login-system && npm run dev",
     "add:user": "cd login-system && npm run add-user",
-    "build:all": "npm run build && cd login-system && npm install --production"
+    "build:all": "npm run build && cd login-system && npm install --production",
+    "prepare:webstore": "node scripts/prepare-webstore.js",
+    "generate:screenshots": "node scripts/generate-screenshots.js",
+    "generate:exact-screenshots": "node scripts/generate-exact-screenshots.js"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.251",
+    "archiver": "^7.0.1",
     "vite": "^5.0.0"
   },
   "engines": {
