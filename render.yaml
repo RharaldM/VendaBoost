@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: vendaboost-login
+    env: node
+    plan: free
+    buildCommand: npm install --production && cd login-system && npm install --production
+    startCommand: node app.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000

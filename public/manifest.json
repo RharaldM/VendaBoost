@@ -1,0 +1,77 @@
+{
+  "manifest_version": 3,
+  "name": "VendaBoost",
+  "version": "1.0.0",
+  "description": "Automatize suas vendas no Facebook Marketplace com agendamento inteligente de posts, gerenciamento de grupos e interface moderna",
+  "permissions": [
+    "storage",
+    "alarms",
+    "tabs",
+    "activeTab",
+    "scripting",
+    "notifications",
+    "webNavigation",
+    "identity"
+  ],
+  "host_permissions": [
+    "https://www.facebook.com/*",
+    "https://web.facebook.com/*",
+    "https://facebook.com/*",
+    "https://m.facebook.com/*",
+    "https://api.openai.com/*",
+    "https://xcjrvacqztpjsuoweztr.supabase.co/*"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.svg",
+      "48": "icons/icon48.svg",
+      "128": "icons/icon128.svg"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.facebook.com/*", 
+        "https://web.facebook.com/*",
+        "https://facebook.com/*",
+        "https://m.facebook.com/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_end",
+      "all_frames": false,
+      "type": "module"
+    }
+  ],
+  "icons": {
+    "16": "icons/icon16.svg",
+    "48": "icons/icon48.svg",
+    "128": "icons/icon128.svg"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["icons/*"],
+      "matches": [
+        "https://www.facebook.com/*",
+        "https://web.facebook.com/*",
+        "https://facebook.com/*",
+        "https://m.facebook.com/*"
+      ]
+    },
+    {
+      "resources": ["chunks/*"],
+      "matches": ["<all_urls>"]
+    },
+    {
+      "resources": ["login-system/supabase-login.html"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://api.openai.com https://xcjrvacqztpjsuoweztr.supabase.co"
+  }
+}
