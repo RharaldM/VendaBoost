@@ -1,0 +1,171 @@
+(() => {
+  // ===== Utils =====
+  const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+  const norm  = (s) => (s || '').trim().toLowerCase();
+  const txt   = (el) => (el?.innerText || el?.textContent || '').trim();
+  const vis   = (el) => el && (() => {
+    const cs = getComputedStyle(el), r = el.getBoundingClientRect();
+    return cs.visibility !== 'hidden' && cs.display !== 'none' && r.width > 0 && r.height > 0;
+  })();
+
+  // ===== Heurísticas =====
+  const RX_DESC     = /descriç[aã]o|descripci[oó]n|description/i;
+  const RX_EXCLUDE  = /categ|condi[cç][aã]o|condition|t[ií]tulo|title|pre[cç]o|price/i;
+  const ROLESEL     = '[role="textbox"], textarea, [contenteditable="true"]';
+
+  const isDescriptionField = (el) => {
+    if (!vis(el)) return false;
+
+    // aria-label direto
+    const al = (el.getAttribute('aria-label') || '').trim();
+    if (al && RX_DESC.test(al) && !RX_EXCLUDE.test(al)) return true;
+
+    // aria-labelledby
+    const ref = (el.getAttribute('aria-labelledby') || '').trim();
+    if (ref) {
+      const labTxt = ref.split(/\s+/).map(id => txt(document.getElementById(id))).join(' ');
+      if (RX_DESC.test(labTxt) && !RX_EXCLUDE.test(labTxt)) return true;
+    }
+
+    // placeholder (quando existir)
+    const ph = (el.getAttribute('placeholder') || '').trim();
+    if (ph && RX_DESC.test(ph) && !RX_EXCLUDE.test(ph)) return true;
+
+    // proximidade textual
+    const scope = el.closest('[data-pagelet],form,section,div') || el.parentElement;
+    if (scope) {
+      const around = [...scope.querySelectorAll('label,div,span,h3,h4')].filter(vis).map(txt).join(' ');
+      if (RX_DESC.test(around) && !RX_EXCLUDE.test(around)) return true;
+    }
+
+    // fallback: role/atributos típicos do editor
+    if (el.matches('[role="textbox"][contenteditable="true"], textarea')) return true;
+
+    return false;
+  };
+
+  const findDescriptionField = () => {
+    // 1) diretos com aria-label/placeholder
+    const direct = [...document.querySelectorAll(
+      '[role="textbox"][aria-label],[contenteditable="true"][aria-label],textarea[aria-label],' +
+      '[role="textbox"][placeholder],[contenteditable="true"][placeholder],textarea[placeholder]'
+    )].find(isDescriptionField);
+    if (direct) return direct;
+
+    // 2) qualquer candidato de entrada filtrado
+    const any = [...document.querySelectorAll(ROLESEL)].find(isDescriptionField);
+    if (any) return any;
+
+    // 3) partindo do rótulo "Descrição"
+    for (const lb of [...document.querySelectorAll('label,div,span,h3,h4')].filter(vis)) {
+      const t = txt(lb);
+      if (!RX_DESC.test(t) || RX_EXCLUDE.test(t)) continue;
+      const scope = lb.closest('[data-pagelet],form,section,div') || lb.parentElement;
+      const ctrl = scope && [...scope.querySelectorAll(ROLESEL)].find(isDescriptionField);
+      if (ctrl) return ctrl;
+    }
+    return null;
+  };
+
+  // ===== Edição segura (textarea vs contenteditable/Lexical) =====
+  const fireInput = (el) => {
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+    el.dispatchEvent(new Event('change', { bubbles: true }));
+  };
+
+  const setTextareaValue = (ta, value) => {
+    const proto = Object.getPrototypeOf(ta);
+    const setter = Object.getOwnPropertyDescriptor(proto, 'value')?.set;
+    setter ? setter.call(ta, value) : (ta.value = value);
+    fireInput(ta);
+  };
+
+  const replaceContentEditable = (ce, value) => {
+    ce.focus();
+    try {
+      // Seleciona tudo e insere texto (boa compatibilidade com React/Lexical)
+      document.execCommand('selectAll', false, null);
+      document.execCommand('insertText', false, value);
+    } catch {
+      ce.textContent = value; // fallback
+    }
+    fireInput(ce);
+  };
+
+  const appendContentEditable = (ce, value, sep = '') => {
+    ce.focus();
+    const sel = window.getSelection();
+    const range = document.createRange();
+    range.selectNodeContents(ce);
+    range.collapse(false);
+    sel.removeAllRanges(); sel.addRange(range);
+    try {
+      document.execCommand('insertText', false, sep + value);
+    } catch {
+      ce.textContent = (ce.textContent || '') + sep + value;
+    }
+    fireInput(ce);
+  };
+
+  const highlight = (el) => {
+    const oldO = el.style.outline, oldOff = el.style.outlineOffset;
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.style.outline = '3px solid #00e676';
+    el.style.outlineOffset = '2px';
+    setTimeout(() => { el.style.outline = oldO; el.style.outlineOffset = oldOff; }, 1200);
+  };
+
+  // ===== API =====
+  const mpDescription = {
+    _el: null,
+
+    detect({ focus = true, highlightEl = true } = {}) {
+      this._el = findDescriptionField();
+      if (!this._el) {
+        console.warn('[MP] Campo "Descrição" não encontrado.');
+        return null;
+      }
+      if (highlightEl) highlight(this._el);
+      if (focus) this._el.focus();
+      console.log('[MP] Campo "Descrição" detectado:', this._el);
+      return this._el;
+    },
+
+    set(text) {
+      if (!this._el) this.detect();
+      if (!this._el) return;
+
+      if (this._el.matches('textarea')) {
+        setTextareaValue(this._el, text);
+      } else {
+        replaceContentEditable(this._el, text);
+      }
+      console.log('[MP] Descrição definida.');
+    },
+
+    append(text, { separator = '\n' } = {}) {
+      if (!this._el) this.detect();
+      if (!this._el) return;
+
+      if (this._el.matches('textarea')) {
+        const current = this._el.value || '';
+        setTextareaValue(this._el, current ? current + separator + text : text);
+      } else {
+        const has = (this._el.textContent || '').length > 0;
+        appendContentEditable(this._el, text, has ? separator : '');
+      }
+      console.log('[MP] Texto adicionado à descrição.');
+    },
+
+    get() {
+      if (!this._el) this.detect({ focus: false, highlightEl: false });
+      if (!this._el) return '';
+      return this._el.matches('textarea') ? this._el.value : (this._el.innerText || this._el.textContent || '');
+    }
+  };
+
+  // Expor e detectar imediatamente
+  window.mpDescription = mpDescription;
+  mpDescription.detect();
+  console.log('Pronto! Use mpDescription.set("Seu texto") / mpDescription.append("...") / mpDescription.get()');
+})();
