@@ -1,0 +1,80 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: marketplace-backend
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - UPLOAD_DIR=/app/uploads
+      - LOG_DIR=/app/logs
+      - MAX_FILE_SIZE=10485760
+      - ALLOWED_ORIGINS=http://localhost,http://localhost:80,http://web-portal
+    volumes:
+      - ./data/uploads:/app/uploads
+      - ./data/logs:/app/logs
+      - ./data/sessions:/app/sessions
+    networks:
+      - marketplace-network
+    healthcheck:
+      test: ["CMD", "node", "healthcheck.js"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on: []
+
+  web-portal:
+    build:
+      context: ./web-portal
+      dockerfile: Dockerfile
+    container_name: marketplace-web-portal
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    environment:
+      - VITE_API_URL=http://localhost:3001/api
+      - VITE_SOCKET_URL=http://localhost:3001
+    networks:
+      - marketplace-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      - backend
+
+volumes:
+  uploads_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/uploads
+  logs_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/logs
+  sessions_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/sessions
+
+networks:
+  marketplace-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

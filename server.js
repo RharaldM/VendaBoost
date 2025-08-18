@@ -15,7 +15,7 @@ const io = new Server(server, {
     methods: ["GET", "POST"]
   }
 });
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 7849;
 
 // Sistema de logs global
 class LogManager {

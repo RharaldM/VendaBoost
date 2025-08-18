@@ -1,0 +1,3 @@
+This is a test file for upload functionality testing.
+It simulates an image file for the marketplace automation system.
+File created for testing purposes only.
