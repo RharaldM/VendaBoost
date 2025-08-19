@@ -85,6 +85,7 @@ export class GroupsAutomation {
         const button = strategy().first();
         if (await button.isVisible({ timeout: 3000 })) {
           await button.scrollIntoViewIfNeeded();
+        await wait(100);
           await button.click();
           await waitWithLog(this.config.throttleMs, 'Aguardando modal abrir');
           debug('Modal de grupos aberto com sucesso');
@@ -278,6 +279,7 @@ export class GroupsAutomation {
         const option = strategy().first();
         if (await option.isVisible({ timeout: 2000 })) {
           await option.scrollIntoViewIfNeeded();
+        await wait(100);
           await option.click();
           debug(`Opção clicada com sucesso: ${groupName}`);
           return;

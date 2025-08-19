@@ -12,8 +12,8 @@ export const t = {
     // Botão para anunciar em mais locais/grupos
     postToMorePlaces: /Anunciar mais locais|Post to more places|Publicar en más lugares|Compartilhar em grupos|Share to groups|Compartir en grupos/i,
     
-    // Botão de publicar/postar
-    publish: /Publicar|Postar|Publish|Post|Publicar ahora|Enviar|Send|Confirmar|Confirm/i,
+    // Botão de publicar/postar (evita capturar botões de patrocínio)
+    publish: /^(?!.*patrocin|.*sponsor|.*promov|.*boost)(Publicar|Postar|Publish|Post|Publicar ahora|Enviar|Send).*$/i,
     
     // Botão de salvar/guardar
     save: /Salvar|Save|Guardar|Aplicar|Apply|Concluído|Done|Finalizar|Finish/i,

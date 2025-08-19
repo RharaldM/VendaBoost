@@ -16,6 +16,9 @@ export const FlowSchema = z.object({
     z.number().positive('Preço deve ser positivo')
   ]),
   description: z.string().min(10, 'Descrição deve ter pelo menos 10 caracteres'),
+  category: z.string().optional(),
+  condition: z.string().optional(),
+  location: z.string().optional(),
   images: z.array(z.string()).default([]).optional(),
   groups: z.array(z.string()).default([]).optional(),
 });
@@ -99,6 +102,8 @@ export function createExampleFlow(outputPath: string): void {
     title: "Notebook Gamer RTX 3060 - 16GB RAM",
     price: 4200,
     description: "Notebook gamer em ótimo estado, RTX 3060, 512GB SSD, acompanha carregador original. Ideal para jogos e trabalho pesado.",
+    category: "Ferramentas",
+    condition: "Novo",
     images: ["./fotos/1.jpg", "./fotos/2.jpg"],
     groups: [
       "Compra e Venda Cidade X",

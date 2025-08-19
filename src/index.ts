@@ -108,6 +108,9 @@ export class VendaBoostAutomation {
         title: options.flowData.title,
         price: options.flowData.price,
         description: options.flowData.description,
+        ...(options.flowData.category && { category: options.flowData.category }),
+        ...(options.flowData.condition && { condition: options.flowData.condition }),
+        ...(options.flowData.location && { location: options.flowData.location }),
         ...(options.flowData.images && { images: options.flowData.images }),
         ...(options.flowData.groups && { groups: options.flowData.groups })
       };

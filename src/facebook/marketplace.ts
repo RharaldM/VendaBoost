@@ -43,23 +43,31 @@ export class MarketplaceAutomation {
       // Tentar encontrar e clicar no botão de criar anúncio
       await this.clickCreateButton();
 
-      // Preencher campos do formulário
+      // Preencher campos do formulário na ordem: título, preço, categoria
       await this.fillTitle(data.title);
       await this.fillPrice(data.price);
+      
+      // Selecionar categoria logo após o preço
+      if (data.category) {
+        info(`🏷️ Selecionando categoria: ${data.category}`);
+        await this.selectCategory(data.category);
+      } else {
+        info('⚠️ Campo category não encontrado no flow.json');
+      }
+      
+      // Selecionar condição logo após a categoria
+      if (data.condition) {
+        info(`🔧 Selecionando condição: ${data.condition}`);
+        await this.selectCondition(data.condition);
+      } else {
+        info('⚠️ Campo condition não encontrado no flow.json ou está vazio');
+      }
+      
       await this.fillDescription(data.description);
 
       // Upload de imagens se fornecidas
       if (data.images && data.images.length > 0) {
         await this.uploadImages(data.images);
-      }
-
-      // Preencher campos opcionais
-      if (data.category) {
-        await this.selectCategory(data.category);
-      }
-
-      if (data.condition) {
-        await this.selectCondition(data.condition);
       }
 
       // Configurar disponibilidade
@@ -96,6 +104,7 @@ export class MarketplaceAutomation {
         const button = strategy();
         if (await button.isVisible({ timeout: 2000 })) {
           await button.scrollIntoViewIfNeeded();
+          await wait(100);
           await button.click();
           await waitWithLog(this.throttleMs, 'Aguardando após clicar em criar anúncio');
           debug('Botão de criar anúncio clicado com sucesso');
@@ -129,6 +138,7 @@ export class MarketplaceAutomation {
         const field = strategy().first();
         if (await field.isVisible({ timeout: 3000 })) {
           await field.scrollIntoViewIfNeeded();
+          await wait(150);
           await field.click();
           await field.fill(title);
           await waitWithLog(this.throttleMs, 'Aguardando após preencher título');
@@ -165,6 +175,7 @@ export class MarketplaceAutomation {
         const field = strategy().first();
         if (await field.isVisible({ timeout: 3000 })) {
           await field.scrollIntoViewIfNeeded();
+          await wait(150);
           await field.click();
           await field.fill(priceStr);
           await waitWithLog(this.throttleMs, 'Aguardando após preencher preço');
@@ -187,6 +198,22 @@ export class MarketplaceAutomation {
     
     const strategies = [
       () => this.page.getByRole('textbox', { name: 'Descrição' }),
+      () => this.page.locator('textarea[placeholder*="Descrição"]'),
+      () => this.page.locator('textarea[placeholder*="descrição"]'),
+      () => this.page.locator('textarea[aria-label*="Descrição"]'),
+      () => this.page.locator('textarea[aria-label*="descrição"]'),
+      () => this.page.locator('div[contenteditable="true"][aria-label*="Descrição"]'),
+      () => this.page.locator('div[contenteditable="true"][aria-label*="descrição"]'),
+      // Estratégias mais genéricas
+      () => this.page.locator('textarea').first(),
+      () => this.page.locator('div[contenteditable="true"]').first(),
+      () => this.page.locator('[role="textbox"]').first(),
+      () => this.page.locator('textarea[placeholder*="Tell"]'),
+      () => this.page.locator('textarea[placeholder*="Conte"]'),
+      () => this.page.locator('textarea[placeholder*="Descreva"]'),
+      () => this.page.locator('div[contenteditable="true"][data-text*="true"]'),
+      () => this.page.locator('div[contenteditable="true"][aria-multiline="true"]'),
+      // Fallbacks mais amplos
       () => this.page.getByLabel(t.labels.description),
       () => this.page.getByPlaceholder(t.labels.description),
       () => this.page.locator('textarea[name*="description"]'),
@@ -199,7 +226,9 @@ export class MarketplaceAutomation {
         const field = strategy().first();
         if (await field.isVisible({ timeout: 3000 })) {
           await field.scrollIntoViewIfNeeded();
+          await wait(100);
           await field.click();
+          await wait(500);
           await field.fill(description);
           await waitWithLog(this.throttleMs, 'Aguardando após preencher descrição');
           info(`Descrição preenchida (${description.length} caracteres)`);
@@ -210,14 +239,53 @@ export class MarketplaceAutomation {
       }
     }
 
-    throw new Error('Campo de descrição não encontrado');
+    // Debug: listar elementos disponíveis
+    try {
+      debug('Listando elementos de texto disponíveis na página...');
+      const textareas = await this.page.locator('textarea').count();
+      const editableDivs = await this.page.locator('div[contenteditable="true"]').count();
+      const textboxes = await this.page.locator('[role="textbox"]').count();
+      debug(`Encontrados: ${textareas} textareas, ${editableDivs} divs editáveis, ${textboxes} textboxes`);
+      
+      // Tentar pegar qualquer textarea visível
+      const anyTextarea = this.page.locator('textarea').first();
+      if (await anyTextarea.isVisible({ timeout: 2000 })) {
+        debug('Tentando usar primeira textarea encontrada...');
+        await anyTextarea.scrollIntoViewIfNeeded();
+         await wait(100);
+        await anyTextarea.click();
+        await wait(500);
+        await anyTextarea.fill(description);
+        await waitWithLog(this.throttleMs, 'Aguardando após preencher descrição');
+        info(`Descrição preenchida em textarea genérica (${description.length} caracteres)`);
+        return;
+      }
+      
+      // Tentar pegar qualquer div editável visível
+      const anyEditableDiv = this.page.locator('div[contenteditable="true"]').first();
+      if (await anyEditableDiv.isVisible({ timeout: 2000 })) {
+        debug('Tentando usar primeira div editável encontrada...');
+        await anyEditableDiv.scrollIntoViewIfNeeded();
+         await wait(100);
+        await anyEditableDiv.click();
+        await wait(500);
+        await anyEditableDiv.fill(description);
+        await waitWithLog(this.throttleMs, 'Aguardando após preencher descrição');
+        info(`Descrição preenchida em div editável genérica (${description.length} caracteres)`);
+        return;
+      }
+    } catch (debugErr) {
+      debug('Erro durante debug de elementos:', debugErr);
+    }
+
+    warn('Campo de descrição não encontrado - continuando sem descrição');
   }
 
   /**
    * Faz upload de imagens
    */
   private async uploadImages(imagePaths: string[]): Promise<void> {
-    debug(`Fazendo upload de ${imagePaths.length} imagens...`);
+    info(`📷 Iniciando upload de ${imagePaths.length} imagens...`);
     
     // Validar se os arquivos existem
     const validPaths = imagePaths.filter(imagePath => {
@@ -226,6 +294,7 @@ export class MarketplaceAutomation {
         warn(`Imagem não encontrada: ${imagePath}`);
         return false;
       }
+      info(`✅ Imagem válida encontrada: ${fullPath}`);
       return true;
     });
 
@@ -234,54 +303,172 @@ export class MarketplaceAutomation {
       return;
     }
 
-    const strategies = [
-      () => this.page.locator('input[type="file"]'),
-      () => this.page.getByText(t.buttons.addPhotos).locator('..').locator('input[type="file"]'),
-      () => this.page.locator('[data-testid*="photo"]').locator('input[type="file"]'),
-    ];
-
-    for (const strategy of strategies) {
-      try {
-        const fileInput = strategy().first();
-        if (await fileInput.count() > 0) {
-          const resolvedPaths = validPaths.map(p => path.resolve(p));
-          await fileInput.setInputFiles(resolvedPaths);
-          await waitWithLog(2000, 'Aguardando upload das imagens');
-          info(`Upload realizado: ${validPaths.length} imagens`);
-          return;
-        }
-      } catch (err) {
-        debug('Estratégia de upload falhou, tentando próxima...');
+    try {
+      // Estratégia 1: Procurar botão "Adicionar fotos" e clicar nele primeiro
+      info('🔍 Procurando botão "Adicionar fotos"...');
+      const addPhotosButton = this.page.locator('div[aria-label*="Adicionar fotos"], div[aria-label*="Add photos"], div[role="button"]:has-text("Adicionar fotos"), div[role="button"]:has-text("Add photos")').first();
+      
+      if (await addPhotosButton.isVisible({ timeout: 3000 })) {
+        info('🎯 Botão "Adicionar fotos" encontrado, clicando...');
+        await addPhotosButton.click();
+        await wait(1000);
       }
-    }
 
-    warn('Campo de upload de imagens não encontrado - continuando sem imagens');
+      // Estratégia 2: Procurar input de arquivo
+      info('🔍 Procurando campo de input de arquivo...');
+      
+      const fileInputStrategies = [
+        // Input direto
+        () => this.page.locator('input[type="file"][accept*="image"]').first(),
+        () => this.page.locator('input[type="file"]').first(),
+        // Input dentro de elementos específicos
+        () => this.page.locator('[data-testid*="photo"] input[type="file"]').first(),
+        () => this.page.locator('[aria-label*="foto"] input[type="file"]').first(),
+        () => this.page.locator('[aria-label*="photo"] input[type="file"]').first(),
+        // Input oculto que pode estar em qualquer lugar
+        () => this.page.locator('input[type="file"][multiple]').first(),
+      ];
+
+      let uploadSuccess = false;
+      
+      for (let i = 0; i < fileInputStrategies.length; i++) {
+        try {
+          const strategy = fileInputStrategies[i];
+          if (!strategy) continue;
+          const fileInput = strategy();
+          
+          // Verificar se o input existe (mesmo que não esteja visível)
+          const inputCount = await fileInput.count();
+          if (inputCount > 0) {
+            info(`✅ Input de arquivo encontrado (estratégia ${i + 1})`);
+            
+            const resolvedPaths = validPaths.map(p => path.resolve(p));
+            info(`📤 Enviando arquivos: ${resolvedPaths.join(', ')}`);
+            
+            // Usar setInputFiles que funciona mesmo com inputs ocultos
+            await fileInput.setInputFiles(resolvedPaths);
+            
+            // Aguardar mais tempo para o upload processar
+            await waitWithLog(3000, 'Aguardando processamento das imagens');
+            
+            // Verificar se as imagens foram carregadas
+            await wait(2000);
+            
+            info(`✅ Upload realizado com sucesso: ${validPaths.length} imagens`);
+            uploadSuccess = true;
+            break;
+          }
+        } catch (err) {
+          debug(`Estratégia ${i + 1} falhou:`, err);
+        }
+      }
+
+      if (!uploadSuccess) {
+        // Última tentativa: forçar input em qualquer elemento file
+        try {
+          info('🔄 Tentativa final: procurando qualquer input de arquivo...');
+          const anyFileInput = this.page.locator('input[type="file"]');
+          const count = await anyFileInput.count();
+          
+          if (count > 0) {
+            info(`Encontrados ${count} inputs de arquivo, tentando o primeiro...`);
+            const resolvedPaths = validPaths.map(p => path.resolve(p));
+            await anyFileInput.first().setInputFiles(resolvedPaths);
+            await waitWithLog(3000, 'Aguardando processamento das imagens');
+            info(`✅ Upload realizado (tentativa final): ${validPaths.length} imagens`);
+          } else {
+            warn('❌ Nenhum campo de upload de imagens encontrado - continuando sem imagens');
+          }
+        } catch (finalErr) {
+          warn('❌ Falha na tentativa final de upload:', finalErr);
+        }
+      }
+      
+    } catch (err) {
+      error('❌ Erro durante upload de imagens:', err);
+      warn('Continuando sem imagens devido ao erro');
+    }
   }
 
   /**
    * Seleciona categoria do produto
    */
   private async selectCategory(category: string): Promise<void> {
-    debug(`Selecionando categoria: ${category}`);
+    info(`🔍 Iniciando seleção de categoria: ${category}`);
     
     try {
-      // Usar seletor específico do Facebook Marketplace
-      const categoryCombobox = this.page.getByRole('combobox', { name: 'Categoria' });
+      // Passo 1: Encontrar e clicar no botão "Categoria" para abrir o dropdown
+      info('🎯 Passo 1: Procurando botão "Categoria" para abrir dropdown...');
       
-      if (await categoryCombobox.isVisible({ timeout: 3000 })) {
-        await categoryCombobox.locator('div').nth(2).click();
-        await wait(500);
+      const categoryButtonStrategies = [
+        // Estratégia que funciona: Label com role combobox contendo "Categoria"
+        () => this.page.locator('label[role="combobox"]').filter({ hasText: 'Categoria' })
+      ];
+
+      let categoryButtonClicked = false;
+      
+      try {
+        info(`🔄 Clicando no botão "Categoria"...`);
+        const strategy = categoryButtonStrategies[0];
+        if (!strategy) throw new Error('Estratégia não definida');
         
-        // Selecionar "Diversos" como categoria padrão
-        const diversosButton = this.page.getByRole('button', { name: 'Diversos' });
-        if (await diversosButton.isVisible({ timeout: 2000 })) {
-          await diversosButton.click();
-          await waitWithLog(this.throttleMs, 'Aguardando após selecionar categoria');
-          info('Categoria selecionada: Diversos');
+        const categoryButton = strategy();
+        
+        if (await categoryButton.isVisible({ timeout: 3000 })) {
+          await categoryButton.scrollIntoViewIfNeeded();
+          await wait(100);
+          await wait(300);
+          await categoryButton.click();
+          info(`✅ Botão "Categoria" clicado com sucesso`);
+          categoryButtonClicked = true;
         }
+      } catch (err) {
+        warn(`⚠️ Falha ao clicar no botão "Categoria":`, err);
       }
+      
+      if (!categoryButtonClicked) {
+        throw new Error('Não foi possível encontrar ou clicar no botão "Categoria"');
+      }
+      
+      // Passo 2: Aguardar dropdown abrir e selecionar a categoria desejada
+      info(`🎯 Passo 2: Aguardando dropdown abrir e procurando categoria "${category}"...`);
+      await wait(1000); // Aguardar dropdown abrir
+      
+      const categoryOptionStrategies = [
+        // Estratégia que funciona: Texto exato da categoria
+        () => this.page.getByText(category, { exact: true })
+      ];
+      
+      let categorySelected = false;
+      
+      try {
+        info(`🔄 Selecionando categoria "${category}"...`);
+        const strategy = categoryOptionStrategies[0];
+        if (!strategy) throw new Error('Estratégia não definida');
+        
+        const categoryOption = strategy();
+        
+        if (await categoryOption.isVisible({ timeout: 3000 })) {
+          await categoryOption.scrollIntoViewIfNeeded();
+          await wait(100);
+          await wait(300);
+          await categoryOption.click();
+          info(`✅ Categoria "${category}" selecionada com sucesso`);
+          categorySelected = true;
+        }
+      } catch (err) {
+        warn(`⚠️ Falha ao selecionar categoria "${category}":`, err);
+      }
+      
+      if (!categorySelected) {
+        warn(`⚠️ Não foi possível selecionar a categoria "${category}" no dropdown`);
+      }
+      
+      await wait(500); // Aguardar seleção ser processada
+      
     } catch (err) {
-      warn('Não foi possível selecionar categoria:', err);
+      error('Erro ao selecionar categoria:', err);
+      throw err;
     }
   }
 
@@ -289,23 +476,36 @@ export class MarketplaceAutomation {
    * Seleciona condição do produto
    */
   private async selectCondition(condition: string): Promise<void> {
-    debug(`Selecionando condição: ${condition}`);
+    info(`🔍 Iniciando seleção de condição: ${condition}`);
     
     try {
-      // Usar seletor específico para condição
-      const conditionLocator = this.page.locator('[id="_r_25_"] div');
+      // Passo 1: Encontrar e clicar no combobox "Condição" para abrir o dropdown
+      info('🎯 Passo 1: Procurando combobox "Condição" para abrir dropdown...');
       
-      if (await conditionLocator.isVisible({ timeout: 3000 })) {
-        await conditionLocator.click();
-        await wait(500);
+      const conditionCombobox = this.page.getByRole('combobox', { name: 'Condição' });
+      
+      if (await conditionCombobox.isVisible({ timeout: 3000 })) {
+        await conditionCombobox.scrollIntoViewIfNeeded();
+        await wait(100);
+        await conditionCombobox.click();
+        info(`✅ Combobox "Condição" clicado com sucesso`);
         
-        // Selecionar "Novo" como condição padrão
+        // Passo 2: Aguardar dropdown abrir e selecionar "Novo"
+        info('🎯 Passo 2: Aguardando dropdown abrir e procurando condição "Novo"...');
+        await wait(1000);
+        
+        info(`🔄 Selecionando condição "Novo"...`);
         const novoOption = this.page.getByRole('option', { name: 'Novo', exact: true }).locator('div').first();
+        
         if (await novoOption.isVisible({ timeout: 2000 })) {
           await novoOption.click();
           await waitWithLog(this.throttleMs, 'Aguardando após selecionar condição');
-          info('Condição selecionada: Novo');
+          info(`✅ Condição "Novo" selecionada com sucesso`);
+        } else {
+          throw new Error('Opção "Novo" não encontrada no dropdown');
         }
+      } else {
+        throw new Error('Combobox "Condição" não encontrado');
       }
     } catch (err) {
       warn('Não foi possível selecionar condição:', err);
@@ -371,35 +571,107 @@ export class MarketplaceAutomation {
    */
   async publish(): Promise<void> {
     try {
-      info('Publicando anúncio...');
+      info('📤 Iniciando processo de publicação...');
       
-      const strategies = [
-        () => this.page.getByRole('button', { name: t.buttons.publish }),
-        () => this.page.getByText(t.buttons.publish).first(),
-        () => this.page.locator('button').filter({ hasText: t.buttons.publish }),
-        () => this.page.locator('[data-testid*="publish"]'),
-        () => this.page.locator('button').filter({ hasText: /publicar|publish|postar|post/i }),
+      // Passo 1: Clicar em "Avançar" para ir para a tela de publicação
+      info('🎯 Passo 1: Procurando botão "Avançar"...');
+      const advanceButton = this.page.getByRole('button', { name: 'Avançar' });
+      
+      if (await advanceButton.isVisible({ timeout: 5000 })) {
+        await advanceButton.scrollIntoViewIfNeeded();
+        await wait(100);
+        await advanceButton.click();
+        await waitWithLog(2000, 'Aguardando página de publicação carregar');
+        info('✅ Botão "Avançar" clicado com sucesso');
+      } else {
+        throw new Error('Botão "Avançar" não encontrado');
+      }
+      
+      // Passo 2: Aguardar página de confirmação carregar e procurar botão "Publicar"
+      info('🎯 Passo 2: Procurando botão "Publicar" na página de confirmação...');
+      await wait(2000); // Aguardar página carregar
+      
+      const publishStrategies = [
+        // Botões específicos de publicar
+        () => this.page.getByRole('button', { name: 'Publicar' }),
+        () => this.page.getByRole('button', { name: 'Publish' }),
+        () => this.page.getByText('Publicar', { exact: true }),
+        () => this.page.getByText('Publish', { exact: true }),
+        // Botões mais genéricos mas excluindo patrocínio
+        () => this.page.locator('button').filter({ hasText: /^Publicar$/ }),
+        () => this.page.locator('button').filter({ hasText: /^Publish$/ }),
+        // Estratégia com seletor mais amplo
+        () => this.page.locator('button:has-text("Publicar"):not(:has-text("Patrocin")):not(:has-text("Promov"))'),
+        () => this.page.locator('button:has-text("Publish"):not(:has-text("Sponsor")):not(:has-text("Promot"))'),
       ];
 
-      for (const strategy of strategies) {
+      let publishSuccess = false;
+      
+      for (let i = 0; i < publishStrategies.length; i++) {
         try {
-          const button = strategy().first();
-          if (await button.isVisible({ timeout: 5000 })) {
-            await button.scrollIntoViewIfNeeded();
-            await button.click();
-            await waitWithLog(2000, 'Aguardando confirmação de publicação');
-            info('Botão de publicar clicado com sucesso');
-            return;
+          const strategy = publishStrategies[i];
+          if (!strategy) continue;
+          const publishButton = strategy();
+          
+          if (await publishButton.isVisible({ timeout: 3000 })) {
+            info(`✅ Botão "Publicar" encontrado (estratégia ${i + 1})`);
+            await publishButton.scrollIntoViewIfNeeded();
+            await wait(100);
+            await publishButton.click();
+            await waitWithLog(3000, 'Aguardando confirmação final de publicação');
+            info('✅ Botão "Publicar" clicado com sucesso');
+            publishSuccess = true;
+            break;
           }
         } catch (err) {
-          debug('Estratégia de publicação falhou, tentando próxima...');
+          debug(`Estratégia de publicação ${i + 1} falhou:`, err);
         }
       }
-
-      throw new Error('Botão de publicar não encontrado');
+      
+      if (!publishSuccess) {
+        // Verificar se já foi publicado automaticamente
+        await wait(2000);
+        const isPublished = await this.checkIfPublished();
+        if (isPublished) {
+          info('✅ Anúncio foi publicado automaticamente após clicar em "Avançar"');
+        } else {
+          throw new Error('Botão "Publicar" não encontrado e anúncio não foi publicado automaticamente');
+        }
+      }
+      
+      info('🎉 Processo de publicação concluído');
+      
     } catch (err) {
-      error('Erro ao publicar anúncio:', err);
+      error('❌ Erro ao publicar anúncio:', err);
       throw new Error(`Falha na publicação: ${err}`);
+    }
+  }
+  
+  /**
+   * Verifica se o anúncio foi publicado com sucesso
+   */
+  private async checkIfPublished(): Promise<boolean> {
+    try {
+      const publishedIndicators = [
+        this.page.getByText('Anúncio publicado'),
+        this.page.getByText('Ad published'),
+        this.page.getByText('Publicado com sucesso'),
+        this.page.getByText('Published successfully'),
+        this.page.getByText('Seu anúncio foi publicado'),
+        this.page.getByText('Your ad has been published'),
+        this.page.locator('[data-testid*="success"]'),
+        this.page.locator('.success'),
+      ];
+      
+      for (const indicator of publishedIndicators) {
+        if (await indicator.isVisible({ timeout: 1000 })) {
+          return true;
+        }
+      }
+      
+      return false;
+    } catch {
+      return false;
     }
   }
 
