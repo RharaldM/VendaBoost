@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/playwright:v1.47.0-jammy
+FROM mcr.microsoft.com/playwright:v1.54.2-jammy
 
 WORKDIR /app
 
@@ -21,6 +21,9 @@ ENV NODE_ENV=production \
     CHROME_NO_SANDBOX=1 \
     CHROME_DEVSHM_FIX=1 \
     HEADLESS=true
+
+# Criar diretórios com permissões corretas antes de trocar usuário
+RUN mkdir -p /app/sessions /app/assets && chown -R pwuser:pwuser /app
 
 # Pastas persistentes
 VOLUME ["/data", "/app/sessions", "/app/assets"]
