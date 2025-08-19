@@ -1,0 +1,21 @@
+{
+  "name": "facebook-marketplace-recorder",
+  "version": "1.0.0",
+  "description": "Playwright automation for Facebook Marketplace recording",
+  "main": "index.js",
+  "scripts": {
+    "install:deps": "npm install && npx playwright install chromium",
+    "record:marketplace": "npx playwright codegen --target=typescript --lang=pt-BR --color-scheme=dark --save-storage=auth.json --output=tests/marketplace.recorder.spec.ts https://www.facebook.com/marketplace/",
+    "record:marketplace:continue": "npx playwright codegen --target=typescript --lang=pt-BR --color-scheme=dark --load-storage=auth.json --output=tests/marketplace.recorder.spec.ts https://www.facebook.com/marketplace/",
+    "test:marketplace": "$env:PWDEBUG=1; npx playwright test tests/marketplace.recorder.spec.ts",
+    "test:marketplace:cmd": "set PWDEBUG=1 && npx playwright test tests/marketplace.recorder.spec.ts",
+    "test:marketplace:unix": "PWDEBUG=1 npx playwright test tests/marketplace.recorder.spec.ts"
+  },
+  "keywords": ["playwright", "automation", "facebook", "marketplace"],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "typescript": "^5.0.0"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "cookies": [
+    {
+      "name": "c_user",
+      "value": "100000000000000",
+      "domain": ".facebook.com",
+      "path": "/",
+      "secure": true,
+      "httpOnly": false,
+      "sameSite": "lax"
+    },
+    {
+      "name": "xs",
+      "value": "example_session_token",
+      "domain": ".facebook.com",
+      "path": "/",
+      "secure": true,
+      "httpOnly": true,
+      "sameSite": "none"
+    },
+    {
+      "name": "fr",
+      "value": "example_auth_token.example_hash.example_timestamp.example_signature",
+      "domain": ".facebook.com",
+      "path": "/",
+      "secure": true,
+      "httpOnly": true,
+      "sameSite": "none"
+    }
+  ],
+  "localStorage": {
+    "example_key": "example_value"
+  },
+  "sessionStorage": {
+    "example_session_key": "example_session_value"
+  },
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+  "timestamp": "2024-01-20T10:30:00.000Z",
+  "url": "https://www.facebook.com",
+  "userInfo": {
+    "name": "Usuário Exemplo",
+    "id": "100000000000000"
+  }
+}

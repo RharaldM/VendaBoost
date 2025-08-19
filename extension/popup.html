@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="popup.css">
+  <title>VendaBoost - Extrator de Sessão</title>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <div class="logo">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#667eea" stroke-width="2" stroke-linejoin="round"/>
+          <path d="M2 17L12 22L22 17" stroke="#667eea" stroke-width="2" stroke-linejoin="round"/>
+          <path d="M2 12L12 17L22 12" stroke="#667eea" stroke-width="2" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="title">VendaBoost</div>
+      <div class="subtitle">Extrator de Sessão Facebook</div>
+    </div>
+
+    <!-- Status -->
+    <div class="status-section">
+      <div class="status-item">
+        <span class="status-label">Status do Login:</span>
+        <div style="display: flex; align-items: center;">
+          <span class="status-value" id="status">Verificando...</span>
+          <div class="status-indicator" id="loginIndicator"></div>
+        </div>
+      </div>
+      <div class="status-item">
+        <span class="status-label">Dados Extraídos:</span>
+        <span class="status-value" id="dataStatus">Nenhum</span>
+      </div>
+      <div class="status-item">
+        <span class="status-label">Última Extração:</span>
+        <span class="status-value" id="lastExtraction">Nunca</span>
+      </div>
+    </div>
+
+    <!-- User Info (hidden by default) -->
+    <div id="userInfo" class="user-info hidden">
+      <div class="info-item">
+        <span class="info-label">Nome:</span>
+        <span id="userName">-</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">ID:</span>
+        <span id="userId">-</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Última Atualização:</span>
+        <span id="lastUpdate">-</span>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions">
+      <button class="btn btn-primary" id="extractBtn">
+        <span id="extractText">Extrair Dados de Sessão</span>
+        <div class="loading" id="extractLoading" style="display: none;"></div>
+      </button>
+      
+      <button class="btn btn-secondary" id="exportBtn" disabled>
+        <span id="exportText">Exportar para VendaBoost</span>
+        <div class="loading" id="exportLoading" style="display: none;"></div>
+      </button>
+      
+      <button class="btn btn-secondary" id="clearBtn">
+        Limpar Dados Armazenados
+      </button>
+    </div>
+
+    <!-- Messages -->
+    <div id="message" style="display: none;"></div>
+    <div id="successMessage" class="success-message hidden"></div>
+
+    <!-- Footer -->
+    <div class="footer">
+      VendaBoost Desktop v1.0.0<br>
+      Mantenha seus dados seguros
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
