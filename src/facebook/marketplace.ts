@@ -62,6 +62,14 @@ export class MarketplaceAutomation {
         await this.selectCondition(data.condition);
       }
 
+      // Configurar disponibilidade
+      await this.selectAvailability();
+
+      // Configurar localização
+      if (data.location) {
+        await this.selectLocation(data.location);
+      }
+
       info('Formulário de anúncio preenchido com sucesso');
     } catch (err) {
       error('Erro ao criar anúncio:', err);
@@ -108,6 +116,7 @@ export class MarketplaceAutomation {
     debug('Preenchendo título do anúncio...');
     
     const strategies = [
+      () => this.page.getByRole('textbox', { name: 'Título' }),
       () => this.page.getByLabel(t.labels.title),
       () => this.page.getByPlaceholder(t.labels.title),
       () => this.page.locator('input[name*="title"]'),
@@ -143,6 +152,7 @@ export class MarketplaceAutomation {
     const priceStr = typeof price === 'number' ? price.toString() : price;
     
     const strategies = [
+      () => this.page.getByRole('textbox', { name: 'Preço' }),
       () => this.page.getByLabel(t.labels.price),
       () => this.page.getByPlaceholder(t.labels.price),
       () => this.page.locator('input[name*="price"]'),
@@ -176,6 +186,7 @@ export class MarketplaceAutomation {
     debug('Preenchendo descrição do anúncio...');
     
     const strategies = [
+      () => this.page.getByRole('textbox', { name: 'Descrição' }),
       () => this.page.getByLabel(t.labels.description),
       () => this.page.getByPlaceholder(t.labels.description),
       () => this.page.locator('textarea[name*="description"]'),
@@ -254,21 +265,19 @@ export class MarketplaceAutomation {
     debug(`Selecionando categoria: ${category}`);
     
     try {
-      // Procurar dropdown ou campo de categoria
-      const categoryField = this.page.getByLabel(t.labels.category)
-        .or(this.page.getByPlaceholder(t.labels.category))
-        .first();
-
-      if (await categoryField.isVisible({ timeout: 3000 })) {
-        await categoryField.click();
+      // Usar seletor específico do Facebook Marketplace
+      const categoryCombobox = this.page.getByRole('combobox', { name: 'Categoria' });
+      
+      if (await categoryCombobox.isVisible({ timeout: 3000 })) {
+        await categoryCombobox.locator('div').nth(2).click();
         await wait(500);
         
-        // Procurar opção da categoria
-        const option = this.page.getByText(new RegExp(category, 'i')).first();
-        if (await option.isVisible({ timeout: 2000 })) {
-          await option.click();
+        // Selecionar "Diversos" como categoria padrão
+        const diversosButton = this.page.getByRole('button', { name: 'Diversos' });
+        if (await diversosButton.isVisible({ timeout: 2000 })) {
+          await diversosButton.click();
           await waitWithLog(this.throttleMs, 'Aguardando após selecionar categoria');
-          info(`Categoria selecionada: ${category}`);
+          info('Categoria selecionada: Diversos');
         }
       }
     } catch (err) {
@@ -283,25 +292,77 @@ export class MarketplaceAutomation {
     debug(`Selecionando condição: ${condition}`);
     
     try {
-      // Procurar campo de condição
-      const conditionField = this.page.getByLabel(t.labels.condition)
-        .or(this.page.getByPlaceholder(t.labels.condition))
-        .first();
-
-      if (await conditionField.isVisible({ timeout: 3000 })) {
-        await conditionField.click();
+      // Usar seletor específico para condição
+      const conditionLocator = this.page.locator('[id="_r_25_"] div');
+      
+      if (await conditionLocator.isVisible({ timeout: 3000 })) {
+        await conditionLocator.click();
         await wait(500);
         
-        // Procurar opção da condição
-        const option = this.page.getByText(new RegExp(condition, 'i')).first();
-        if (await option.isVisible({ timeout: 2000 })) {
-          await option.click();
+        // Selecionar "Novo" como condição padrão
+        const novoOption = this.page.getByRole('option', { name: 'Novo', exact: true }).locator('div').first();
+        if (await novoOption.isVisible({ timeout: 2000 })) {
+          await novoOption.click();
           await waitWithLog(this.throttleMs, 'Aguardando após selecionar condição');
-          info(`Condição selecionada: ${condition}`);
+          info('Condição selecionada: Novo');
         }
       }
     } catch (err) {
       warn('Não foi possível selecionar condição:', err);
+    }
+  }
+
+  /**
+   * Seleciona disponibilidade do produto
+   */
+  private async selectAvailability(): Promise<void> {
+    debug('Configurando disponibilidade do produto...');
+    
+    try {
+      // Usar seletor específico para disponibilidade
+      const availabilityCombobox = this.page.getByRole('combobox', { name: 'Disponibilidade' });
+      
+      if (await availabilityCombobox.isVisible({ timeout: 3000 })) {
+        await availabilityCombobox.locator('div').nth(2).click();
+        await wait(500);
+        
+        // Selecionar "Em estoque" como disponibilidade padrão
+        const emEstoqueOption = this.page.getByLabel('Selecione uma opção').getByText('Anunciar como Em estoque');
+        if (await emEstoqueOption.isVisible({ timeout: 2000 })) {
+          await emEstoqueOption.click();
+          await waitWithLog(this.throttleMs, 'Aguardando após selecionar disponibilidade');
+          info('Disponibilidade selecionada: Em estoque');
+        }
+      }
+    } catch (err) {
+      warn('Não foi possível selecionar disponibilidade:', err);
+    }
+  }
+
+  /**
+   * Seleciona localização do produto
+   */
+  private async selectLocation(location: string): Promise<void> {
+    debug(`Configurando localização: ${location}`);
+    
+    try {
+      // Usar seletor específico para localização
+      const locationCombobox = this.page.getByRole('combobox', { name: 'Localização' });
+      
+      if (await locationCombobox.isVisible({ timeout: 3000 })) {
+        await locationCombobox.click();
+        await wait(500);
+        
+        // Selecionar "Sinop, Brazil" como localização padrão
+        const sinopOption = this.page.getByText('Sinop, Brazil');
+        if (await sinopOption.isVisible({ timeout: 2000 })) {
+          await sinopOption.click();
+          await waitWithLog(this.throttleMs, 'Aguardando após selecionar localização');
+          info('Localização selecionada: Sinop, Brazil');
+        }
+      }
+    } catch (err) {
+      warn('Não foi possível selecionar localização:', err);
     }
   }
 
