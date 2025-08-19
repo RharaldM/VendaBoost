@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-mkdir -p /app/sessions /data/user
+DATA_DIR="${USER_DATA_DIR:-/data/user}"
+mkdir -p /app/sessions "$DATA_DIR"
 
 # --- sessão da extensão (nome customizado) ---
 EXT_NAME="${EXTENSION_SESSION_NAME:-vendaboost-session-2025-08-18T17-27-36.json}"

@@ -28,7 +28,10 @@ RUN mkdir -p /app/sessions /app/assets && chown -R pwuser:pwuser /app
 # Pastas persistentes
 VOLUME ["/data", "/app/sessions", "/app/assets"]
 
-# Usuário não-root seguro (vem na imagem)
+# GARANTIR PERMISSÃO EM /data E /app PARA 'pwuser'
+USER root
+RUN mkdir -p /data /app/sessions /app/assets \
+    && chown -R pwuser:pwuser /data /app
 USER pwuser
 
 # Entrypoint: decodifica secrets (se houver) e chama sua CLI
