@@ -1,0 +1,146 @@
+{
+  "userId": "61578151491865",
+  "timestamp": "2025-08-22T03:49:14.804Z",
+  "cookies": [
+    {
+      "name": "dbln",
+      "value": "%7B%2261578177410490%22%3A%223aG0cFrZ%22%7D",
+      "domain": ".facebook.com",
+      "path": "/login/device-based/",
+      "expires": 1763446645.070433,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "no_restriction"
+    },
+    {
+      "name": "sb",
+      "value": "kfphaAYo0U767t2WOPZD_qIb",
+      "domain": ".facebook.com",
+      "path": "/",
+      "expires": 1790368405.132671,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "no_restriction"
+    },
+    {
+      "name": "datr",
+      "value": "kfphaPIIU0DNs9-ad3JH3qcO",
+      "domain": ".facebook.com",
+      "path": "/",
+      "expires": 1785811604.283403,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "no_restriction"
+    },
+    {
+      "name": "ps_l",
+      "value": "1",
+      "domain": ".facebook.com",
+      "path": "/",
+      "expires": 1785811751.139431,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "lax"
+    },
+    {
+      "name": "ps_n",
+      "value": "1",
+      "domain": ".facebook.com",
+      "path": "/",
+      "expires": 1785811751.139499,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "no_restriction"
+    },
+    {
+      "name": "ar_debug",
+      "value": "1",
+      "domain": ".facebook.com",
+      "path": "/",
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "no_restriction"
+    },
+    {
+      "name": "c_user",
+      "value": "61578151491865",
+      "domain": ".facebook.com",
+      "path": "/",
+      "expires": 1787370400.295468,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "no_restriction"
+    },
+    {
+      "name": "xs",
+      "value": "49%3APJChc0wKsqJj8A%3A2%3A1755808419%3A-1%3A-1%3A%3AAcU0Rqv8ih07aPts322RhKtYnHWn3p8skX2xiNUlAw",
+      "domain": ".facebook.com",
+      "path": "/",
+      "expires": 1787370400.296207,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "no_restriction"
+    },
+    {
+      "name": "fr",
+      "value": "1Cn6Zw3xNDktd2yzR.AWcNbOOqHRDg4lIC2EkgJVY9WBuUPqi5-eF0-iOKdTDNuBNbnKY.Bop-gv..AAA.0.0.Bop-jE.AWfWP1xCrdnMUUeEFz3EAsp4s4g",
+      "domain": ".facebook.com",
+      "path": "/",
+      "expires": 1763610549.164022,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "no_restriction"
+    },
+    {
+      "name": "wd",
+      "value": "1309x911",
+      "domain": ".facebook.com",
+      "path": "/",
+      "expires": 1756439351,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "lax"
+    },
+    {
+      "name": "presence",
+      "value": "C%7B%22t3%22%3A%5B%5D%2C%22utc3%22%3A1755834551950%2C%22v%22%3A1%7D",
+      "domain": ".facebook.com",
+      "path": "/",
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "unspecified"
+    }
+  ],
+  "userInfo": {
+    "id": "61578151491865",
+    "name": "Pedro Santos Alves",
+    "email": "",
+    "profileUrl": "https://www.facebook.com/profile.php?id=61578151491865",
+    "avatarUrl": ""
+  },
+  "localStorage": {
+    "armadillo_msgr_data_loss_stats": "{}",
+    "CacheStorageVersion": "3b",
+    "mw_encrypted_backups_restore_upsell_first_impression_time_key": "1755808405877",
+    "Session": "jb4qru:1755834584720",
+    "_oz_bandwidthEstimate": "135946862",
+    "banzai:last_storage_flush": "1755793828621.2",
+    "screen_time_period_logging_facebook": "{\"actorId\":\"61578151491865\",\"currentIntervalLastTick\":1755834548,\"currentIntervalStart\":1755834548,\"initRemoteAgg\":{\"timestamp\":1755834564,\"today_s\":2891},\"intervals\":[],\"lastCallbackAttempt\":1755834548,\"localStorageId\":\"22858188\",\"syncedL24HS\":3002,\"syncedTodayS\":2891,\"lastSyncTimeStamp\":1755834548}",
+    "last_headload_time": "1755834550545",
+    "RSTData": "{}",
+    "hb_timestamp": "1755832749055",
+    "bdz_playback_state": "{\"session_key\":\"me7kl6pq\",\"buffer_length\":60}",
+    "ps:100027948983749:1fca4791-b0c1-4bc9-b8d5-58c2b5626358": "5574b8d9-d76d-4074-8440-6d916f0a5dd4:1755831846354",
+    "_oz_bandwidthAndTTFBSamples": "{\"b\":[{\"b\":113489,\"s\":1755802884848,\"t\":15.5},{\"b\":858960,\"s\":1755804125836,\"t\":78.69999999925494},{\"b\":1496204,\"s\":1755804125964,\"t\":105.29999999888241},{\"b\":80332,\"s\":1755804125966,\"t\":177.5},{\"b\":5327695,\"s\":1755808387124,\"t\":91.29999999888241}],\"t\":[{\"s\":1755808386974,\"t\":4.800000000745058,\"l\":5.700000001117587,\"b\":824},{\"s\":1755808387000,\"t\":2.400000000372529,\"l\":3.200000001117587,\"b\":92},{\"s\":1755808387004,\"t\":2.5,\"l\":3.299999998882413,\"b\":164},{\"s\":1755808387040,\"t\":2.800000000745058,\"l\":6.700000001117587,\"b\":184893},{\"s\":1755808387124,\"t\":3.199999999254942,\"l\":99.29999999888241,\"b\":5327695}]}",
+    "ares_last_signal_flush": "1754944406846",
+    "signal_flush_timestamp": "1755832687101"
+  },
+  "sessionStorage": {
+    "sp_pi": "{\"pageInfo\":{\"scriptPath\":\"XIndexReduxController\",\"categoryToken\":\"a1f3c513\",\"extraData\":{\"imp_id\":\"05WP3hmOJIMXUcLmf\",\"ef_page\":null,\"uri\":\"https://www.facebook.com/?stype=lo&flo=1&deoia=1&jlou=AfcoA524k-FHm3mhoqT8ch-8JsvLu1u2kc8q61hwJlvDL9xDTYDjJhjNTQcRi8ePTW1q5BHBPYYhweGSuv2Ma_22wTlqyd_zr7sdQE6brJKdzg&smuh=60995&lh=Ac_KXVXw-z0gAojig28\"}},\"clickPoint\":null,\"time\":1755808405530}",
+    "ps:tabID": "bf818246-daab-44fe-ab7f-f2269e74565d",
+    "TabId": "67g30e"
+  },
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+  "url": "https://www.facebook.com/",
+  "source": "extension"
+}

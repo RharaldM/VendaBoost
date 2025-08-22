@@ -74,13 +74,23 @@ export class VendaBoostAutomation {
 
       const page = await this.browserSession.newPage();
       
-      // Navegar para Facebook Marketplace
-      await this.browserSession.navigateTo(page, this.config.startUrl);
-      
-      // Aplicar dados de storage da extensão se disponíveis
+      // Aplicar dados de sessão ANTES de navegar se disponíveis
       if (options.config?.extensionSession || options.config?.autoExtension) {
+        info('🔧 Aplicando dados de sessão da extensão antes da navegação...');
+        
+        // Primeiro navegar para Facebook para que localStorage funcione
+        await this.browserSession.navigateTo(page, 'https://www.facebook.com');
+        
+        // Aplicar localStorage e sessionStorage
         await this.browserSession.applyExtensionStorageData(page);
+        
+        // Aguardar processamento
+        await page.waitForTimeout(3000);
+        info('✅ Dados de sessão aplicados');
       }
+      
+      // Navegar para URL final (Marketplace)
+      await this.browserSession.navigateTo(page, this.config.startUrl);
       
       // Verificar se está logado
       const isLoggedIn = await this.browserSession.isLoggedIn(page);

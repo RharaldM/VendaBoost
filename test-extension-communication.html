@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Comunicação Extensão-Servidor</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #4267B2;
+            padding-bottom: 10px;
+        }
+        button {
+            background-color: #4267B2;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background-color: #365899;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-online {
+            background-color: #28a745;
+        }
+        .status-offline {
+            background-color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Teste de Comunicação: Extensão ↔️ Servidor</h1>
+        
+        <div style="margin: 20px 0;">
+            <h3>Status do Servidor</h3>
+            <p><span id="server-status" class="status-indicator status-offline"></span><span id="server-text">Verificando...</span></p>
+        </div>
+
+        <div style="margin: 20px 0;">
+            <h3>Ações de Teste</h3>
+            <button onclick="testServerHealth()">🏥 Testar Health Check</button>
+            <button onclick="testDirectPost()">📤 Enviar Dados Diretamente</button>
+            <button onclick="testCORS()">🔒 Testar CORS</button>
+            <button onclick="testExtensionMessage()">📨 Testar Via Extensão</button>
+        </div>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const serverUrls = [
+            'http://localhost:3000',
+            'http://localhost:3001',
+            'http://127.0.0.1:3000',
+            'http://127.0.0.1:3001'
+        ];
+
+        let activeServerUrl = null;
+
+        // Verificar status do servidor ao carregar
+        window.onload = async () => {
+            await checkServerStatus();
+        };
+
+        async function checkServerStatus() {
+            const statusIndicator = document.getElementById('server-status');
+            const statusText = document.getElementById('server-text');
+            
+            for (const url of serverUrls) {
+                try {
+                    const response = await fetch(url + '/health');
+                    if (response.ok) {
+                        activeServerUrl = url;
+                        statusIndicator.className = 'status-indicator status-online';
+                        statusText.textContent = `Online em ${url}`;
+                        showResult(`✅ Servidor ativo em: ${url}`, 'success');
+                        return;
+                    }
+                } catch (e) {
+                    // Continue tentando próximo URL
+                }
+            }
+            
+            statusIndicator.className = 'status-indicator status-offline';
+            statusText.textContent = 'Offline - Nenhum servidor encontrado';
+            showResult('❌ Nenhum servidor encontrado nas portas 3000/3001', 'error');
+        }
+
+        async function testServerHealth() {
+            if (!activeServerUrl) {
+                await checkServerStatus();
+                if (!activeServerUrl) {
+                    showResult('❌ Servidor não está rodando!', 'error');
+                    return;
+                }
+            }
+
+            try {
+                const response = await fetch(activeServerUrl + '/health');
+                const data = await response.json();
+                showResult('✅ Health Check OK:\n' + JSON.stringify(data, null, 2), 'success');
+            } catch (error) {
+                showResult('❌ Erro no Health Check:\n' + error.message, 'error');
+            }
+        }
+
+        async function testDirectPost() {
+            if (!activeServerUrl) {
+                await checkServerStatus();
+                if (!activeServerUrl) {
+                    showResult('❌ Servidor não está rodando!', 'error');
+                    return;
+                }
+            }
+
+            const testData = {
+                userId: '123456789',
+                userName: 'Teste User',
+                cookies: [
+                    { name: 'c_user', value: '123456789', domain: '.facebook.com' },
+                    { name: 'xs', value: 'test_session_token', domain: '.facebook.com' }
+                ],
+                accessToken: 'test_access_token',
+                timestamp: new Date().toISOString()
+            };
+
+            try {
+                showResult('📤 Enviando dados de teste...', 'info');
+                
+                const response = await fetch(activeServerUrl + '/api/facebook-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(testData)
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showResult('✅ Dados enviados com sucesso!\n' + JSON.stringify(result, null, 2), 'success');
+                } else {
+                    showResult('⚠️ Resposta do servidor:\n' + JSON.stringify(result, null, 2), 'error');
+                }
+            } catch (error) {
+                showResult('❌ Erro ao enviar dados:\n' + error.message, 'error');
+            }
+        }
+
+        async function testCORS() {
+            if (!activeServerUrl) {
+                await checkServerStatus();
+                if (!activeServerUrl) {
+                    showResult('❌ Servidor não está rodando!', 'error');
+                    return;
+                }
+            }
+
+            try {
+                showResult('🔒 Testando CORS...', 'info');
+                
+                // Teste de preflight
+                const preflightResponse = await fetch(activeServerUrl + '/api/facebook-session', {
+                    method: 'OPTIONS',
+                    headers: {
+                        'Origin': 'chrome-extension://fake-extension-id',
+                        'Access-Control-Request-Method': 'POST',
+                        'Access-Control-Request-Headers': 'Content-Type'
+                    }
+                });
+
+                const corsHeaders = {
+                    'Access-Control-Allow-Origin': preflightResponse.headers.get('Access-Control-Allow-Origin'),
+                    'Access-Control-Allow-Methods': preflightResponse.headers.get('Access-Control-Allow-Methods'),
+                    'Access-Control-Allow-Headers': preflightResponse.headers.get('Access-Control-Allow-Headers')
+                };
+
+                showResult('✅ CORS configurado corretamente:\n' + JSON.stringify(corsHeaders, null, 2), 'success');
+            } catch (error) {
+                showResult('❌ Erro no teste CORS:\n' + error.message, 'error');
+            }
+        }
+
+        async function testExtensionMessage() {
+            try {
+                // Tenta enviar mensagem para a extensão (se estiver instalada)
+                if (chrome && chrome.runtime && chrome.runtime.sendMessage) {
+                    chrome.runtime.sendMessage(
+                        'ID_DA_SUA_EXTENSAO', // Substitua pelo ID real da sua extensão
+                        { action: 'getCookies' },
+                        response => {
+                            if (chrome.runtime.lastError) {
+                                showResult('⚠️ Extensão não encontrada ou não responde:\n' + chrome.runtime.lastError.message, 'error');
+                            } else {
+                                showResult('✅ Resposta da extensão:\n' + JSON.stringify(response, null, 2), 'success');
+                            }
+                        }
+                    );
+                } else {
+                    // Simula envio via postMessage (para teste local)
+                    window.postMessage({
+                        type: 'VENDABOOST_TEST',
+                        action: 'sendToLocalhost',
+                        data: {
+                            userId: 'test123',
+                            userName: 'Test User',
+                            cookies: [],
+                            timestamp: new Date().toISOString()
+                        }
+                    }, '*');
+                    
+                    showResult('📨 Mensagem enviada via postMessage (verifique o console da extensão)', 'info');
+                }
+            } catch (error) {
+                showResult('❌ Erro ao testar comunicação com extensão:\n' + error.message, 'error');
+            }
+        }
+
+        function showResult(message, type = 'info') {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = type;
+            resultDiv.textContent = message;
+            console.log(message);
+        }
+    </script>
+</body>
+</html>

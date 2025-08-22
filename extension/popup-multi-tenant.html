@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VendaBoost - Multi-Tenant</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      width: 350px;
+      min-height: 400px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 20px;
+    }
+    
+    .container {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+    
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 5px;
+    }
+    
+    .subtitle {
+      color: #666;
+      font-size: 12px;
+    }
+    
+    /* Estados diferentes */
+    .state {
+      display: none;
+    }
+    
+    .state.active {
+      display: block;
+    }
+    
+    /* Estado: Não configurado */
+    .config-section {
+      text-align: center;
+      padding: 20px 0;
+    }
+    
+    .config-input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+    
+    .config-input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    
+    .config-input::placeholder {
+      color: #999;
+    }
+    
+    /* Estado: Configurado */
+    .user-info {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+    
+    .user-info h3 {
+      color: #333;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+    
+    .user-detail {
+      display: flex;
+      justify-content: space-between;
+      margin: 8px 0;
+      font-size: 13px;
+    }
+    
+    .user-detail label {
+      color: #666;
+    }
+    
+    .user-detail span {
+      color: #333;
+      font-weight: 500;
+    }
+    
+    .facebook-status {
+      background: #fff;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+    
+    .facebook-status.connected {
+      border-color: #4CAF50;
+      background: #f1f8f4;
+    }
+    
+    .facebook-status h3 {
+      color: #333;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+    
+    .status-indicator {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+    
+    .status-indicator.online {
+      background: #4CAF50;
+      animation: pulse 2s infinite;
+    }
+    
+    .status-indicator.offline {
+      background: #f44336;
+    }
+    
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
+      70% { box-shadow: 0 0 0 10px rgba(76, 175, 80, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+    }
+    
+    /* Botões */
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 10px;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-success {
+      background: #4CAF50;
+      color: white;
+    }
+    
+    .btn-success:hover {
+      background: #45a049;
+    }
+    
+    .btn-danger {
+      background: #f44336;
+      color: white;
+    }
+    
+    .btn-danger:hover {
+      background: #da190b;
+    }
+    
+    .btn-secondary {
+      background: #f0f0f0;
+      color: #333;
+    }
+    
+    .btn-secondary:hover {
+      background: #e0e0e0;
+    }
+    
+    /* Mensagens */
+    .message {
+      padding: 10px;
+      border-radius: 8px;
+      margin: 10px 0;
+      font-size: 13px;
+      text-align: center;
+    }
+    
+    .message.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    
+    .message.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    
+    .message.info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+    }
+    
+    /* Loading */
+    .loading {
+      text-align: center;
+      padding: 20px;
+    }
+    
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #667eea;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .help-text {
+      font-size: 12px;
+      color: #666;
+      margin-top: 10px;
+      text-align: center;
+      line-height: 1.4;
+    }
+    
+    .help-text a {
+      color: #667eea;
+      text-decoration: none;
+    }
+    
+    .help-text a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo">🚀 VendaBoost</div>
+      <div class="subtitle">Automação Multi-Usuário</div>
+    </div>
+    
+    <!-- Estado: Não Configurado -->
+    <div id="notConfigured" class="state">
+      <div class="config-section">
+        <h3 style="margin-bottom: 15px; color: #333;">Configure sua Extensão</h3>
+        <p style="color: #666; font-size: 13px; margin-bottom: 20px;">
+          Cole o token fornecido pelo site VendaBoost
+        </p>
+        
+        <input type="text" 
+               id="userToken" 
+               class="config-input" 
+               placeholder="Cole seu token aqui">
+        
+        <input type="text" 
+               id="serverUrl" 
+               class="config-input" 
+               placeholder="URL do servidor (ex: https://app.vendaboost.com)"
+               value="http://localhost:3000">
+        
+        <button id="configureBtn" class="btn btn-primary">
+          Configurar Extensão
+        </button>
+        
+        <div class="help-text">
+          <p>Não tem um token? 
+            <a href="#" id="registerLink">Cadastre-se no VendaBoost</a>
+          </p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Estado: Configurado -->
+    <div id="configured" class="state">
+      <div class="user-info">
+        <h3>👤 Conta VendaBoost</h3>
+        <div class="user-detail">
+          <label>ID:</label>
+          <span id="userId">-</span>
+        </div>
+        <div class="user-detail">
+          <label>Servidor:</label>
+          <span id="serverInfo">-</span>
+        </div>
+        <div class="user-detail">
+          <label>Configurado:</label>
+          <span id="configDate">-</span>
+        </div>
+      </div>
+      
+      <div class="facebook-status" id="facebookStatus">
+        <h3>
+          <span class="status-indicator offline" id="fbIndicator"></span>
+          Facebook Status
+        </h3>
+        <div id="fbInfo" style="margin-top: 10px; font-size: 13px; color: #666;">
+          Verificando...
+        </div>
+      </div>
+      
+      <button id="syncBtn" class="btn btn-success">
+        🔄 Sincronizar com Facebook
+      </button>
+      
+      <button id="logoutBtn" class="btn btn-secondary">
+        Desconectar Extensão
+      </button>
+    </div>
+    
+    <!-- Estado: Loading -->
+    <div id="loading" class="state">
+      <div class="loading">
+        <div class="spinner"></div>
+        <p style="margin-top: 15px; color: #666;">Processando...</p>
+      </div>
+    </div>
+    
+    <!-- Mensagens -->
+    <div id="messageContainer"></div>
+  </div>
+  
+  <script src="popup-multi-tenant.js"></script>
+</body>
+</html>

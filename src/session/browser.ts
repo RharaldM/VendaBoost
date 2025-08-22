@@ -3,6 +3,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { info, warn, error, debug } from '../logger.js';
 import { sessionImporter, type ExtractedSessionData } from '../utils/sessionImporter.js';
+import { autoConvertLatestSession, convertExtensionSessionToPlaywright } from '../utils/extensionSessionConverter.js';
 
 /**
  * Configurações para o browser
@@ -48,14 +49,23 @@ export class BrowserSession {
       
       const launchOptions: any = {
         headless: this.config.headless,
-        viewport: this.config.viewport,
-        args: this.config.args,
+        viewport: this.config.headless ? { width: 1920, height: 1080 } : this.config.viewport,
+        args: this.config.headless ? [
+          '--start-maximized',
+          '--disable-blink-features=AutomationControlled',
+          '--disable-web-security',
+          '--disable-features=VizDisplayCompositor'
+        ] : this.config.args,
         // Configurações de segurança e performance
         ignoreHTTPSErrors: false,
         acceptDownloads: true,
         // Configurações de localização
         locale: 'pt-BR',
         timezoneId: 'America/Sao_Paulo',
+        // User agent personalizado para modo headless
+        userAgent: this.config.headless ? 
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' : 
+          undefined,
       };
 
       // Adicionar timeout apenas se definido
@@ -209,30 +219,67 @@ export class BrowserSession {
    */
   async isLoggedIn(page: Page): Promise<boolean> {
     try {
+      // Aguardar a página carregar completamente
+      await page.waitForLoadState('domcontentloaded', { timeout: 10000 });
+      
       // Verificar se há elementos que indicam login
       const loginIndicators = [
         '[data-testid="user_menu"]',
         '[aria-label*="perfil"]',
         '[aria-label*="profile"]',
         'a[href*="/profile.php"]',
-        'div[data-click="profile_icon"]'
+        'div[data-click="profile_icon"]',
+        '[data-testid="blue_bar_profile_link"]',
+        'div[role="banner"] a[href*="/profile"]',
+        '[data-testid="nav_menu_item_profile"]',
+        // Novos seletores mais específicos
+        'div[data-pagelet="LeftRail"] a[href*="/profile"]',
+        '[data-testid="left_nav_menu_profile"]'
       ];
 
       for (const selector of loginIndicators) {
         const element = page.locator(selector).first();
-        if (await element.isVisible({ timeout: 2000 }).catch(() => false)) {
+        if (await element.isVisible({ timeout: 3000 }).catch(() => false)) {
           debug(`Login detectado via seletor: ${selector}`);
           return true;
         }
       }
 
-      // Verificar cookies de sessão
+      // Verificar se há botões de "Continuar como..." (indica que precisa escolher conta)
+      const continueAsButtons = [
+        'div[role="button"]:has-text("Continuar como")',
+        'button:has-text("Continuar como")',
+        '[data-testid="login_profile_button"]',
+        'div[data-testid="identity_switch_account_item"]'
+      ];
+
+      for (const selector of continueAsButtons) {
+        const element = page.locator(selector).first();
+        if (await element.isVisible({ timeout: 2000 }).catch(() => false)) {
+          warn(`⚠️ Tela "Continuar como..." detectada. Clicando automaticamente...`);
+          await element.click();
+          await page.waitForTimeout(3000);
+          // Verificar novamente após clicar
+          return await this.isLoggedIn(page);
+        }
+      }
+
+      // Verificar cookies de sessão como última verificação
       const cookies = await this.context?.cookies() || [];
       const sessionCookies = cookies.filter(cookie => 
         cookie.name === 'c_user' || cookie.name === 'xs'
       );
 
-      return sessionCookies.length >= 2;
+      if (sessionCookies.length >= 2) {
+        debug(`Login detectado via cookies de sessão: c_user=${sessionCookies.find(c => c.name === 'c_user')?.value}, xs presente`);
+        return true;
+      } else {
+        warn(`⚠️ Cookies de sessão insuficientes: ${sessionCookies.map(c => c.name).join(', ')}`);
+        // Listar todos os cookies para debug
+        debug(`Cookies disponíveis: ${cookies.map(c => c.name).join(', ')}`);
+      }
+
+      return false;
     } catch (err) {
       debug('Erro ao verificar login:', err);
       return false;
@@ -353,42 +400,88 @@ export class BrowserSession {
     try {
       debug(`Tentando carregar dados da extensão: sessionFilePath=${sessionFilePath}, autoExtension=${autoExtension}`);
       
-      // Carregar dados da extensão
-      let sessionLoaded = false;
+      // Primeiro, converter sessão da extensão para formato Playwright
+      let conversionSuccess = false;
       
       if (autoExtension) {
-        debug('Carregando arquivo de sessão mais recente...');
-        sessionLoaded = await sessionImporter.loadLatestSessionFile();
+        debug('Convertendo sessão mais recente da extensão...');
+        conversionSuccess = await autoConvertLatestSession();
       } else if (sessionFilePath) {
-        debug(`Carregando arquivo de sessão específico: ${sessionFilePath}`);
-        sessionLoaded = await sessionImporter.loadSessionFile(sessionFilePath);
+        debug(`Convertendo arquivo de sessão específico: ${sessionFilePath}`);
+        conversionSuccess = await convertExtensionSessionToPlaywright(sessionFilePath);
       }
       
-      if (!sessionLoaded) {
-        warn('Falha ao carregar dados de sessão da extensão');
+      if (!conversionSuccess) {
+        warn('Falha ao converter dados de sessão da extensão');
         return false;
       }
-
-      debug('Dados de sessão carregados com sucesso');
-
-      // Aplicar cookies ao contexto
-      if (this.context) {
-        const cookies = sessionImporter.getPlaywrightCookies();
-        debug(`Aplicando ${cookies.length} cookies ao contexto...`);
-        await this.context.addCookies(cookies);
-        info(`${cookies.length} cookies aplicados ao contexto do browser`);
-      } else {
-        warn('Contexto do browser não disponível para aplicar cookies');
+      
+      // Agora carregar a sessão convertida
+      const sessionFile = 'vendaboost-session.json';
+      if (!fs.existsSync(sessionFile)) {
+        error('Arquivo de sessão convertida não encontrado');
+        return false;
+      }
+      
+      // Aplicar cookies e storage ao contexto
+      const sessionData = JSON.parse(fs.readFileSync(sessionFile, 'utf-8'));
+      
+      if (this.context && sessionData.cookies) {
+        // Debug: mostrar cookies essenciais antes de aplicar
+        const essentialCookies = sessionData.cookies.filter((c: any) => ['c_user', 'xs', 'datr'].includes(c.name));
+        info(`🔧 Aplicando ${sessionData.cookies.length} cookies, incluindo ${essentialCookies.length} essenciais:`);
+        essentialCookies.forEach((cookie: any) => {
+          const expireDate = new Date(cookie.expires * 1000);
+          info(`  - ${cookie.name}: ${cookie.value.substring(0, 20)}... (exp: ${expireDate.toLocaleDateString()})`);
+        });
+        
+        await this.context.addCookies(sessionData.cookies);
+        
+        // Verificar se cookies foram aplicados corretamente
+        const appliedCookies = await this.context.cookies();
+        const appliedEssential = appliedCookies.filter(c => ['c_user', 'xs', 'datr'].includes(c.name));
+        info(`✅ ${appliedCookies.length} cookies aplicados, ${appliedEssential.length} essenciais confirmados`);
+      }
+      
+      // Aplicar UserAgent da sessão original
+      const originalSessionData = JSON.parse(fs.readFileSync(sessionFilePath || 'data/sessions/current-session.json', 'utf-8'));
+      if (originalSessionData.userAgent && this.context) {
+        await this.context.setExtraHTTPHeaders({
+          'User-Agent': originalSessionData.userAgent
+        });
+        info(`✅ User Agent aplicado: ${originalSessionData.userAgent.substring(0, 80)}...`);
+      }
+      
+      // Aplicar localStorage se disponível
+      if (sessionData.origins && sessionData.origins.length > 0) {
+        const origin = sessionData.origins[0];
+        if (origin && origin.localStorage && origin.localStorage.length > 0) {
+          // Criar um script que aplica o localStorage
+          const localStorageData = origin.localStorage.reduce((acc: any, item: any) => {
+            acc[item.name] = item.value;
+            return acc;
+          }, {});
+          
+          await this.context?.addInitScript((data) => {
+            // Este script será executado antes de cada página carregar
+            try {
+              for (const [key, value] of Object.entries(data)) {
+                window.localStorage.setItem(key, String(value));
+              }
+              console.log(`✅ ${Object.keys(data).length} itens de localStorage aplicados`);
+            } catch (e) {
+              console.warn('Erro ao aplicar localStorage:', e);
+            }
+          }, localStorageData);
+          
+          info(`✅ Script de localStorage configurado com ${origin.localStorage.length} itens`);
+        }
       }
 
-      // Configurar User Agent
-      await this.setExtensionUserAgent();
-
-      const userInfo = sessionImporter.getUserInfo();
-      info(`🔑 Sessão da extensão carregada para usuário: ${userInfo.name} (${userInfo.userId})`);
+      
       return true;
     } catch (err) {
-      error('Erro ao inicializar sessão com dados da extensão:', err);
+      error('Erro ao inicializar com dados da extensão:', err);
       return false;
     }
   }

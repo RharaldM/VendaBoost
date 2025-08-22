@@ -9,6 +9,8 @@ import { loadFlow, createExampleFlow } from './config.js';
 import { VendaBoostAutomation } from './index.js';
 import { readLines, parseGroupsFromDYI, exists, createExampleGroupsList } from './utils/files.js';
 import { info, warn, error, setLogLevel } from './logger.js';
+import { startLocalhostBridge } from './server/localhost-bridge.js';
+import { startBridge } from './server/bridge.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -30,6 +32,9 @@ interface CliArgs {
   'listing-only'?: boolean;
   'extension-session'?: string;
   'auto-extension'?: boolean;
+  'start-server'?: boolean;
+  'start-bridge'?: boolean;
+  'server-port'?: number;
 }
 
 /**
@@ -114,6 +119,21 @@ const cli = yargs(hideBin(process.argv))
     description: 'Buscar automaticamente pelo arquivo de sessão mais recente da extensão',
     default: false
   })
+  .option('start-server', {
+    type: 'boolean',
+    description: 'Iniciar servidor localhost para receber dados da extensão Chrome',
+    default: false
+  })
+  .option('start-bridge', {
+    type: 'boolean',
+    description: 'Iniciar Bridge API para o painel web (porta 49017)',
+    default: false
+  })
+  .option('server-port', {
+    type: 'number',
+    description: 'Porta para o servidor localhost (padrão: 3000)',
+    default: 3000
+  })
   .check((argv) => {
     // Validações
     if (argv['groups-only'] && argv['listing-only']) {
@@ -148,6 +168,20 @@ async function main(): Promise<void> {
     // Criar arquivos de exemplo se solicitado
     if (args['create-examples']) {
       await createExamples();
+      return;
+    }
+
+    // Iniciar servidor localhost se solicitado
+    if (args['start-server']) {
+      info('🚀 Iniciando servidor localhost bridge...');
+      await startLocalhostBridge();
+      return;
+    }
+    
+    // Iniciar Bridge API se solicitado
+    if (args['start-bridge']) {
+      info('🌉 Iniciando Bridge API para painel web...');
+      await startBridge();
       return;
     }
 

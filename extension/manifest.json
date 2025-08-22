@@ -1,0 +1,64 @@
+{
+  "manifest_version": 3,
+  "name": "VendaBoost Desktop",
+  "version": "2.0.0",
+  "description": "Sistema autônomo de extração e automação do Facebook com integração ao VendaBoost Desktop",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "scripting",
+    "tabs",
+    "cookies",
+    "webNavigation",
+    "alarms",
+    "downloads",
+    "webRequest",
+    "system.memory"
+  ],
+  "host_permissions": [
+    "https://www.facebook.com/*",
+    "https://facebook.com/*",
+    "https://m.facebook.com/*",
+    "http://localhost:3000/*",
+    "http://localhost:3001/*",
+    "http://127.0.0.1:3000/*",
+    "http://127.0.0.1:3001/*"
+  ],
+  "background": {
+    "service_worker": "background/core.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.facebook.com/*",
+        "https://facebook.com/*",
+        "https://m.facebook.com/*",
+        "http://www.facebook.com/*",
+        "http://facebook.com/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ],
+  "action": {
+    "default_popup": "popup-automation.html",
+    "default_title": "VendaBoost Automation v2.0",
+    "default_icon": {
+      "16": "icon16.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["*.svg", "*.png", "*.jpg"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

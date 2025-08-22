@@ -1,0 +1,238 @@
+> E como nós fariamos isso? Porque minha ideia é criar um site para a pessoa se registrar e também lá dentro do
+  site vai ter a automação, só pra que a automação funcione o usuário deve instalar a extensão para que ela capture
+   os dados de login importante para que a automação funcione corretamente
+
+  Update Todos
+  ⎿  ☐ Planejar arquitetura completa do sistema multi-usuário
+     ☐ Analisar código atual da extensão e servidor
+     ☐ Projetar sistema de registro e autenticação
+     ☐ Projetar sistema de tokens para extensão
+     ☐ Projetar sistema de múltiplos perfis por usuário
+     ☐ Criar plano detalhado de implementação
+
+● Perfeita estratégia! Vou te mostrar exatamente como implementar isso. Deixe-me primeiro analisar seu código atual
+   para entender a estrutura.
+
+● Read(extension\manifest.json)
+  ⎿  Read 61 lines (ctrl+r to expand)
+
+● Read(extension\background.js)
+  ⎿  Read 293 lines (ctrl+r to expand)
+
+● Read(extension\content.js)
+  ⎿  Read 458 lines (ctrl+r to expand)
+
+● Read(src\server)
+  ⎿  Error: EISDIR: illegal operation on a directory, read
+
+● List(src\server)
+  ⎿  Listed 6 paths (ctrl+r to expand)
+
+● Read(src\server\localhost-bridge.ts)
+  ⎿  Read 135 lines (ctrl+r to expand)
+
+● Read(src\server\multi-tenant-api.ts)
+  ⎿  Read 389 lines (ctrl+r to expand)
+
+  Update Todos
+  ⎿  ☒ Planejar arquitetura completa do sistema multi-usuário
+     ☒ Analisar código atual da extensão e servidor
+     ☐ Projetar sistema de múltiplos perfis por usuário
+     ☐ Projetar sistema de registro e autenticação
+     ☐ Projetar sistema de tokens para extensão
+     ☐ Criar plano detalhado de implementação
+
+● Perfeito! Analisando seu código, vejo que você já tem uma base sólida e até um esboço do sistema multi-tenant.
+  Agora vou te explicar exatamente como implementar o sistema de múltiplos perfis Facebook por usuário:
+
+  🏗️ Arquitetura para Múltiplas Contas Facebook
+
+  Estrutura Proposta:
+
+  🏢 SEU SISTEMA
+  ├── 👤 João (Token: ABC123)
+  │   ├── 📱 Perfil: "Pessoal"
+  │   │   ├── facebook-session-pessoal.json
+  │   │   └── playwright-session-pessoal.json
+  │   ├── 🏢 Perfil: "Empresa"
+  │   │   ├── facebook-session-empresa.json
+  │   │   └── playwright-session-empresa.json
+  │   └── ⚙️ Configurações gerais do João
+
+  Como Funciona:
+
+  1. João se registra → Ganha token único ABC123
+  2. João configura extensão → Coloca o token
+  3. João acessa Facebook pessoal → Extensão detecta + salva como "perfil-pessoal"
+  4. João acessa Facebook da empresa → Extensão detecta + salva como "perfil-empresa"
+  5. No site: João escolhe qual perfil usar para automação
+
+  Implementação:
+
+  1. Modificar a Extensão para detectar múltiplas contas:
+
+  // Na extensão - content.js
+  async function detectProfileContext() {
+    // Detectar qual conta Facebook está sendo usada
+    const userInfo = extractUserInfo();
+    const profileId = `profile-${userInfo.id}`; // Ex: profile-123456789
+
+    return {
+      profileId,
+      profileName: userInfo.name,
+      facebookId: userInfo.id
+    };
+  }
+
+  // Enviar com contexto do perfil
+  const profileContext = await detectProfileContext();
+  const sessionData = {
+    ...basicSessionData,
+    profileContext
+  };
+
+  2. Modificar o Servidor para múltiplos perfis:
+
+  // No servidor - multi-tenant-api.ts
+  app.post('/api/extension/session', authenticateUser, async (req, res) => {
+    const userSession = req.userSession;
+    const { profileContext, ...sessionData } = req.body;
+
+    // Criar diretório específico do perfil
+    const userDir = path.join('data', 'users', userSession.userId);
+    const profileDir = path.join(userDir, 'profiles', profileContext.profileId);
+    await fs.mkdir(profileDir, { recursive: true });
+
+    // Salvar sessão do perfil específico
+    const sessionFile = path.join(profileDir, 'facebook-session.json');
+    await fs.writeFile(sessionFile, JSON.stringify(sessionData, null, 2));
+
+    // Converter para Playwright
+    const playwrightFile = path.join(profileDir, 'playwright-session.json');
+    await convertExtensionSessionToPlaywright(sessionFile, playwrightFile);
+
+    // Salvar metadata do perfil
+    const profileMetadata = {
+      profileId: profileContext.profileId,
+      profileName: profileContext.profileName,
+      facebookId: profileContext.facebookId,
+      lastUpdate: new Date().toISOString()
+    };
+
+    const metadataFile = path.join(profileDir, 'metadata.json');
+    await fs.writeFile(metadataFile, JSON.stringify(profileMetadata, null, 2));
+  });
+
+  3. API para Listar Perfis do Usuário:
+
+  app.get('/api/user/profiles', authenticateUser, async (req, res) => {
+    const userSession = req.userSession;
+    const userDir = path.join('data', 'users', userSession.userId);
+    const profilesDir = path.join(userDir, 'profiles');
+
+    try {
+      const profiles = [];
+      const profileDirs = await fs.readdir(profilesDir);
+
+      for (const profileId of profileDirs) {
+        const metadataFile = path.join(profilesDir, profileId, 'metadata.json');
+        const metadata = JSON.parse(await fs.readFile(metadataFile, 'utf8'));
+        profiles.push(metadata);
+      }
+
+      res.json({ success: true, profiles });
+    } catch (err) {
+      res.json({ success: true, profiles: [] }); // Sem perfis ainda
+    }
+  });
+
+  4. Criar Automação com Perfil Específico:
+
+  app.post('/api/automation/create', authenticateUser, async (req, res) => {
+    const { flowData, groupNames, profileId } = req.body;
+
+    // Verificar se o perfil existe para o usuário
+    const profileDir = path.join('data', 'users', userSession.userId, 'profiles', profileId);
+    const sessionFile = path.join(profileDir, 'playwright-session.json');
+
+    if (!(await fs.access(sessionFile).then(() => true).catch(() => false))) {
+      return res.status(400).json({
+        success: false,
+        error: 'Perfil Facebook não encontrado. Acesse o Facebook com essa conta primeiro.'
+      });
+    }
+
+    // Criar automação com perfil específico
+    const automation = {
+      id: crypto.randomBytes(16).toString('hex'),
+      userId: userSession.userId,
+      profileId, // IMPORTANTE: Incluir profileId
+      flowData,
+      groupNames,
+      sessionFile // Caminho específico do perfil
+    };
+  });
+
+  Interface do Usuário no Site:
+
+  <!-- Painel do João -->
+  <div class="user-dashboard">
+    <h2>Olá, João!</h2>
+
+    <!-- Seletor de Perfil -->
+    <div class="profile-selector">
+      <label>Escolha o perfil Facebook:</label>
+      <select id="profileSelect">
+        <option value="">Selecione um perfil</option>
+        <option value="profile-123456789">João - Pessoal</option>
+        <option value="profile-987654321">João - Loja de Celulares</option>
+      </select>
+      <button onclick="addNewProfile()">+ Adicionar Novo Perfil</button>
+    </div>
+
+    <!-- Dashboard do Perfil Selecionado -->
+    <div id="profileDashboard" style="display:none">
+      <h3>📱 Perfil: João - Pessoal</h3>
+      <p>✅ Facebook conectado</p>
+      <p>📈 3 automações ativas</p>
+
+      <!-- Botão para criar automação -->
+      <button onclick="createAutomation()">🤖 Nova Automação</button>
+    </div>
+  </div>
+
+  Fluxo Completo na Prática:
+
+  1. João acessa seu site → Vê dashboard com "Nenhum perfil conectado"
+  2. João clica "Conectar Facebook" → Instruções para usar a extensão
+  3. João abre Facebook pessoal → Extensão detecta e envia dados como "profile-123"
+  4. Site mostra: "✅ Facebook Pessoal conectado"
+  5. João abre Facebook da empresa → Extensão detecta e envia como "profile-456"
+  6. Site mostra: "✅ 2 perfis conectados: Pessoal, Empresa"
+  7. João cria automação → Escolhe "Perfil: Empresa" → Sistema usa sessão da empresa
+
+  Estrutura de Arquivos Final:
+
+  data/
+  └── users/
+      └── user-abc123/                    # João
+          ├── profiles/
+          │   ├── profile-123456789/      # Facebook Pessoal
+          │   │   ├── facebook-session.json
+          │   │   ├── playwright-session.json
+          │   │   └── metadata.json
+          │   └── profile-987654321/      # Facebook Empresa
+          │       ├── facebook-session.json
+          │       ├── playwright-session.json
+          │       └── metadata.json
+          └── automations/
+              ├── automation-001.json     # Usou profile-123456789
+              └── automation-002.json     # Usou profile-987654321
+
+  Essa arquitetura resolve perfeitamente a necessidade do João de gerenciar múltiplas contas Facebook dentro do
+  mesmo plano! Quer que eu implemente alguma parte específica?
+
+  Update Todos
+  ⎿  ☒ Planejar arquitetura completa do sistema multi-usuário
+     ☒ Analisar código atual da extensão e servidor
+     ☒ Projetar sistema de múltiplos perfis por usuário

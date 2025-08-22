@@ -285,37 +285,62 @@ export class MarketplaceAutomation {
    * Faz upload de imagens
    */
   private async uploadImages(imagePaths: string[]): Promise<void> {
-    info(`📷 Iniciando upload de ${imagePaths.length} imagens...`);
+    info(`📷 [UPLOAD] Iniciando upload de ${imagePaths.length} imagens...`);
+    info(`📷 [UPLOAD] Caminhos recebidos: ${imagePaths.join(', ')}`);
     
     // Validar se os arquivos existem
-    const validPaths = imagePaths.filter(imagePath => {
+    const validPaths = imagePaths.filter((imagePath, index) => {
       const fullPath = path.resolve(imagePath);
+      info(`📷 [UPLOAD] Validando imagem ${index + 1}/${imagePaths.length}: ${imagePath}`);
+      info(`📷 [UPLOAD] Caminho absoluto: ${fullPath}`);
+      
       if (!fs.existsSync(fullPath)) {
-        warn(`Imagem não encontrada: ${imagePath}`);
+        warn(`📷 [UPLOAD] ❌ Imagem não encontrada: ${imagePath}`);
+        warn(`📷 [UPLOAD] ❌ Caminho absoluto testado: ${fullPath}`);
         return false;
       }
-      info(`✅ Imagem válida encontrada: ${fullPath}`);
-      return true;
+      
+      // Verificar tamanho do arquivo
+      try {
+        const stats = fs.statSync(fullPath);
+        const fileSizeMB = (stats.size / (1024 * 1024)).toFixed(2);
+        info(`📷 [UPLOAD] ✅ Imagem válida encontrada: ${fullPath}`);
+        info(`📷 [UPLOAD] ✅ Tamanho do arquivo: ${fileSizeMB} MB`);
+        return true;
+      } catch (err) {
+        warn(`📷 [UPLOAD] ❌ Erro ao verificar arquivo: ${fullPath}`, err);
+        return false;
+      }
     });
 
+    info(`📷 [UPLOAD] Resultado da validação: ${validPaths.length}/${imagePaths.length} imagens válidas`);
+    
     if (validPaths.length === 0) {
-      warn('Nenhuma imagem válida encontrada para upload');
+      warn('📷 [UPLOAD] ❌ Nenhuma imagem válida encontrada para upload');
       return;
     }
+    
+    info(`📷 [UPLOAD] Imagens válidas para upload: ${validPaths.join(', ')}`);
 
     try {
       // Estratégia 1: Procurar botão "Adicionar fotos" e clicar nele primeiro
-      info('🔍 Procurando botão "Adicionar fotos"...');
+      info('📷 [UPLOAD] 🔍 Estratégia 1: Procurando botão "Adicionar fotos"...');
       const addPhotosButton = this.page.locator('div[aria-label*="Adicionar fotos"], div[aria-label*="Add photos"], div[role="button"]:has-text("Adicionar fotos"), div[role="button"]:has-text("Add photos")').first();
       
+      const buttonCount = await addPhotosButton.count();
+      info(`📷 [UPLOAD] Botões "Adicionar fotos" encontrados: ${buttonCount}`);
+      
       if (await addPhotosButton.isVisible({ timeout: 3000 })) {
-        info('🎯 Botão "Adicionar fotos" encontrado, clicando...');
+        info('📷 [UPLOAD] ✅ Botão "Adicionar fotos" encontrado e visível, clicando...');
         await addPhotosButton.click();
+        info('📷 [UPLOAD] ✅ Botão "Adicionar fotos" clicado com sucesso');
         await wait(1000);
+      } else {
+        info('📷 [UPLOAD] ⚠️ Botão "Adicionar fotos" não encontrado ou não visível');
       }
 
       // Estratégia 2: Procurar input de arquivo
-      info('🔍 Procurando campo de input de arquivo...');
+      info('📷 [UPLOAD] 🔍 Estratégia 2: Procurando campo de input de arquivo...');
       
       const fileInputStrategies = [
         // Input direto
@@ -329,72 +354,132 @@ export class MarketplaceAutomation {
         () => this.page.locator('input[type="file"][multiple]').first(),
       ];
 
+      const strategyNames = [
+        'input[type="file"][accept*="image"]',
+        'input[type="file"]',
+        '[data-testid*="photo"] input[type="file"]',
+        '[aria-label*="foto"] input[type="file"]',
+        '[aria-label*="photo"] input[type="file"]',
+        'input[type="file"][multiple]'
+      ];
+
       let uploadSuccess = false;
+      info(`📷 [UPLOAD] Testando ${fileInputStrategies.length} estratégias de input de arquivo...`);
       
       for (let i = 0; i < fileInputStrategies.length; i++) {
         try {
+          info(`📷 [UPLOAD] 🔄 Testando estratégia ${i + 1}/${fileInputStrategies.length}: ${strategyNames[i]}`);
           const strategy = fileInputStrategies[i];
-          if (!strategy) continue;
+          if (!strategy) {
+            warn(`📷 [UPLOAD] ❌ Estratégia ${i + 1} não definida`);
+            continue;
+          }
           const fileInput = strategy();
           
           // Verificar se o input existe (mesmo que não esteja visível)
           const inputCount = await fileInput.count();
+          info(`📷 [UPLOAD] Inputs encontrados com estratégia ${i + 1}: ${inputCount}`);
+          
           if (inputCount > 0) {
-            info(`✅ Input de arquivo encontrado (estratégia ${i + 1})`);
+            info(`📷 [UPLOAD] ✅ Input de arquivo encontrado (estratégia ${i + 1}: ${strategyNames[i]})`);
             
             const resolvedPaths = validPaths.map(p => path.resolve(p));
-            info(`📤 Enviando arquivos: ${resolvedPaths.join(', ')}`);
+            info(`📷 [UPLOAD] 📤 Enviando ${resolvedPaths.length} arquivos...`);
+            info(`📷 [UPLOAD] 📤 Caminhos absolutos: ${resolvedPaths.join(', ')}`);
             
             // Usar setInputFiles que funciona mesmo com inputs ocultos
+            info(`📷 [UPLOAD] 🔄 Executando setInputFiles...`);
             await fileInput.setInputFiles(resolvedPaths);
+            info(`📷 [UPLOAD] ✅ setInputFiles executado com sucesso`);
             
             // Aguardar mais tempo para o upload processar
-            await waitWithLog(3000, 'Aguardando processamento das imagens');
+            await waitWithLog(3000, '📷 [UPLOAD] Aguardando processamento das imagens');
             
             // Verificar se as imagens foram carregadas
+            info(`📷 [UPLOAD] 🔄 Aguardando finalização do upload...`);
             await wait(2000);
             
-            info(`✅ Upload realizado com sucesso: ${validPaths.length} imagens`);
+            info(`📷 [UPLOAD] ✅ Upload realizado com sucesso: ${validPaths.length} imagens (estratégia ${i + 1})`);
             uploadSuccess = true;
             break;
+          } else {
+            info(`📷 [UPLOAD] ⚠️ Estratégia ${i + 1} não encontrou inputs`);
           }
         } catch (err) {
-          debug(`Estratégia ${i + 1} falhou:`, err);
+          warn(`📷 [UPLOAD] ❌ Estratégia ${i + 1} falhou:`, err);
         }
       }
 
       if (!uploadSuccess) {
+        info(`📷 [UPLOAD] ⚠️ Todas as ${fileInputStrategies.length} estratégias falharam`);
+        
         // Última tentativa: forçar input em qualquer elemento file
         try {
-          info('🔄 Tentativa final: procurando qualquer input de arquivo...');
+          info('📷 [UPLOAD] 🔄 Tentativa final: procurando qualquer input de arquivo...');
           const anyFileInput = this.page.locator('input[type="file"]');
           const count = await anyFileInput.count();
+          info(`📷 [UPLOAD] Total de inputs de arquivo encontrados na página: ${count}`);
           
           if (count > 0) {
-            info(`Encontrados ${count} inputs de arquivo, tentando o primeiro...`);
+            info(`📷 [UPLOAD] ✅ Encontrados ${count} inputs de arquivo, tentando o primeiro...`);
             const resolvedPaths = validPaths.map(p => path.resolve(p));
+            info(`📷 [UPLOAD] 📤 Tentativa final com ${resolvedPaths.length} arquivos`);
+            
             await anyFileInput.first().setInputFiles(resolvedPaths);
-            await waitWithLog(3000, 'Aguardando processamento das imagens');
-            info(`✅ Upload realizado (tentativa final): ${validPaths.length} imagens`);
+            info(`📷 [UPLOAD] ✅ setInputFiles executado na tentativa final`);
+            
+            await waitWithLog(3000, '📷 [UPLOAD] Aguardando processamento das imagens (tentativa final)');
+            info(`📷 [UPLOAD] ✅ Upload realizado (tentativa final): ${validPaths.length} imagens`);
+            uploadSuccess = true;
           } else {
-            warn('❌ Nenhum campo de upload de imagens encontrado - continuando sem imagens');
+            warn('📷 [UPLOAD] ❌ Nenhum campo de upload de imagens encontrado na página');
+            warn('📷 [UPLOAD] ❌ Continuando sem imagens - nenhum input de arquivo disponível');
           }
         } catch (finalErr) {
-          warn('❌ Falha na tentativa final de upload:', finalErr);
+          warn('📷 [UPLOAD] ❌ Falha na tentativa final de upload:', finalErr);
         }
       }
       
+      // Log final do resultado
+      if (uploadSuccess) {
+        info(`📷 [UPLOAD] 🎉 SUCESSO: Upload de ${validPaths.length} imagens concluído`);
+      } else {
+        warn(`📷 [UPLOAD] ❌ FALHA: Não foi possível fazer upload das imagens`);
+        warn(`📷 [UPLOAD] ❌ Continuando criação do anúncio sem imagens`);
+      }
+      
     } catch (err) {
-      error('❌ Erro durante upload de imagens:', err);
-      warn('Continuando sem imagens devido ao erro');
+      error('📷 [UPLOAD] ❌ ERRO CRÍTICO durante upload de imagens:', err);
+      warn('📷 [UPLOAD] ❌ Continuando sem imagens devido ao erro crítico');
     }
+  }
+
+  /**
+   * Mapeamento de categorias do painel para textos do Facebook Marketplace
+   */
+  private getCategoryDisplayName(category: string): string {
+    const categoryMap: Record<string, string> = {
+      'tools': 'Ferramentas',
+      'electronics': 'Eletrônicos',
+      'clothing': 'Roupas',
+      'home': 'Casa e jardim',
+      'sports': 'Esportes',
+      'vehicles': 'Veículos',
+      'books': 'Livros',
+      'toys': 'Brinquedos',
+      'music': 'Música',
+      'other': 'Outros'
+    };
+    
+    return categoryMap[category] || category;
   }
 
   /**
    * Seleciona categoria do produto
    */
   private async selectCategory(category: string): Promise<void> {
-    info(`🔍 Iniciando seleção de categoria: ${category}`);
+    const displayCategory = this.getCategoryDisplayName(category);
+    info(`🔍 Iniciando seleção de categoria: ${category} -> ${displayCategory}`);
     
     try {
       // Passo 1: Encontrar e clicar no botão "Categoria" para abrir o dropdown
@@ -431,37 +516,46 @@ export class MarketplaceAutomation {
       }
       
       // Passo 2: Aguardar dropdown abrir e selecionar a categoria desejada
-      info(`🎯 Passo 2: Aguardando dropdown abrir e procurando categoria "${category}"...`);
+      info(`🎯 Passo 2: Aguardando dropdown abrir e procurando categoria "${displayCategory}"...`);
       await wait(1000); // Aguardar dropdown abrir
-      
+
       const categoryOptionStrategies = [
         // Estratégia que funciona: Texto exato da categoria
-        () => this.page.getByText(category, { exact: true })
+        () => this.page.getByText(displayCategory, { exact: true })
       ];
-      
+
       let categorySelected = false;
-      
+
       try {
-        info(`🔄 Selecionando categoria "${category}"...`);
+        info(`🔄 Selecionando categoria "${displayCategory}"...`);
         const strategy = categoryOptionStrategies[0];
         if (!strategy) throw new Error('Estratégia não definida');
-        
+
         const categoryOption = strategy();
-        
+
         if (await categoryOption.isVisible({ timeout: 3000 })) {
-          await categoryOption.scrollIntoViewIfNeeded();
+          // Não fazer scroll para evitar que a categoria saia da view em dropdowns
+          // await categoryOption.scrollIntoViewIfNeeded();
+          
+          // Tentar hover primeiro para garantir que está acessível
+          try {
+            await categoryOption.hover();
+            await wait(200);
+          } catch (hoverErr) {
+            debug('Hover falhou, tentando click direto');
+          }
+          
           await wait(100);
-          await wait(300);
           await categoryOption.click();
-          info(`✅ Categoria "${category}" selecionada com sucesso`);
+          info(`✅ Categoria "${displayCategory}" selecionada com sucesso`);
           categorySelected = true;
         }
       } catch (err) {
-        warn(`⚠️ Falha ao selecionar categoria "${category}":`, err);
+        warn(`⚠️ Falha ao selecionar categoria "${displayCategory}":`, err);
       }
-      
+
       if (!categorySelected) {
-        warn(`⚠️ Não foi possível selecionar a categoria "${category}" no dropdown`);
+        warn(`⚠️ Não foi possível selecionar a categoria "${displayCategory}" no dropdown`);
       }
       
       await wait(500); // Aguardar seleção ser processada
@@ -546,20 +640,37 @@ export class MarketplaceAutomation {
     debug(`Configurando localização: ${location}`);
     
     try {
+      // Aguardar um pouco mais para garantir que a página carregou completamente
+      await wait(1000);
+      
       // Usar seletor específico para localização
       const locationCombobox = this.page.getByRole('combobox', { name: 'Localização' });
       
-      if (await locationCombobox.isVisible({ timeout: 3000 })) {
-        await locationCombobox.click();
+      if (await locationCombobox.isVisible({ timeout: 5000 })) {
+        // Garantir que o elemento está visível e interagível
+        await locationCombobox.scrollIntoViewIfNeeded();
         await wait(500);
         
-        // Selecionar "Sinop, Brazil" como localização padrão
-        const sinopOption = this.page.getByText('Sinop, Brazil');
-        if (await sinopOption.isVisible({ timeout: 2000 })) {
-          await sinopOption.click();
+        // Clicar no combobox
+        await locationCombobox.click();
+        await wait(1000); // Wait maior para modo headless
+        
+        // Digitar a localização fornecida pelo usuário
+        await locationCombobox.fill(location);
+        await wait(1000); // Aguardar sugestões aparecerem
+        
+        // Tentar selecionar a primeira opção da lista de sugestões
+        const firstOption = this.page.locator('[role="option"]').first();
+        if (await firstOption.isVisible({ timeout: 3000 })) {
+          await firstOption.click();
           await waitWithLog(this.throttleMs, 'Aguardando após selecionar localização');
-          info('Localização selecionada: Sinop, Brazil');
+          info(`Localização selecionada: ${location}`);
+        } else {
+          // Se não houver sugestões, manter o texto digitado
+          info(`Localização digitada: ${location}`);
         }
+      } else {
+        warn('Combobox de localização não encontrado');
       }
     } catch (err) {
       warn('Não foi possível selecionar localização:', err);

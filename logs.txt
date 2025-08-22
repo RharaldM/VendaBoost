@@ -1,0 +1,175 @@
+2025-08-20T02:24:36.084497218Z [2025-08-20T02:24:36.080Z] INFO ✅ Flow carregado: Notebook Gamer RTX 3060 - 16GB RAM
+2025-08-20T02:24:36.084539589Z [2025-08-20T02:24:36.082Z] INFO 🔧 Argumentos CLI recebidos: auto-extension=false, extension-session=/app/sessions/vendaboost-session-2025-08-18T17-27-36.json
+2025-08-20T02:24:36.08454426Z [2025-08-20T02:24:36.082Z] INFO 🔧 Config final: autoExtension=false, extensionSession=/app/sessions/vendaboost-session-2025-08-18T17-27-36.json
+2025-08-20T02:24:36.08454826Z [2025-08-20T02:24:36.082Z] INFO 🚀 Executando fluxo completo...
+2025-08-20T02:24:36.08455116Z [2025-08-20T02:24:36.082Z] INFO 🚀 Iniciando automação VendaBoost...
+2025-08-20T02:24:36.08455388Z [2025-08-20T02:24:36.083Z] DEBUG ✅ Validação das opções concluída
+2025-08-20T02:24:36.084557Z [2025-08-20T02:24:36.083Z] DEBUG Inicializando sessão do browser...
+2025-08-20T02:24:36.0845598Z [2025-08-20T02:24:36.083Z] INFO Diretório de perfil criado: /app/.user-profiles/default
+2025-08-20T02:24:36.08456239Z [2025-08-20T02:24:36.083Z] INFO Iniciando contexto persistente do browser...
+2025-08-20T02:24:36.756665762Z [2025-08-20T02:24:36.756Z] DEBUG Contexto configurado com interceptadores e otimizações
+2025-08-20T02:24:36.756696543Z [2025-08-20T02:24:36.756Z] INFO Contexto do browser iniciado com sucesso
+2025-08-20T02:24:36.756749584Z [2025-08-20T02:24:36.756Z] INFO 🔧 Tentando carregar dados da extensão: extensionSession=/app/sessions/vendaboost-session-2025-08-18T17-27-36.json, autoExtension=false
+2025-08-20T02:24:36.756942469Z [2025-08-20T02:24:36.756Z] DEBUG Tentando carregar dados da extensão: sessionFilePath=/app/sessions/vendaboost-session-2025-08-18T17-27-36.json, autoExtension=false
+2025-08-20T02:24:36.756947429Z [2025-08-20T02:24:36.756Z] DEBUG Carregando arquivo de sessão específico: /app/sessions/vendaboost-session-2025-08-18T17-27-36.json
+2025-08-20T02:24:36.757284288Z [2025-08-20T02:24:36.757Z] INFO Dados de sessão carregados: NotificaÃ§Ãµes (61578151491865)
+2025-08-20T02:24:36.772241391Z [2025-08-20T02:24:36.772Z] INFO Timestamp da extração: 18/08/2025, 14:27:36
+2025-08-20T02:24:36.772258852Z [2025-08-20T02:24:36.772Z] DEBUG Dados de sessão carregados com sucesso
+2025-08-20T02:24:36.772515738Z [2025-08-20T02:24:36.772Z] DEBUG Aplicando 7 cookies ao contexto...
+2025-08-20T02:24:36.804039635Z [2025-08-20T02:24:36.803Z] INFO 7 cookies aplicados ao contexto do browser
+2025-08-20T02:24:36.806517369Z [2025-08-20T02:24:36.806Z] DEBUG User Agent aplicado: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWeb...
+2025-08-20T02:24:36.806660623Z [2025-08-20T02:24:36.806Z] INFO 🔑 Sessão da extensão carregada para usuário: NotificaÃ§Ãµes (61578151491865)
+2025-08-20T02:24:36.806666453Z [2025-08-20T02:24:36.806Z] INFO 🔑 Sessão da extensão carregada com sucesso
+2025-08-20T02:24:36.806668883Z [2025-08-20T02:24:36.806Z] INFO 🌐 Browser inicializado com sucesso
+2025-08-20T02:24:36.875620849Z [2025-08-20T02:24:36.875Z] INFO Navegando para: https://www.facebook.com/marketplace/create/item (tentativa 1/3)
+2025-08-20T02:24:40.255341982Z [2025-08-20T02:24:40.253Z] DEBUG Request failed: https://scontent-sea1-1.xx.fbcdn.net/v/t1.30497-1/453178253_471506465671661_2781666950760530985_n.png?stp=cp0_dst-png_s40x40&_nc_cat=1&ccb=1-7&_nc_sid=136b72&_nc_eui2=AeHG1eGkz3a1dFFZyGDit42EWt9TLzuBU1Ba31MvO4FTUEnnlUkPYyJedb0kOUEXEq6XP9TZeAfL6iWixvq1WWQa&_nc_ohc=tt8z1knDr6oQ7kNvwGbXRDl&_nc_oc=Adk2SCsYDh6vskm84BdLVxFAvzJYwquHNmzA6O7CGhQ25qFnZetxxf4AopVfcRWfijo&_nc_zt=24&_nc_ht=scontent-sea1-1.xx&oh=00_AfU_xqgmQZud9NO7R43ZIVlyE1RFJJ0ZDCeamFszYK1d5w&oe=68CCA9BA - net::ERR_FAILED
+2025-08-20T02:24:40.255369063Z [2025-08-20T02:24:40.253Z] DEBUG Console error: Failed to load resource: net::ERR_FAILED
+2025-08-20T02:24:40.969938293Z [2025-08-20T02:24:40.969Z] DEBUG Request failed: https://static.xx.fbcdn.net/rsrc.php/v4/yX/r/4WPKeZhFbFO.png?_nc_eui2=AeG0rKH8sR9MyGrkBoZM8a61cArWTkDIxU1wCtZOQMjFTffTgRC7GwjYLqIgh3l7-lZ39ocGfXXd1bCZ-wZAb7ee - net::ERR_FAILED
+2025-08-20T02:24:40.970161569Z [2025-08-20T02:24:40.970Z] DEBUG Console error: Failed to load resource: net::ERR_FAILED
+2025-08-20T02:24:40.970448807Z [2025-08-20T02:24:40.970Z] DEBUG Request failed: https://scontent-sea1-1.xx.fbcdn.net/v/t1.30497-1/453178253_471506465671661_2781666950760530985_n.png?stp=cp0_dst-png_s40x40&_nc_cat=1&ccb=1-7&_nc_sid=136b72&_nc_eui2=AeHG1eGkz3a1dFFZyGDit42EWt9TLzuBU1Ba31MvO4FTUEnnlUkPYyJedb0kOUEXEq6XP9TZeAfL6iWixvq1WWQa&_nc_ohc=tt8z1knDr6oQ7kNvwGbXRDl&_nc_oc=Adk2SCsYDh6vskm84BdLVxFAvzJYwquHNmzA6O7CGhQ25qFnZetxxf4AopVfcRWfijo&_nc_zt=24&_nc_ht=scontent-sea1-1.xx&oh=00_AfU_xqgmQZud9NO7R43ZIVlyE1RFJJ0ZDCeamFszYK1d5w&oe=68CCA9BA - net::ERR_FAILED
+2025-08-20T02:24:40.970686262Z [2025-08-20T02:24:40.970Z] DEBUG Console error: Failed to load resource: net::ERR_FAILED
+2025-08-20T02:24:43.351587197Z [2025-08-20T02:24:43.351Z] DEBUG Request failed: https://www.facebook.com/images/facebook_logo/fb_icon_144x144.png - net::ERR_FAILED
+2025-08-20T02:24:43.351622518Z [2025-08-20T02:24:43.351Z] DEBUG Console error: Failed to load resource: net::ERR_FAILED
+2025-08-20T02:24:43.35248705Z [2025-08-20T02:24:43.351Z] DEBUG Request failed: https://scontent-sea1-1.xx.fbcdn.net/v/t1.30497-1/453178253_471506465671661_2781666950760530985_n.png?stp=cp0_dst-png_s56x56&_nc_cat=1&ccb=1-7&_nc_sid=207b4a&_nc_eui2=AeHG1eGkz3a1dFFZyGDit42EWt9TLzuBU1Ba31MvO4FTUEnnlUkPYyJedb0kOUEXEq6XP9TZeAfL6iWixvq1WWQa&_nc_ohc=tt8z1knDr6oQ7kNvwGbXRDl&_nc_oc=Adk2SCsYDh6vskm84BdLVxFAvzJYwquHNmzA6O7CGhQ25qFnZetxxf4AopVfcRWfijo&_nc_zt=24&_nc_ht=scontent-sea1-1.xx&oh=00_AfVaBsWdpL6p-XHgNvMLaMOVrKPUuW6lIMrAwM_KGOWOKA&oe=68CCA9BA - net::ERR_FAILED
+2025-08-20T02:24:43.352551712Z [2025-08-20T02:24:43.351Z] DEBUG Console error: Failed to load resource: net::ERR_FAILED
+2025-08-20T02:24:43.460699491Z [2025-08-20T02:24:43.460Z] DEBUG Request failed: https://www.facebook.com/images/facebook_logo/fb_icon_144x144.png - net::ERR_FAILED
+2025-08-20T02:24:43.461319147Z [2025-08-20T02:24:43.461Z] DEBUG Console error: Failed to load resource: net::ERR_FAILED
+2025-08-20T02:24:43.661802492Z [2025-08-20T02:24:43.661Z] DEBUG Request failed: https://www.facebook.com/images/facebook_logo/fb_icon_144x144.png - net::ERR_FAILED
+2025-08-20T02:24:43.661820642Z [2025-08-20T02:24:43.661Z] DEBUG Console error: Failed to load resource: net::ERR_FAILED
+2025-08-20T02:24:43.668346459Z [2025-08-20T02:24:43.668Z] DEBUG Request failed: https://scontent-sea1-1.xx.fbcdn.net/v/t1.30497-1/453178253_471506465671661_2781666950760530985_n.png?stp=cp0_dst-png_s56x56&_nc_cat=1&ccb=1-7&_nc_sid=207b4a&_nc_eui2=AeHG1eGkz3a1dFFZyGDit42EWt9TLzuBU1Ba31MvO4FTUEnnlUkPYyJedb0kOUEXEq6XP9TZeAfL6iWixvq1WWQa&_nc_ohc=tt8z1knDr6oQ7kNvwGbXRDl&_nc_oc=Adk2SCsYDh6vskm84BdLVxFAvzJYwquHNmzA6O7CGhQ25qFnZetxxf4AopVfcRWfijo&_nc_zt=24&_nc_ht=scontent-sea1-1.xx&oh=00_AfVaBsWdpL6p-XHgNvMLaMOVrKPUuW6lIMrAwM_KGOWOKA&oe=68CCA9BA - net::ERR_FAILED
+2025-08-20T02:24:43.668387381Z [2025-08-20T02:24:43.668Z] DEBUG Console error: Failed to load resource: net::ERR_FAILED
+2025-08-20T02:24:44.662250353Z [2025-08-20T02:24:44.662Z] INFO Navegação concluída com sucesso
+2025-08-20T02:24:44.856391035Z [2025-08-20T02:24:44.856Z] DEBUG 14 itens aplicados ao localStorage
+2025-08-20T02:24:44.957021752Z [2025-08-20T02:24:44.956Z] DEBUG 2 itens aplicados ao sessionStorage
+2025-08-20T02:24:45.163230353Z [2025-08-20T02:24:45.162Z] DEBUG Request failed: https://scontent-sea1-1.xx.fbcdn.net/v/t1.30497-1/453178253_471506465671661_2781666950760530985_n.png?stp=cp0_dst-png_s50x50&_nc_cat=1&ccb=1-7&_nc_sid=136b72&_nc_eui2=AeHG1eGkz3a1dFFZyGDit42EWt9TLzuBU1Ba31MvO4FTUEnnlUkPYyJedb0kOUEXEq6XP9TZeAfL6iWixvq1WWQa&_nc_ohc=tt8z1knDr6oQ7kNvwGbXRDl&_nc_oc=Adk2SCsYDh6vskm84BdLVxFAvzJYwquHNmzA6O7CGhQ25qFnZetxxf4AopVfcRWfijo&_nc_zt=24&_nc_ht=scontent-sea1-1.xx&oh=00_AfUJjbqgXkMbRY-bYXA76EioQzlLa8ivLlw9tLs2nFGG5g&oe=68CCA9BA - net::ERR_FAILED
+2025-08-20T02:24:45.163260874Z [2025-08-20T02:24:45.163Z] DEBUG Console error: Failed to load resource: net::ERR_FAILED
+2025-08-20T02:24:45.452242775Z [2025-08-20T02:24:45.452Z] DEBUG Login detectado via seletor: [aria-label*="perfil"]
+2025-08-20T02:24:45.452262575Z [2025-08-20T02:24:45.452Z] INFO ✅ Login confirmado, iniciando automação...
+2025-08-20T02:24:45.452483291Z [2025-08-20T02:24:45.452Z] INFO 📝 Criando anúncio no Marketplace...
+2025-08-20T02:24:45.452674146Z [2025-08-20T02:24:45.452Z] INFO Iniciando criação de anúncio no Marketplace...
+2025-08-20T02:24:45.753362317Z [2025-08-20T02:24:45.753Z] DEBUG Request failed: https://static.xx.fbcdn.net/rsrc.php/v4/yY/r/MCyeVGn9TQE.png?_nc_eui2=AeHn0NH_qg-hqaVT_4MHTWQ07geBo-e319PuB4Gj57fX0ysmNwyhk-6W4DdYw_a7EBuXRMpQuvUS6U6Ly1Avfl7j - net::ERR_FAILED
+2025-08-20T02:24:45.753851469Z [2025-08-20T02:24:45.753Z] DEBUG Console error: Failed to load resource: net::ERR_FAILED
+2025-08-20T02:24:45.754092355Z [2025-08-20T02:24:45.754Z] DEBUG Request failed: https://static.xx.fbcdn.net/rsrc.php/v4/yd/r/0av185ecime.png?_nc_eui2=AeE6LgQp9BL5MzQ8_EtYILaMDu_3Ng4a4rkO7_c2DhriuWMOh-wjvH1x7MJ6_Pg-qTlQvSci1xq71Ch0bkymy-qe - net::ERR_FAILED
+2025-08-20T02:24:45.754609009Z [2025-08-20T02:24:45.754Z] DEBUG Console error: Failed to load resource: net::ERR_FAILED
+2025-08-20T02:24:45.754832804Z [2025-08-20T02:24:45.754Z] DEBUG Request failed: https://static.xx.fbcdn.net/rsrc.php/v4/yX/r/4WPKeZhFbFO.png?_nc_eui2=AeG0rKH8sR9MyGrkBoZM8a61cArWTkDIxU1wCtZOQMjFTffTgRC7GwjYLqIgh3l7-lZ39ocGfXXd1bCZ-wZAb7ee - net::ERR_FAILED
+2025-08-20T02:24:45.75504457Z [2025-08-20T02:24:45.754Z] DEBUG Console error: Failed to load resource: net::ERR_FAILED
+2025-08-20T02:24:45.755241595Z [2025-08-20T02:24:45.755Z] DEBUG Request failed: https://static.xx.fbcdn.net/rsrc.php/v4/yz/r/nxDilJVonuI.png?_nc_eui2=AeHYY9KzYYQh28SKuBa--vbFZMNUHQSI55Jkw1QdBIjnku1ryoYMun2hnXht46WiX6Vp3XnIcvSJMLw29A2Xi2nh - net::ERR_FAILED
+2025-08-20T02:24:45.755499532Z [2025-08-20T02:24:45.755Z] DEBUG Console error: Failed to load resource: net::ERR_FAILED
+2025-08-20T02:24:45.755727637Z [2025-08-20T02:24:45.755Z] DEBUG Request failed: https://static.xx.fbcdn.net/rsrc.php/v4/yS/r/u6NxFvgpgfv.png?_nc_eui2=AeEhqdLVNmW-BQO4jCzToR46cdMKrD6O945x0wqsPo73jqJ9hkZJW215qVgVavzuBf8uqGIqoNsiX7vGlKQQC7Ry - net::ERR_FAILED
+2025-08-20T02:24:45.755863451Z [2025-08-20T02:24:45.755Z] DEBUG Console error: Failed to load resource: net::ERR_FAILED
+2025-08-20T02:24:46.458787663Z [2025-08-20T02:24:46.458Z] DEBUG Procurando botão de criar anúncio...
+2025-08-20T02:24:49.654112915Z [2025-08-20T02:24:49.653Z] DEBUG Request failed: https://scontent-sea1-1.xx.fbcdn.net/v/t1.30497-1/453178253_471506465671661_2781666950760530985_n.png?stp=cp0_dst-png_s50x50&_nc_cat=1&ccb=1-7&_nc_sid=136b72&_nc_eui2=AeHG1eGkz3a1dFFZyGDit42EWt9TLzuBU1Ba31MvO4FTUEnnlUkPYyJedb0kOUEXEq6XP9TZeAfL6iWixvq1WWQa&_nc_ohc=tt8z1knDr6oQ7kNvwGbXRDl&_nc_oc=Adk2SCsYDh6vskm84BdLVxFAvzJYwquHNmzA6O7CGhQ25qFnZetxxf4AopVfcRWfijo&_nc_zt=24&_nc_ht=scontent-sea1-1.xx&oh=00_AfUJjbqgXkMbRY-bYXA76EioQzlLa8ivLlw9tLs2nFGG5g&oe=68CCA9BA - net::ERR_FAILED
+2025-08-20T02:24:49.654207838Z [2025-08-20T02:24:49.654Z] DEBUG Console error: Failed to load resource: net::ERR_FAILED
+2025-08-20T02:24:50.152268043Z [2025-08-20T02:24:50.152Z] DEBUG Aguardando 350ms: Aguardando após clicar em criar anúncio
+2025-08-20T02:24:50.369955178Z [2025-08-20T02:24:50.369Z] DEBUG Request failed: https://scontent.xx.fbcdn.net/hads-ak-prn2/1487645_6012475414660_1439393861_n.png - net::ERR_FAILED
+2025-08-20T02:24:50.370055581Z [2025-08-20T02:24:50.369Z] DEBUG Console error: Failed to load resource: net::ERR_FAILED
+2025-08-20T02:24:50.553418037Z [2025-08-20T02:24:50.553Z] DEBUG Botão de criar anúncio clicado com sucesso
+2025-08-20T02:24:50.554618358Z [2025-08-20T02:24:50.553Z] DEBUG Preenchendo título do anúncio...
+2025-08-20T02:24:52.667505149Z [2025-08-20T02:24:52.667Z] DEBUG Aguardando 350ms: Aguardando após preencher título
+2025-08-20T02:24:53.018631702Z [2025-08-20T02:24:53.018Z] INFO Título preenchido: "Notebook Gamer RTX 3060 - 16GB RAM"
+2025-08-20T02:24:53.018917519Z [2025-08-20T02:24:53.018Z] DEBUG Preenchendo preço do anúncio...
+2025-08-20T02:24:53.576333914Z [2025-08-20T02:24:53.576Z] DEBUG Aguardando 350ms: Aguardando após preencher preço
+2025-08-20T02:24:53.927437246Z [2025-08-20T02:24:53.927Z] INFO Preço preenchido: "4200"
+2025-08-20T02:24:53.927479227Z [2025-08-20T02:24:53.927Z] INFO 🏷️ Selecionando categoria: Ferramentas
+2025-08-20T02:24:53.927800326Z [2025-08-20T02:24:53.927Z] INFO 🔍 Iniciando seleção de categoria: Ferramentas
+2025-08-20T02:24:53.927810276Z [2025-08-20T02:24:53.927Z] INFO 🎯 Passo 1: Procurando botão "Categoria" para abrir dropdown...
+2025-08-20T02:24:53.927856267Z [2025-08-20T02:24:53.927Z] INFO 🔄 Clicando no botão "Categoria"...
+2025-08-20T02:24:53.953884204Z [2025-08-20T02:24:53.953Z] DEBUG Console error: ErrorUtils caught an error:
+2025-08-20T02:24:53.953934165Z 
+2025-08-20T02:24:53.953939815Z Error performing FTS transaction
+2025-08-20T02:24:53.953943355Z 
+2025-08-20T02:24:53.953947545Z Subsequent non-fatal errors won't be logged; see https://fburl.com/debugjs. {column: 18025, clientTime: 1755656693, extra: Object, guardList: Array(0), hash: hfakrm}
+2025-08-20T02:24:55.152654024Z [2025-08-20T02:24:55.152Z] DEBUG Request failed: https://static.xx.fbcdn.net/rsrc.php/v4/yE/r/h3v6f7dYlNc.png?_nc_eui2=AeHkWBVwzk47iVcU9OExj4W-i_ANxs_YodqL8A3Gz9ih2vIc59I4d4mSXYaMsdEd-WceZNKTvWy8QmPV8uMOAQo2 - net::ERR_FAILED
+2025-08-20T02:24:55.152923642Z [2025-08-20T02:24:55.152Z] DEBUG Console error: Failed to load resource: net::ERR_FAILED
+2025-08-20T02:24:55.153300151Z [2025-08-20T02:24:55.153Z] DEBUG Request failed: https://static.xx.fbcdn.net/rsrc.php/v4/yY/r/F-xgjopMOb0.png?_nc_eui2=AeGiNNKdvoBq-gOiytuD69gclwLUeV5HLtOXAtR5Xkcu0xuvjQUKWqIErouVOdUVA1ai3aXkT3y2GQN_WSCOyrnG - net::ERR_FAILED
+2025-08-20T02:24:55.153758853Z [2025-08-20T02:24:55.153Z] DEBUG Console error: Failed to load resource: net::ERR_FAILED
+2025-08-20T02:24:55.153770403Z [2025-08-20T02:24:55.153Z] DEBUG Request failed: https://static.xx.fbcdn.net/rsrc.php/v4/y4/r/Hz99ABbbI2t.png?_nc_eui2=AeEzyFZs990vlfwgwfgJjNMfuLyKSIOGg2y4vIpIg4aDbNirO3nuZPHZc2GHNTAqk-Tew5E3qy1uWaJuuJHsLaUA - net::ERR_FAILED
+2025-08-20T02:24:55.153775053Z [2025-08-20T02:24:55.153Z] DEBUG Console error: Failed to load resource: net::ERR_FAILED
+2025-08-20T02:24:55.260947788Z [2025-08-20T02:24:55.260Z] INFO ✅ Botão "Categoria" clicado com sucesso
+2025-08-20T02:24:55.260985809Z [2025-08-20T02:24:55.260Z] INFO 🎯 Passo 2: Aguardando dropdown abrir e procurando categoria "Ferramentas"...
+2025-08-20T02:24:56.261657467Z [2025-08-20T02:24:56.261Z] INFO 🔄 Selecionando categoria "Ferramentas"...
+2025-08-20T02:24:56.964201289Z [2025-08-20T02:24:56.964Z] DEBUG Request failed: https://static.xx.fbcdn.net/rsrc.php/v4/yX/r/4WPKeZhFbFO.png?_nc_eui2=AeG0rKH8sR9MyGrkBoZM8a61cArWTkDIxU1wCtZOQMjFTffTgRC7GwjYLqIgh3l7-lZ39ocGfXXd1bCZ-wZAb7ee - net::ERR_FAILED
+2025-08-20T02:24:56.964340843Z [2025-08-20T02:24:56.964Z] DEBUG Console error: Failed to load resource: net::ERR_FAILED
+2025-08-20T02:24:56.964543768Z [2025-08-20T02:24:56.964Z] DEBUG Request failed: https://static.xx.fbcdn.net/rsrc.php/v4/ys/r/C20lm7rAME6.png?_nc_eui2=AeFZY9PQy-ELImRQw0ql21gpYkJfggXwAR9iQl-CBfABH7eNJec6DOiIs4baDx2tay5YW_O5UfWkcqd3iq2X60S2 - net::ERR_FAILED
+2025-08-20T02:24:56.964676351Z [2025-08-20T02:24:56.964Z] DEBUG Console error: Failed to load resource: net::ERR_FAILED
+2025-08-20T02:24:56.964731723Z [2025-08-20T02:24:56.964Z] DEBUG Request failed: https://static.xx.fbcdn.net/rsrc.php/v4/yl/r/FGaiSyBFQ-c.png?_nc_eui2=AeFmixR5bEdkcXy0_OHc-kYqJYTATFrEEWYlhMBMWsQRZk8trZCtAo-s9a2YsAd2cogCzNalc37HvQsHBpJtiigl - net::ERR_FAILED
+2025-08-20T02:24:56.964829655Z [2025-08-20T02:24:56.964Z] DEBUG Console error: Failed to load resource: net::ERR_FAILED
+2025-08-20T02:24:57.053981228Z [2025-08-20T02:24:57.053Z] INFO ✅ Categoria "Ferramentas" selecionada com sucesso
+2025-08-20T02:24:57.554040435Z [2025-08-20T02:24:57.553Z] INFO 🔧 Selecionando condição: Novo
+2025-08-20T02:24:57.55425223Z [2025-08-20T02:24:57.554Z] INFO 🔍 Iniciando seleção de condição: Novo
+2025-08-20T02:24:57.554263581Z [2025-08-20T02:24:57.554Z] INFO 🎯 Passo 1: Procurando combobox "Condição" para abrir dropdown...
+2025-08-20T02:24:57.853275209Z [2025-08-20T02:24:57.853Z] INFO ✅ Combobox "Condição" clicado com sucesso
+2025-08-20T02:24:57.854197422Z [2025-08-20T02:24:57.853Z] INFO 🎯 Passo 2: Aguardando dropdown abrir e procurando condição "Novo"...
+2025-08-20T02:24:58.853273769Z [2025-08-20T02:24:58.853Z] INFO 🔄 Selecionando condição "Novo"...
+2025-08-20T02:24:58.970131682Z [2025-08-20T02:24:58.969Z] DEBUG Aguardando 350ms: Aguardando após selecionar condição
+2025-08-20T02:24:59.319779646Z [2025-08-20T02:24:59.319Z] INFO ✅ Condição "Novo" selecionada com sucesso
+2025-08-20T02:24:59.320145146Z [2025-08-20T02:24:59.320Z] DEBUG Preenchendo descrição do anúncio...
+2025-08-20T02:25:00.072497914Z [2025-08-20T02:25:00.072Z] DEBUG Aguardando 350ms: Aguardando após preencher descrição
+2025-08-20T02:25:00.423249007Z [2025-08-20T02:25:00.423Z] INFO Descrição preenchida (120 caracteres)
+2025-08-20T02:25:00.423608836Z [2025-08-20T02:25:00.423Z] INFO 📷 Iniciando upload de 1 imagens...
+2025-08-20T02:25:00.424426117Z [2025-08-20T02:25:00.424Z] INFO ✅ Imagem válida encontrada: /app/imagem-post.png
+2025-08-20T02:25:00.424442177Z [2025-08-20T02:25:00.424Z] INFO 🔍 Procurando botão "Adicionar fotos"...
+2025-08-20T02:25:00.430607335Z [2025-08-20T02:25:00.430Z] INFO 🔍 Procurando campo de input de arquivo...
+2025-08-20T02:25:00.432609747Z [2025-08-20T02:25:00.432Z] INFO ✅ Input de arquivo encontrado (estratégia 1)
+2025-08-20T02:25:00.432703169Z [2025-08-20T02:25:00.432Z] INFO 📤 Enviando arquivos: /app/imagem-post.png
+2025-08-20T02:25:00.655599968Z [2025-08-20T02:25:00.655Z] DEBUG Aguardando 3000ms: Aguardando processamento das imagens
+2025-08-20T02:25:00.66898258Z [2025-08-20T02:25:00.668Z] DEBUG Request failed: https://static.xx.fbcdn.net/rsrc.php/v4/y6/r/gWzxKBoR3OE.png?_nc_eui2=AeHQs6LvR0qafOqFyOre6WGtWfk8eKZuIo5Z-Tx4pm4ijngwW89_F-XEWvsR83fwqOUyCNnyREcIGUGU01ttyn4x - net::ERR_FAILED
+2025-08-20T02:25:00.66933574Z [2025-08-20T02:25:00.669Z] DEBUG Console error: Failed to load resource: net::ERR_FAILED
+2025-08-20T02:25:00.669419652Z [2025-08-20T02:25:00.669Z] DEBUG Request failed: https://static.xx.fbcdn.net/rsrc.php/v4/yE/r/h3v6f7dYlNc.png?_nc_eui2=AeHkWBVwzk47iVcU9OExj4W-i_ANxs_YodqL8A3Gz9ih2vIc59I4d4mSXYaMsdEd-WceZNKTvWy8QmPV8uMOAQo2 - net::ERR_FAILED
+2025-08-20T02:25:00.669546645Z [2025-08-20T02:25:00.669Z] DEBUG Console error: Failed to load resource: net::ERR_FAILED
+2025-08-20T02:25:00.669645808Z [2025-08-20T02:25:00.669Z] DEBUG Request failed: https://static.xx.fbcdn.net/rsrc.php/v4/y4/r/PZInpsKDLUc.png?_nc_eui2=AeFvEil0SLmWI-rHrZYDwPzsCsnZl_pAjqIKydmX-kCOogiUFO5w7JGAuwtaehOj9NJe6UaNca8Xa4RMLAqGwL4y - net::ERR_FAILED
+2025-08-20T02:25:00.669656278Z [2025-08-20T02:25:00.669Z] DEBUG Console error: Failed to load resource: net::ERR_FAILED
+2025-08-20T02:25:03.053425227Z [2025-08-20T02:25:03.053Z] DEBUG Request failed: https://scontent-sea1-1.xx.fbcdn.net/v/t39.30808-6/536278180_122121762800938383_9036473810486609627_n.jpg?_nc_cat=105&ccb=1-7&_nc_sid=12b72b&_nc_eui2=AeHi7Ke6QE22PQLpdc9U5Fpc9DadDaVv7870Np0NpW_vzn4X3IjhGFNwSvPjUL_h9D0JkC76gfAwgL0m8lpwIhHx&_nc_ohc=9aV5pjkyKT0Q7kNvwEXIM7h&_nc_oc=AdkaSz17SSepKiNvJZTZW5uLcJ4njD4eYfrTh8f5zNuNaX8uvkAdJPz5kn8bJjIzT-A&_nc_zt=23&_nc_ht=scontent-sea1-1.xx&_nc_gid=Qw9qujMVveg8vBAKk-JN3w&oh=00_AfVRIVwSGVvc92yNpTB1tlLrSjcsKKjXGnUylyLIj_ncWA&oe=68AAEEA2 - net::ERR_FAILED
+2025-08-20T02:25:03.053472889Z [2025-08-20T02:25:03.053Z] DEBUG Console error: Failed to load resource: net::ERR_FAILED
+2025-08-20T02:25:03.055394778Z [2025-08-20T02:25:03.055Z] DEBUG Request failed: https://static.xx.fbcdn.net/rsrc.php/v4/y6/r/gWzxKBoR3OE.png?_nc_eui2=AeHQs6LvR0qafOqFyOre6WGtWfk8eKZuIo5Z-Tx4pm4ijngwW89_F-XEWvsR83fwqOUyCNnyREcIGUGU01ttyn4x - net::ERR_FAILED
+2025-08-20T02:25:03.055452749Z [2025-08-20T02:25:03.055Z] DEBUG Console error: Failed to load resource: net::ERR_FAILED
+2025-08-20T02:25:03.062615163Z [2025-08-20T02:25:03.062Z] DEBUG Request failed: https://scontent-sea1-1.xx.fbcdn.net/v/t39.30808-6/536278180_122121762800938383_9036473810486609627_n.jpg?_nc_cat=105&ccb=1-7&_nc_sid=12b72b&_nc_eui2=AeHi7Ke6QE22PQLpdc9U5Fpc9DadDaVv7870Np0NpW_vzn4X3IjhGFNwSvPjUL_h9D0JkC76gfAwgL0m8lpwIhHx&_nc_ohc=9aV5pjkyKT0Q7kNvwEXIM7h&_nc_oc=AdkaSz17SSepKiNvJZTZW5uLcJ4njD4eYfrTh8f5zNuNaX8uvkAdJPz5kn8bJjIzT-A&_nc_zt=23&_nc_ht=scontent-sea1-1.xx&_nc_gid=Qw9qujMVveg8vBAKk-JN3w&oh=00_AfVRIVwSGVvc92yNpTB1tlLrSjcsKKjXGnUylyLIj_ncWA&oe=68AAEEA2 - net::ERR_FAILED
+2025-08-20T02:25:03.062635854Z [2025-08-20T02:25:03.062Z] DEBUG Console error: Failed to load resource: net::ERR_FAILED
+2025-08-20T02:25:03.156745354Z [2025-08-20T02:25:03.156Z] DEBUG Request failed: https://scontent-sea1-1.xx.fbcdn.net/v/t39.30808-6/536278180_122121762800938383_9036473810486609627_n.jpg?_nc_cat=105&ccb=1-7&_nc_sid=12b72b&_nc_eui2=AeHi7Ke6QE22PQLpdc9U5Fpc9DadDaVv7870Np0NpW_vzn4X3IjhGFNwSvPjUL_h9D0JkC76gfAwgL0m8lpwIhHx&_nc_ohc=9aV5pjkyKT0Q7kNvwEXIM7h&_nc_oc=AdkaSz17SSepKiNvJZTZW5uLcJ4njD4eYfrTh8f5zNuNaX8uvkAdJPz5kn8bJjIzT-A&_nc_zt=23&_nc_ht=scontent-sea1-1.xx&_nc_gid=Qw9qujMVveg8vBAKk-JN3w&oh=00_AfVRIVwSGVvc92yNpTB1tlLrSjcsKKjXGnUylyLIj_ncWA&oe=68AAEEA2 - net::ERR_FAILED
+2025-08-20T02:25:03.157163584Z [2025-08-20T02:25:03.156Z] DEBUG Console error: Failed to load resource: net::ERR_FAILED
+2025-08-20T02:25:05.65593169Z [2025-08-20T02:25:05.655Z] INFO ✅ Upload realizado com sucesso: 1 imagens
+2025-08-20T02:25:05.656159676Z [2025-08-20T02:25:05.656Z] DEBUG Configurando disponibilidade do produto...
+2025-08-20T02:25:05.751828156Z [2025-08-20T02:25:05.751Z] DEBUG Request failed: https://static.xx.fbcdn.net/rsrc.php/v4/yX/r/4WPKeZhFbFO.png?_nc_eui2=AeG0rKH8sR9MyGrkBoZM8a61cArWTkDIxU1wCtZOQMjFTffTgRC7GwjYLqIgh3l7-lZ39ocGfXXd1bCZ-wZAb7ee - net::ERR_FAILED
+2025-08-20T02:25:05.751923098Z [2025-08-20T02:25:05.751Z] DEBUG Console error: Failed to load resource: net::ERR_FAILED
+2025-08-20T02:25:06.384952921Z [2025-08-20T02:25:06.384Z] DEBUG Aguardando 350ms: Aguardando após selecionar disponibilidade
+2025-08-20T02:25:06.735935489Z [2025-08-20T02:25:06.735Z] INFO Disponibilidade selecionada: Em estoque
+2025-08-20T02:25:06.736137744Z [2025-08-20T02:25:06.735Z] INFO Formulário de anúncio preenchido com sucesso
+2025-08-20T02:25:06.736284108Z [2025-08-20T02:25:06.736Z] INFO 📤 Publicando anúncio...
+2025-08-20T02:25:06.736703169Z [2025-08-20T02:25:06.736Z] INFO 📤 Iniciando processo de publicação...
+2025-08-20T02:25:06.73672047Z [2025-08-20T02:25:06.736Z] INFO 🎯 Passo 1: Procurando botão "Avançar"...
+2025-08-20T02:25:06.966057433Z [2025-08-20T02:25:06.965Z] DEBUG Aguardando 2000ms: Aguardando página de publicação carregar
+2025-08-20T02:25:07.055532955Z [2025-08-20T02:25:07.055Z] DEBUG Request failed: https://static.xx.fbcdn.net/rsrc.php/v4/yX/r/4WPKeZhFbFO.png?_nc_eui2=AeG0rKH8sR9MyGrkBoZM8a61cArWTkDIxU1wCtZOQMjFTffTgRC7GwjYLqIgh3l7-lZ39ocGfXXd1bCZ-wZAb7ee - net::ERR_FAILED
+2025-08-20T02:25:07.055571886Z [2025-08-20T02:25:07.055Z] DEBUG Console error: Failed to load resource: net::ERR_FAILED
+2025-08-20T02:25:07.055814362Z [2025-08-20T02:25:07.055Z] DEBUG Request failed: https://static.xx.fbcdn.net/rsrc.php/v4/yn/r/VtrO23iwG9k.png?_nc_eui2=AeHkT2tal0mN1GGRkLWANfLO9ODqbO6DDyP04Ops7oMPI1WgaD74NE4GYn8Nbi3X-OILeJ0UArdGPzCkD-L-s9vl - net::ERR_FAILED
+2025-08-20T02:25:07.055853803Z [2025-08-20T02:25:07.055Z] DEBUG Console error: Failed to load resource: net::ERR_FAILED
+2025-08-20T02:25:08.966157928Z [2025-08-20T02:25:08.965Z] INFO ✅ Botão "Avançar" clicado com sucesso
+2025-08-20T02:25:08.966205759Z [2025-08-20T02:25:08.966Z] INFO 🎯 Passo 2: Procurando botão "Publicar" na página de confirmação...
+2025-08-20T02:25:10.973242131Z [2025-08-20T02:25:10.973Z] INFO ✅ Botão "Publicar" encontrado (estratégia 1)
+2025-08-20T02:25:11.163558265Z [2025-08-20T02:25:11.163Z] DEBUG Aguardando 3000ms: Aguardando confirmação final de publicação
+2025-08-20T02:25:11.164057288Z [2025-08-20T02:25:11.163Z] DEBUG Request failed: https://static.xx.fbcdn.net/rsrc.php/v4/yI/r/Wk0dcHGH6EG.gif?_nc_eui2=AeGYJAdGarOrGdJLyXCoN2kA795vXo1grVTv3m9ejWCtVJd3NoDQboFY2NQY_qqlmN_BU1l6RxLMwHGK6loOQ6Ys - net::ERR_FAILED
+2025-08-20T02:25:11.164124149Z [2025-08-20T02:25:11.164Z] DEBUG Console error: Failed to load resource: net::ERR_FAILED
+2025-08-20T02:25:14.163107576Z [2025-08-20T02:25:14.162Z] INFO ✅ Botão "Publicar" clicado com sucesso
+2025-08-20T02:25:14.163166358Z [2025-08-20T02:25:14.163Z] INFO 🎉 Processo de publicação concluído
+2025-08-20T02:25:14.163183518Z [2025-08-20T02:25:14.163Z] INFO 🔍 Verificando se a publicação foi bem-sucedida...
+2025-08-20T02:25:14.163459936Z [2025-08-20T02:25:14.163Z] INFO Verificando se a publicação foi bem-sucedida...
+2025-08-20T02:25:14.163484556Z [2025-08-20T02:25:14.163Z] DEBUG Tentativa 1/15 de verificação...
+2025-08-20T02:25:14.163668951Z [2025-08-20T02:25:14.163Z] DEBUG Verificando indicadores de sucesso...
+2025-08-20T02:25:14.163861316Z [2025-08-20T02:25:14.163Z] DEBUG Verificando mensagens de sucesso...
+2025-08-20T02:25:14.194656915Z [2025-08-20T02:25:14.194Z] DEBUG Verificando redirecionamento de URL...
+2025-08-20T02:25:14.194814709Z [2025-08-20T02:25:14.194Z] INFO ✓ Publicação confirmada: Redirecionamento detectado para: https://www.facebook.com/marketplace/create/item?step=audience
+2025-08-20T02:25:15.200020313Z [2025-08-20T02:25:15.199Z] INFO 🎉 Anúncio publicado com sucesso! Distribuído para 20 grupos.
+2025-08-20T02:25:15.200051694Z [2025-08-20T02:25:15.199Z] DEBUG Limpando recursos...
+2025-08-20T02:25:15.200158517Z [2025-08-20T02:25:15.200Z] INFO Fechando contexto do browser...
+2025-08-20T02:25:15.458256687Z [2025-08-20T02:25:15.458Z] INFO Contexto fechado
+2025-08-20T02:25:15.458277807Z [2025-08-20T02:25:15.458Z] INFO 🧹 Cleanup concluído
+2025-08-20T02:25:15.458397881Z 
+2025-08-20T02:25:15.458410751Z ==================================================
+2025-08-20T02:25:15.458416041Z 📊 RESULTADO DA EXECUÇÃO
+2025-08-20T02:25:15.458420341Z ==================================================
+2025-08-20T02:25:15.458425101Z ✅ Status: SUCESSO
+2025-08-20T02:25:15.458430231Z 📝 Anúncio publicado com sucesso! Distribuído para 20 grupos.
+2025-08-20T02:25:15.458438722Z 🔗 URL: https://www.facebook.com/marketplace/create/item?step=audience
+2025-08-20T02:25:15.458442902Z 👥 Grupos: 20
+2025-08-20T02:25:15.458453692Z ⏰ Horário: 19/08/2025, 23:24:36
+2025-08-20T02:25:15.458522454Z ==================================================
+2025-08-20T02:25:15.458531704Z 
