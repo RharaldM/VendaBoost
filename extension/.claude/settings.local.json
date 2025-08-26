@@ -1,8 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(powershell:*)",
-      "Bash(git add:*)"
+      "Bash(mkdir:*)",
+      "Bash(python:*)",
+      "Bash(pip install:*)"
     ],
     "deny": [],
     "ask": []

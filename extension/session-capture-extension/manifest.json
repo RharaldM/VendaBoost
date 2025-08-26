@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "Facebook Session Auto-Capture",
+  "version": "3.0.0",
+  "description": "Automatically capture Facebook session data for personal Playwright automation",
+  "permissions": [
+    "cookies",
+    "storage",
+    "scripting",
+    "tabs",
+    "webNavigation"
+  ],
+  "host_permissions": [
+    "*://*.facebook.com/*",
+    "http://localhost:3000/*"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.facebook.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  }
+}

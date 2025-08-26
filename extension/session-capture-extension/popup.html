@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Session Capture</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 350px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .container {
+      padding: 20px;
+    }
+
+    h1 {
+      font-size: 20px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .icon {
+      width: 24px;
+      height: 24px;
+    }
+
+    .subtitle {
+      font-size: 12px;
+      opacity: 0.9;
+      margin-bottom: 20px;
+    }
+
+    .warning {
+      background: rgba(255, 255, 255, 0.1);
+      border-left: 3px solid #ffc107;
+      padding: 10px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      font-size: 11px;
+      line-height: 1.4;
+    }
+
+    .warning-icon {
+      color: #ffc107;
+      margin-right: 5px;
+    }
+
+    .current-site {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 10px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      font-size: 12px;
+    }
+
+    .current-site strong {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .url {
+      color: #a0e7ff;
+      word-break: break-all;
+      font-family: monospace;
+    }
+
+    .capture-options {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+
+    .option-title {
+      font-size: 12px;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+
+    .checkbox-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .checkbox-item input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+
+    .checkbox-item label {
+      font-size: 12px;
+      cursor: pointer;
+      flex: 1;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    button {
+      flex: 1;
+      background: white;
+      color: #667eea;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .secondary-btn {
+      background: transparent;
+      color: white;
+      border: 2px solid white;
+    }
+
+    .secondary-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .status {
+      padding: 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      margin-top: 15px;
+      display: none;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .status.success {
+      background: #4caf50;
+      display: block;
+    }
+
+    .status.error {
+      background: #f44336;
+      display: block;
+    }
+
+    .status.info {
+      background: #2196f3;
+      display: block;
+    }
+
+    .loading {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s ease-in-out infinite;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .footer {
+      margin-top: 20px;
+      padding-top: 15px;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+      font-size: 11px;
+      text-align: center;
+      opacity: 0.8;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+        <path d="M2 17l10 5 10-5"></path>
+        <path d="M2 12l10 5 10-5"></path>
+      </svg>
+      Session Capture
+    </h1>
+    <div class="subtitle">Export browser session for Playwright automation</div>
+
+    <div class="warning">
+      <span class="warning-icon">⚠️</span>
+      <strong>Security Notice:</strong> This extension captures sensitive session data including cookies and storage. Only use on your own accounts and store exported data securely.
+    </div>
+
+    <div class="current-site">
+      <strong>Current Site:</strong>
+      <div class="url" id="currentUrl">Loading...</div>
+    </div>
+
+    <div class="capture-options">
+      <div class="option-title">Data to Capture:</div>
+      <div class="checkbox-group">
+        <div class="checkbox-item">
+          <input type="checkbox" id="captureCookies" checked>
+          <label for="captureCookies">Cookies</label>
+        </div>
+        <div class="checkbox-item">
+          <input type="checkbox" id="captureLocalStorage" checked>
+          <label for="captureLocalStorage">Local Storage</label>
+        </div>
+        <div class="checkbox-item">
+          <input type="checkbox" id="captureSessionStorage" checked>
+          <label for="captureSessionStorage">Session Storage</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="button-group">
+      <button id="captureBtn">
+        <span id="captureBtnText">Capture Session</span>
+      </button>
+      <button id="viewBtn" class="secondary-btn">View Last</button>
+    </div>
+
+    <div id="status" class="status"></div>
+
+    <div class="footer">
+      Personal automation tool • Data stored locally only
+    </div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

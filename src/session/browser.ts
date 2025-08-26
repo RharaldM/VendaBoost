@@ -215,6 +215,33 @@ export class BrowserSession {
   }
 
   /**
+   * Limpa cookies do Facebook para evitar conflitos de sessão
+   */
+  async clearFacebookCookies(): Promise<void> {
+    if (!this.context) return;
+    
+    try {
+      info('🧹 Limpando cookies antigos do Facebook...');
+      
+      // Obter todos os cookies
+      const cookies = await this.context.cookies();
+      
+      // Filtrar cookies do Facebook
+      const fbCookies = cookies.filter(cookie => 
+        cookie.domain.includes('facebook.com') || 
+        cookie.domain.includes('fb.com')
+      );
+      
+      // Limpar cookies do Facebook
+      await this.context.clearCookies();
+      
+      info(`✅ ${fbCookies.length} cookies do Facebook removidos`);
+    } catch (error) {
+      warn('⚠️ Erro ao limpar cookies:', error);
+    }
+  }
+
+  /**
    * Verifica se o usuário está logado no Facebook
    */
   async isLoggedIn(page: Page): Promise<boolean> {
@@ -245,22 +272,132 @@ export class BrowserSession {
         }
       }
 
-      // Verificar se há botões de "Continuar como..." (indica que precisa escolher conta)
+      // Primeiro, tentar detectar se está na tela de seleção de conta
+      const accountSelectionScreen = await page.locator('text=/Continuar como|Continue as/i').isVisible({ timeout: 1000 }).catch(() => false);
+      
+      if (accountSelectionScreen) {
+        info('📱 Tela de seleção de conta detectada');
+        
+        // Tentar clicar no card/container do perfil primeiro (mais confiável)
+        const profileCards = [
+          // Card de perfil inteiro (mais específico)
+          'div[data-visualcompletion="ignore-dynamic"]:has(div[role="button"]:has-text("Continuar como"))',
+          // Container que tem a imagem do perfil e o botão
+          'div:has(> div > div > img):has(div[role="button"])',
+          // Link do perfil se for um link
+          'a[role="link"]:has-text("Continuar como")',
+          // Container direto do botão
+          'div:has(> div[role="button"]:has-text("Continuar"))'
+        ];
+        
+        for (const cardSelector of profileCards) {
+          try {
+            const card = page.locator(cardSelector).first();
+            if (await card.isVisible({ timeout: 1000 }).catch(() => false)) {
+              info(`📍 Card de perfil encontrado: ${cardSelector}`);
+              await card.click({ timeout: 5000 });
+              info('✅ Card de perfil clicado');
+              
+              // Aguardar navegação
+              await Promise.race([
+                page.waitForNavigation({ timeout: 5000 }).catch(() => {}),
+                page.waitForTimeout(3000)
+              ]);
+              
+              return await this.isLoggedIn(page);
+            }
+          } catch (e) {
+            debug(`Card selector ${cardSelector} não funcionou:`, e);
+          }
+        }
+      }
+      
+      // Se não conseguiu com os cards, tentar os botões diretamente
       const continueAsButtons = [
-        'div[role="button"]:has-text("Continuar como")',
+        // Seletores mais específicos para o botão "Continuar como"
+        'div[role="button"][tabindex="0"]:has-text("Continuar como")',
+        'a[role="link"]:has-text("Continuar como")',
+        'div[data-visualcompletion="ignore-dynamic"] div[role="button"]:has-text("Continuar como")',
+        // Seletor para o container pai do botão
+        'div[data-testid="royal_login_form"] div[role="button"]',
+        // Seletor mais genérico mas focado
+        '*[role="button"][tabindex="0"]:has-text("Continuar")',
+        // Fallback selectors
         'button:has-text("Continuar como")',
         '[data-testid="login_profile_button"]',
         'div[data-testid="identity_switch_account_item"]'
       ];
 
       for (const selector of continueAsButtons) {
-        const element = page.locator(selector).first();
-        if (await element.isVisible({ timeout: 2000 }).catch(() => false)) {
-          warn(`⚠️ Tela "Continuar como..." detectada. Clicando automaticamente...`);
-          await element.click();
-          await page.waitForTimeout(3000);
-          // Verificar novamente após clicar
-          return await this.isLoggedIn(page);
+        try {
+          const element = page.locator(selector).first();
+          if (await element.isVisible({ timeout: 2000 }).catch(() => false)) {
+            warn(`⚠️ Tela "Continuar como..." detectada. Tentando clicar com selector: ${selector}`);
+            
+            // Tentar diferentes métodos de clique
+            try {
+              // Método 1: Click normal com força
+              await element.click({ force: true, timeout: 5000 });
+              info('✅ Clique método 1 (force) bem-sucedido');
+            } catch (e1) {
+              try {
+                // Método 2: Scroll e click
+                await element.scrollIntoViewIfNeeded();
+                await page.waitForTimeout(500);
+                await element.click();
+                info('✅ Clique método 2 (scroll + click) bem-sucedido');
+              } catch (e2) {
+                try {
+                  // Método 3: JavaScript click
+                  await element.evaluate((el: HTMLElement) => el.click());
+                  info('✅ Clique método 3 (JavaScript) bem-sucedido');
+                } catch (e3) {
+                  error('❌ Todos os métodos de clique falharam:', e3);
+                  continue; // Tentar próximo seletor
+                }
+              }
+            }
+            
+            // Aguardar navegação ou mudança de página
+            await Promise.race([
+              page.waitForNavigation({ timeout: 5000 }).catch(() => {}),
+              page.waitForTimeout(3000)
+            ]);
+            
+            // Verificar se ainda está na tela de "Continuar como"
+            const stillOnContinueScreen = await page.locator(selector).isVisible({ timeout: 1000 }).catch(() => false);
+            if (stillOnContinueScreen) {
+              warn('⚠️ Ainda na tela "Continuar como...". Pode haver conflito de sessão.');
+              
+              // Se ainda estiver na mesma tela, recarregar a página com a sessão correta
+              if (this.context) {
+                info('🔄 Recarregando com sessão correta...');
+                
+                // Navegar para a página inicial do Facebook para resetar
+                await page.goto('https://www.facebook.com', { 
+                  waitUntil: 'domcontentloaded',
+                  timeout: 15000 
+                });
+                
+                await page.waitForTimeout(2000);
+                
+                // Tentar recarregar a sessão da extensão se disponível
+                const hasExtensionSession = await this.loadExtensionSession();
+                if (hasExtensionSession) {
+                  info('✅ Sessão da extensão recarregada');
+                  // Recarregar a página com a nova sessão
+                  await page.reload({ timeout: 10000 });
+                  await page.waitForTimeout(2000);
+                }
+              }
+            }
+            
+            // Verificar novamente após clicar
+            info('🔄 Verificando login após clicar em "Continuar como..."');
+            return await this.isLoggedIn(page);
+          }
+        } catch (error) {
+          debug(`Erro ao tentar selector ${selector}:`, error);
         }
       }
 

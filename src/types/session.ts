@@ -27,6 +27,15 @@ export interface SessionData {
   userAgent: string;
   url: string;
   source: 'extension' | 'manual';
+  metadata?: {
+    userAgent?: string;
+    extractedAt?: string;
+    method?: string;
+    needsEnhancement?: boolean;
+    lastMerged?: string;
+    mergeCount?: number;
+    [key: string]: any;
+  };
 }
 
 export interface SessionValidation {

@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(/C:\\Users\\Hardd\\Documents\\AUTOMACAO\\extension/**)",
+      "Read(/C:\\Users\\Hardd\\Documents\\AUTOMACAO/**)",
+      "Read(/C:\\Users\\Hardd\\Documents\\AUTOMACAO\\src\\utils/**)",
+      "Read(/C:\\Users\\Hardd\\Documents\\AUTOMACAO\\src/**)",
+      "Read(/C:\\Users\\Hardd\\Documents\\AUTOMACAO\\src\\session/**)",
+      "Read(/C:\\Users\\Hardd\\Documents\\AUTOMACAO\\data\\sessions/**)",
+      "Read(/C:\\Users\\Hardd\\Documents\\AUTOMACAO\\src/**)",
+      "Read(/C:\\Users\\Hardd\\Documents\\AUTOMACAO\\src/**)",
+      "Read(/C:\\Users\\Hardd\\Documents\\AUTOMACAO\\src\\automation/**)",
+      "Read(/C:\\Users\\Hardd\\Documents\\AUTOMACAO\\src\\utils/**)",
+      "Read(/C:\\Users\\Hardd\\Documents\\AUTOMACAO\\src/**)",
+      "Read(/C:\\Users\\Hardd\\Documents\\AUTOMACAO\\src\\utils/**)",
+      "Read(/C:\\Users\\Hardd\\Documents\\AUTOMACAO\\src/**)",
+      "Read(/C:\\Users\\Hardd\\Documents\\AUTOMACAO\\src\\facebook/**)",
+      "Read(/C:\\Users\\Hardd\\Documents\\AUTOMACAO/**)",
+      "Read(/C:\\Users\\Hardd\\Documents\\AUTOMACAO/**)",
+      "Bash(dir:*)",
+      "Read(/C:\\mnt\\c\\Users\\Hardd\\Documents/**)",
+      "Read(/C:\\Users\\Hardd\\Documents\\AUTOMACAO\\data\\sessions/**)",
+      "Read(/C:\\Users\\Hardd\\Documents\\AUTOMACAO/**)",
+      "Read(/C:\\Users\\Hardd\\Documents\\AUTOMACAO/**)",
+      "Bash(node:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

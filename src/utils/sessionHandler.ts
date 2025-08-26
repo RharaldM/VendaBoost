@@ -46,7 +46,9 @@ export function validateSessionData(sessionData: SessionData): SessionValidation
     }
   }
 
-  if (!sessionData.userAgent) {
+  // Check userAgent in root level or metadata
+  const userAgent = sessionData.userAgent || sessionData.metadata?.userAgent;
+  if (!userAgent) {
     errors.push('userAgent é obrigatório');
   }
 
@@ -219,7 +221,9 @@ export function convertToPlaywrightSession(sessionData: SessionData) {
       value: cookie.value,
       domain: cookie.domain,
       path: cookie.path || '/',
-      expires: cookie.expires ? cookie.expires : -1,
+      // Convert expires from milliseconds to seconds for Playwright
+      expires: cookie.expires && cookie.expires !== -1 ? 
+        (cookie.expires > 1000000000000 ? cookie.expires / 1000 : cookie.expires) : -1,
       httpOnly: cookie.httpOnly || false,
       secure: cookie.secure || false,
       sameSite: cookie.sameSite || 'Lax'
@@ -240,6 +244,58 @@ export function isSessionValid(sessionData: SessionData): boolean {
   const maxAge = 24 * 60 * 60 * 1000; // 24 hours
   
   return sessionAge < maxAge;
+}
+
+// Clean Facebook UI text from username
+export function cleanUserName(rawUserName: string | undefined | null): string {
+  if (!rawUserName || typeof rawUserName !== 'string') {
+    return 'Nome não disponível';
+  }
+  
+  let cleanName = rawUserName.trim();
+  
+  // Remove Facebook UI patterns in multiple languages
+  const uiPatterns = [
+    // Portuguese patterns
+    { pattern: /^linha do tempo de\s+/i, replacement: '' },
+    { pattern: /\s+linha do tempo$/i, replacement: '' },
+    { pattern: /^perfil de\s+/i, replacement: '' },
+    { pattern: /\s+perfil$/i, replacement: '' },
+    
+    // English patterns
+    { pattern: /^timeline of\s+/i, replacement: '' },
+    { pattern: /\s+timeline$/i, replacement: '' },
+    { pattern: /^profile of\s+/i, replacement: '' },
+    { pattern: /\s+profile$/i, replacement: '' },
+    
+    // Spanish patterns
+    { pattern: /^cronología de\s+/i, replacement: '' },
+    { pattern: /\s+cronología$/i, replacement: '' },
+    
+    // French patterns
+    { pattern: /^chronologie de\s+/i, replacement: '' },
+    { pattern: /^profil de\s+/i, replacement: '' },
+    
+    // Italian patterns
+    { pattern: /^cronologia di\s+/i, replacement: '' },
+    { pattern: /^profilo di\s+/i, replacement: '' }
+  ];
+  
+  // Apply all pattern replacements
+  for (const { pattern, replacement } of uiPatterns) {
+    cleanName = cleanName.replace(pattern, replacement);
+  }
+  
+  // Final cleanup
+  cleanName = cleanName.trim();
+  
+  // Log the cleaning process if something was changed
+  if (cleanName !== rawUserName.trim()) {
+    info(`🧹 [PANEL] Username cleaned: "${rawUserName}" → "${cleanName}"`);
+  }
+  
+  // Return cleaned name or fallback if empty
+  return cleanName || 'Nome não disponível';
 }
 
 // Check if only essential cookies changed (for backup decision)
@@ -291,17 +347,143 @@ export async function cleanOldSessions(maxAge: number = 3 * 24 * 60 * 60 * 1000)
   }
 }
 
-// Get all available sessions with metadata
+// Remove duplicate session files (keeping the newest for each userId)
+export async function removeDuplicateSessions(): Promise<{ removed: number; kept: number }> {
+  try {
+    await ensureSessionDirectory();
+    const files = await fs.readdir(SESSION_DIR);
+    
+    // Filter only session files (not config files)
+    const sessionFiles = files.filter(file => 
+      file.startsWith('session') && file.endsWith('.json') && 
+      !file.includes('active-session-config') && !file.includes('current-session')
+    );
+    
+    // Group sessions by userId
+    const sessionsByUserId = new Map<string, Array<{file: string, data: SessionData, timestamp: Date}>>();
+    
+    for (const file of sessionFiles) {
+      try {
+        const filePath = path.join(SESSION_DIR, file);
+        const content = await fs.readFile(filePath, 'utf-8');
+        const sessionData: SessionData = JSON.parse(content);
+        
+        if (sessionData.userId) {
+          const timestamp = new Date(sessionData.timestamp);
+          
+          if (!sessionsByUserId.has(sessionData.userId)) {
+            sessionsByUserId.set(sessionData.userId, []);
+          }
+          
+          sessionsByUserId.get(sessionData.userId)!.push({
+            file,
+            data: sessionData,
+            timestamp
+          });
+        }
+      } catch (err) {
+        warn(`⚠️ Erro ao processar arquivo de sessão ${file} para deduplicação:`, err);
+      }
+    }
+    
+    // Find duplicates and remove older files
+    let removedCount = 0;
+    let keptCount = 0;
+    const activeSessionId = await getActiveSessionId();
+    
+    for (const [userId, sessions] of sessionsByUserId) {
+      if (sessions.length > 1) {
+        // Sort by timestamp (newest first)
+        sessions.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+        
+        info(`🔍 Encontradas ${sessions.length} sessões para usuário ${userId}:`);
+        sessions.forEach((session, index) => {
+          const sessionId = session.file.replace('.json', '');
+          const isActive = sessionId === activeSessionId;
+          info(`  ${index + 1}. ${session.file} (${session.timestamp.toISOString()}) ${isActive ? '[ATIVA]' : ''}`);
+        });
+        
+        // Keep the newest session (first in sorted array)
+        const newestSession = sessions[0];
+        if (!newestSession) {
+          warn(`⚠️ Nenhuma sessão válida encontrada para usuário ${userId}`);
+          continue;
+        }
+        
+        const newestSessionId = newestSession.file.replace('.json', '');
+        keptCount++;
+        
+        info(`✅ Mantendo sessão mais recente: ${newestSession.file}`);
+        
+        // Remove older sessions
+        for (let i = 1; i < sessions.length; i++) {
+          const sessionToRemove = sessions[i];
+          if (!sessionToRemove) {
+            warn(`⚠️ Sessão indefinida encontrada no índice ${i} para usuário ${userId}`);
+            continue;
+          }
+          
+          const sessionIdToRemove = sessionToRemove.file.replace('.json', '');
+          const filePath = path.join(SESSION_DIR, sessionToRemove.file);
+          
+          try {
+            // If we're removing the currently active session, update active session to the newest one
+            if (sessionIdToRemove === activeSessionId) {
+              await setActiveSessionId(newestSessionId);
+              info(`🎯 Sessão ativa atualizada de ${sessionIdToRemove} para ${newestSessionId}`);
+            }
+            
+            await fs.unlink(filePath);
+            removedCount++;
+            info(`🗑️ Removida sessão duplicada mais antiga: ${sessionToRemove.file}`);
+          } catch (err: any) {
+            // If file doesn't exist (already removed), that's fine
+            if (err.code === 'ENOENT') {
+              info(`ℹ️ Sessão ${sessionToRemove.file} já foi removida`);
+            } else {
+              error(`❌ Erro ao remover sessão duplicada ${sessionToRemove.file}:`, err);
+            }
+          }
+        }
+      } else {
+        keptCount++;
+      }
+    }
+    
+    if (removedCount > 0) {
+      info(`🧹 Deduplicação concluída: ${removedCount} sessões duplicadas removidas, ${keptCount} sessões mantidas`);
+    } else {
+      debug(`✅ Nenhuma sessão duplicada encontrada. ${keptCount} sessões únicas mantidas`);
+    }
+    
+    return { removed: removedCount, kept: keptCount };
+    
+  } catch (err) {
+    error('❌ Erro ao remover sessões duplicadas:', err);
+    return { removed: 0, kept: 0 };
+  }
+}
+
+// Get all available sessions with metadata (with automatic deduplication)
 export async function getAllSessions(): Promise<SessionInfo[]> {
   try {
     await ensureSessionDirectory();
+    
+    // First, remove any duplicate sessions
+    const deduplicationResult = await removeDuplicateSessions();
+    
+    if (deduplicationResult.removed > 0) {
+      info(`🔄 Deduplicação automática: removidas ${deduplicationResult.removed} sessões duplicadas`);
+    }
+    
     const files = await fs.readdir(SESSION_DIR);
     const sessions: SessionInfo[] = [];
     const activeSessionId = await getActiveSessionId();
     
     // Filter only session files (not config files)
     const sessionFiles = files.filter(file => 
-      file.startsWith('session-') && file.endsWith('.json')
+      file.startsWith('session') && file.endsWith('.json') && 
+      !file.includes('active-session-config') && !file.includes('current-session')
     );
     
     for (const file of sessionFiles) {
@@ -316,7 +498,7 @@ export async function getAllSessions(): Promise<SessionInfo[]> {
         const sessionInfo: SessionInfo = {
           id: sessionId,
           userId: sessionData.userId,
-          userName: sessionData.userInfo?.name || 'Nome não disponível',
+          userName: cleanUserName(sessionData.userInfo?.name),
           timestamp: sessionData.timestamp,
           isActive: sessionId === activeSessionId,
           isValid: isSessionValid(sessionData),
@@ -332,7 +514,7 @@ export async function getAllSessions(): Promise<SessionInfo[]> {
     // Sort by timestamp (newest first)
     sessions.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
     
-    debug(`📋 Encontradas ${sessions.length} sessões disponíveis`);
+    debug(`📋 Encontradas ${sessions.length} sessões disponíveis (após deduplicação)`);
     return sessions;
     
   } catch (err) {
@@ -425,7 +607,20 @@ export async function setActiveSessionId(sessionId: string): Promise<void> {
 // Load session by ID
 export async function loadSessionById(sessionId: string): Promise<SessionData | null> {
   try {
-    const filePath = path.join(SESSION_DIR, `${sessionId}.json`);
+    // Handle both formats: "session-timestamp" and full filename "session-timestamp.json"
+    let filename = sessionId;
+    
+    // Add .json extension if missing
+    if (!filename.endsWith('.json')) {
+      filename = `${filename}.json`;
+    }
+    
+    // Only add "session-" prefix if the filename doesn't already start with "session"
+    if (!filename.startsWith('session')) {
+      filename = `session-${filename}`;
+    }
+    
+    const filePath = path.join(SESSION_DIR, filename);
     const content = await fs.readFile(filePath, 'utf-8');
     const sessionData: SessionData = JSON.parse(content);
     

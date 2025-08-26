@@ -15,7 +15,9 @@ import {
   setActiveSessionId, 
   loadSessionById,
   getActiveSession,
-  initializeSessionSystem
+  isSessionValid,
+  initializeSessionSystem,
+  cleanUserName
 } from '../utils/sessionHandler.js';
 import { VendaBoostAutomation } from '../index.js';
 
@@ -264,25 +266,40 @@ app.get('/api/sessions/active', async (req, res) => {
   try {
     info('🔍 [BRIDGE] Requisição para obter sessão ativa');
     
-    const activeSessionId = await getActiveSessionId();
+    // Use getActiveSession() which has proper fallback logic
+    const activeSessionData = await getActiveSession();
     
-    if (!activeSessionId) {
+    if (!activeSessionData) {
       return res.json({
         success: true,
-        message: 'Nenhuma sessão ativa selecionada',
+        message: 'Nenhuma sessão ativa disponível',
         activeSession: undefined
       });
     }
     
+    // Get the session info by finding it in the sessions list
     const sessions = await getAllSessions();
-    const activeSession = sessions.find(s => s.id === activeSessionId);
+    
+    // Try to find by active session ID first, then by user ID as fallback
+    const activeSessionId = await getActiveSessionId();
+    let activeSession = activeSessionId ? sessions.find(s => s.id === activeSessionId) : null;
+    
+    // If not found by ID, try to find by user ID (fallback scenario)
+    if (!activeSession && activeSessionData.userId) {
+      activeSession = sessions.find(s => s.userId === activeSessionData.userId);
+    }
     
     if (!activeSession) {
-      return res.status(404).json({
-        success: false,
-        message: 'Sessão ativa não encontrada',
-        activeSession: undefined
-      });
+      // Create a session info object from the session data if we can't find it in the list
+      activeSession = {
+        id: activeSessionId || 'current',
+        userId: activeSessionData.userId,
+        userName: cleanUserName(activeSessionData.userInfo?.name),
+        timestamp: activeSessionData.timestamp,
+        isActive: true,
+        isValid: isSessionValid(activeSessionData),
+        filePath: ''
+      };
     }
     
     info(`✅ [BRIDGE] Sessão ativa: ${activeSession.userName} (${activeSession.userId})`);
@@ -335,11 +352,11 @@ app.post('/api/sessions/select', async (req, res) => {
     
     const response: SessionSelectResponse = {
       success: true,
-      message: `Sessão ativa alterada para: ${sessionData.userInfo?.name || sessionId}`,
+      message: `Sessão ativa alterada para: ${cleanUserName(sessionData.userInfo?.name) || sessionId}`,
       activeSession: activeSession!
     };
     
-    info(`✅ [BRIDGE] Sessão ativa definida: ${sessionData.userInfo?.name} (${sessionData.userId})`);
+    info(`✅ [BRIDGE] Sessão ativa definida: ${cleanUserName(sessionData.userInfo?.name)} (${sessionData.userId})`);
     return res.json(response);
     
   } catch (err) {

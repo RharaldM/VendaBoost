@@ -152,7 +152,7 @@ export default function Dashboard() {
             <div className="space-y-4">
               {sessions.map((session, index) => (
                 <div
-                  key={session.userId || index}
+                  key={`${session.userId}-${session.id}-${index}`}
                   className="flex items-center justify-between p-4 border rounded-lg"
                 >
                   <div className="flex items-center space-x-4">

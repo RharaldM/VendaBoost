@@ -53,7 +53,9 @@ export async function convertExtensionSessionToPlaywright(
         value: cookie.value,
         domain: cookie.domain,
         path: cookie.path || '/',
-        expires: cookie.expires || -1,
+        // Convert expires from milliseconds to seconds for Playwright
+        expires: cookie.expires && cookie.expires !== -1 ? 
+          (cookie.expires > 1000000000000 ? cookie.expires / 1000 : cookie.expires) : -1,
         httpOnly: cookie.httpOnly || false,
         secure: cookie.secure || false,
         sameSite: convertSameSite(cookie.sameSite)

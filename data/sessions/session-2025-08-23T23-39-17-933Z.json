@@ -1,37 +1,37 @@
 {
-  "userId": "61578151491865",
-  "timestamp": "2025-08-24T20:58:27.383Z",
+  "userId": "61577311965014",
+  "timestamp": "2025-08-23T23:39:17.933Z",
   "userInfo": {
-    "id": "61578151491865",
-    "name": "Seus classificados"
+    "id": "61577311965014",
+    "name": "Linha do tempo de Ivan Victor Fernandes Barbosa"
   },
   "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
-  "url": "https://www.facebook.com/marketplace/you/selling",
+  "url": "https://www.facebook.com/",
   "source": "auto-extension",
   "cookies": [
     {
       "name": "c_user",
-      "value": "61578151491865",
+      "value": "61577311965014",
       "domain": ".facebook.com",
       "path": "/",
-      "expires": 1787604736149,
+      "expires": 1787526759420,
       "httpOnly": false,
       "secure": true,
       "sameSite": "None"
     },
     {
       "name": "xs",
-      "value": "5%3AZ2UGo1V-_2V9Fw%3A2%3A1756068171%3A-1%3A-1%3A%3AAcUwEQUJ4Jctv2RiDyBDvnUlQRiCTYV8JbKzYEUGlQ",
+      "value": "16%3AYqSRWjYD-FS_dw%3A2%3A1755990773%3A-1%3A-1",
       "domain": ".facebook.com",
       "path": "/",
-      "expires": 1787604736149,
+      "expires": 1787526759420,
       "httpOnly": true,
       "secure": true,
       "sameSite": "None"
     },
     {
       "name": "presence",
-      "value": "C%7B%22t3%22%3A%5B%5D%2C%22utc3%22%3A1756068161197%2C%22v%22%3A1%7D",
+      "value": "C%7B%22t3%22%3A%5B%5D%2C%22utc3%22%3A1755992355091%2C%22v%22%3A1%7D",
       "domain": ".facebook.com",
       "path": "/",
       "expires": -1,
@@ -54,7 +54,7 @@
       "value": "kfphaAYo0U767t2WOPZD_qIb",
       "domain": ".facebook.com",
       "path": "/",
-      "expires": 1790628157710,
+      "expires": 1790550759420,
       "httpOnly": true,
       "secure": true,
       "sameSite": "None"
@@ -91,10 +91,10 @@
     },
     {
       "name": "fr",
-      "value": "1mNJKR8QtMwm0phcZ.AWdky_l7HINiAMKJO8ZjhGQEyCNxoPhy0WV95H-_di3vGt9fVNc.Boq3uO..AAA.0.0.Boq3uO.AWdX-flEIV6RFH8xkRXGD97fjeg",
+      "value": "10nYKii24XwSOEzSb.AWeXwpQQERnr9NjWM_eoT-hIOTayx6Ok9k48X5kepQElXa33eNQ.BoqjF7..AAA.0.0.BoqlEu.AWfFdKy3Nc_UaIMqI6nQdxXV-_o",
       "domain": ".facebook.com",
       "path": "/",
-      "expires": 1763844736149,
+      "expires": 1763768351820,
       "httpOnly": true,
       "secure": true,
       "sameSite": "None"
@@ -114,7 +114,7 @@
       "value": "1920x911",
       "domain": ".facebook.com",
       "path": "/",
-      "expires": 1756672961000,
+      "expires": 1756597155000,
       "httpOnly": false,
       "secure": true,
       "sameSite": "Lax"
@@ -131,41 +131,41 @@
     },
     "mw_encrypted_backups_restore_upsell_first_impression_time_key": {
       "type": "json",
-      "value": 1756068159093
+      "value": 1755990760310
     },
     "Session": {
       "type": "string",
-      "value": "ptlwcu:1756068770380"
+      "value": "9okd9s:1755992390124"
     },
     "_oz_bandwidthEstimate": {
       "type": "json",
-      "value": 501742064
+      "value": 341797965
     },
     "banzai:last_storage_flush": {
       "type": "json",
-      "value": 1756068152126.6
+      "value": 1755968624826.7
     },
     "screen_time_period_logging_facebook": {
       "type": "json",
       "value": {
-        "actorId": "61578151491865",
-        "currentIntervalLastTick": 1756068735,
-        "currentIntervalStart": 1756068735,
+        "actorId": "61577311965014",
+        "currentIntervalLastTick": 1755992357,
+        "currentIntervalStart": 1755992328,
         "initRemoteAgg": {
-          "timestamp": 1755990755,
-          "today_s": 0
+          "timestamp": 1755992344,
+          "today_s": 2255
         },
         "intervals": [],
-        "lastCallbackAttempt": 1756068735,
-        "localStorageId": "10128636",
-        "syncedL24HS": 226,
-        "syncedTodayS": 13,
-        "lastSyncTimeStamp": 1756068735
+        "lastCallbackAttempt": 1755992328,
+        "localStorageId": "57239103",
+        "syncedL24HS": 2552,
+        "syncedTodayS": 2255,
+        "lastSyncTimeStamp": 1755992328
       }
     },
     "last_headload_time": {
       "type": "json",
-      "value": 1756068159553
+      "value": 1755992352760
     },
     "RSTData": {
       "type": "json",
@@ -173,12 +173,12 @@
     },
     "hb_timestamp": {
       "type": "json",
-      "value": 1756068151080
+      "value": 1755990480067
     },
     "bdz_playback_state": {
       "type": "json",
       "value": {
-        "session_key": "mebv8lop",
+        "session_key": "meal5oga",
         "buffer_length": 60
       }
     },
@@ -186,6 +186,21 @@
       "type": "json",
       "value": {
         "b": [
+          {
+            "b": 44899,
+            "s": 1755991536327,
+            "t": 13.5
+          },
+          {
+            "b": 1552694,
+            "s": 1755991538308,
+            "t": 14.199999999254942
+          },
+          {
+            "b": 923,
+            "s": 1755991540425,
+            "t": 14.900000002235174
+          },
           {
             "b": 2105350,
             "s": 1755992332725,
@@ -195,52 +210,37 @@
             "b": 923,
             "s": 1755992335041,
             "t": 0.4000000022351742
-          },
-          {
-            "b": 2105350,
-            "s": 1755992355952,
-            "t": 12.899999998509884
-          },
-          {
-            "b": 7428,
-            "s": 1755992356223,
-            "t": 0.9000000022351742
-          },
-          {
-            "b": 923,
-            "s": 1755992358322,
-            "t": 0.5
           }
         ],
         "t": [
           {
-            "s": 1755992355919,
+            "s": 1755992332685,
             "t": 3,
-            "l": 3.699999999254942,
+            "l": 4.599999997764826,
             "b": 188
           },
           {
-            "s": 1755992355945,
-            "t": 6.399999998509884,
-            "l": 11,
+            "s": 1755992332698,
+            "t": 2.2999999970197678,
+            "l": 7.5,
             "b": 226726
           },
           {
-            "s": 1755992355952,
-            "t": 2.699999999254942,
-            "l": 26.699999999254942,
+            "s": 1755992332725,
+            "t": 3.099999997764826,
+            "l": 31.699999999254942,
             "b": 2105350
           },
           {
-            "s": 1755992356223,
-            "t": 2.400000002235174,
-            "l": 2.800000000745058,
+            "s": 1755992332913,
+            "t": 2.7000000029802322,
+            "l": 3.2000000029802322,
             "b": 7428
           },
           {
-            "s": 1755992358322,
-            "t": 2.400000002235174,
-            "l": 2.800000000745058,
+            "s": 1755992335041,
+            "t": 3,
+            "l": 3.5,
             "b": 923
           }
         ]
@@ -248,11 +248,15 @@
     },
     "ares_last_signal_flush": {
       "type": "json",
-      "value": 1755204160201
+      "value": 1755126761482
     },
     "signal_flush_timestamp": {
       "type": "json",
-      "value": 1756068151137
+      "value": 1755990242066
+    },
+    "topicsLastReportingTime": {
+      "type": "json",
+      "value": 1755990766769
     }
   },
   "sessionStorage": {
@@ -263,23 +267,23 @@
           "scriptPath": "XIndexReduxController",
           "categoryToken": "a1f3c513",
           "extraData": {
-            "imp_id": "0qGJwxwRY3aeow7Hu",
+            "imp_id": "0JMhaGA3HUqRCYYPp",
             "ef_page": null,
-            "uri": "https://www.facebook.com/"
+            "uri": "https://www.facebook.com/?stype=lo&flo=1&deoia=1&jlou=AfdzyV3ry1SCTNS67Ujd0I_sLkbKaW5DxBaMKHm4lewTx-4RPCL_zPv9SL7wZbn_wTFqCB5Rm9g2pLHMeHFOLnLYGO4l1cxm5dlpuTSvTxb-5A&smuh=65240&lh=Ac96xgk-eJ2FUt9lL28"
           }
         },
         "clickPoint": null,
-        "time": 1756068158540
+        "time": 1755990759965
       }
     },
     "TabId": {
       "type": "string",
-      "value": "4r95kq"
+      "value": "x3460n"
     }
   },
   "metadata": {
     "captureMethod": "automatic",
-    "tabId": 554830289,
+    "tabId": 554829510,
     "extensionVersion": "3.0.0",
     "cookieCount": 11,
     "hasRequiredCookies": true,

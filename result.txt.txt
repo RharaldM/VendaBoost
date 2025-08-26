@@ -1,0 +1,139 @@
+🚀 VendaBoost Enhanced Extractor v2.0 - Iniciando captura completa...
+
+VM1286:133 📍 1. Extraindo cookies...
+VM1286:156 ✅ 3 cookies extraídos
+VM1286:157    User ID: 61577311965014
+VM1286:166 
+📍 2. Extraindo dados do usuário...
+VM1286:222    ✅ userId: 61577311965014
+3VM1286:222    ✅ userName: undefined
+VM1286:222    ✅ shortName: Ivan Victor
+psG7SOC1suQ.js:76 ErrorUtils caught an error:
+
+Requiring unknown module "ViewerContext"
+
+Subsequent non-fatal errors won't be logged; see https://fburl.com/debugjs. {column: '764', clientTime: 1755931491, extra: {…}, guardList: Array(1), hash: 'r0rscc', …}
+errorListener @ psG7SOC1suQ.js:76
+reportNormalizedError @ psG7SOC1suQ.js:76
+applyWithGuard @ psG7SOC1suQ.js:76
+I @ psG7SOC1suQ.js:63
+D @ psG7SOC1suQ.js:63
+F @ psG7SOC1suQ.js:63
+(anonymous) @ VM1286:237
+(anonymous) @ VM1286:575Understand this error
+VM1286:323    ✅ Avatar URL encontrada
+VM1286:341 
+📍 3. Extraindo tokens de segurança...
+VM1286:396 ✅ 3 tokens encontrados
+VM1286:399    fb_dtsg: NAfsPkftHV6nW3VSfIFP...
+VM1286:409 
+📍 4. Extraindo LocalStorage...
+VM1286:432 ✅ 2 itens relevantes do LocalStorage
+VM1286:440 
+📍 5. Extraindo SessionStorage...
+VM1286:454 ✅ 2 itens do SessionStorage
+VM1286:462 
+📍 6. Extraindo informações da página...
+VM1286:495 ✅ Informações da página extraídas
+VM1286:527 
+============================================================
+VM1286:528 📊 EXTRAÇÃO COMPLETA - RESUMO
+VM1286:529 ============================================================
+VM1286:531 
+🔐 DADOS ESSENCIAIS:
+VM1286:532    User ID: 61577311965014
+VM1286:533    Nome: rti\/web_rs_transport_selecting_client
+VM1286:534    Email: ⚠️ Não disponível no frontend
+VM1286:535    FB_DTSG: ✅ ENCONTRADO
+VM1286:536    Cookies: 3 capturados
+VM1286:537    Tokens: 3 encontrados
+VM1286:539 
+📈 STATUS DA EXTRAÇÃO:
+VM1286:540    Completude: 100%
+VM1286:541    Status: ✅ SUCESSO
+VM1286:542    Erros: 0
+VM1286:544 
+💾 DADOS PRONTOS PARA USO NA EXTENSÃO:
+VM1286:545    Copie o objeto abaixo para implementar na extensão:
+VM1286:546 
+============================================================
+VM1286:565 {
+  "userId": "61577311965014",
+  "timestamp": "2025-08-23T06:44:51.940Z",
+  "source": "enhanced_extractor",
+  "url": "https://www.facebook.com/",
+  "cookies": [
+    {
+      "name": "wd",
+      "value": "1309x911",
+      "domain": ".facebook.com",
+      "path": "/",
+      "secure": true,
+      "httpOnly": false,
+      "sameSite": "no_restriction"
+    },
+    {
+      "name": "c_user",
+      "value": "61577311965014",
+      "domain": ".facebook.com",
+      "path": "/",
+      "secure": true,
+      "httpOnly": false,
+      "sameSite": "no_restriction"
+    },
+    {
+      "name": "presence",
+      "value": "C%7B%22t3%22%3A%5B%5D%2C%22utc3%22%3A1755931405788%2C%22v%22%3A1%7D",
+      "domain": ".facebook.com",
+      "path": "/",
+      "secure": true,
+      "httpOnly": false,
+      "sameSite": "no_restriction"
+    }
+  ],
+  "userInfo": {
+    "id": "61577311965014",
+    "name": "rti\\/web_rs_transport_selecting_client",
+    "shortName": "Ivan Victor",
+    "firstName": "rti\\/web_rs_transport_selecting_client",
+    "lastName": "rti\\/web_rs_transport_selecting_client",
+    "email": null,
+    "username": null,
+    "profileUrl": "https://www.facebook.com/profile.php?id=61577311965014",
+    "avatarUrl": "https://scontent.fops1-1.fna.fbcdn.net/v/t39.30808-1/512398472_122107170734910398_8730583619347878803_n.jpg?stp=c0.422.1539.1539a_cp0_dst-jpg_s40x40_tt6&_nc_cat=103&ccb=1-7&_nc_sid=e99d92&_nc_ohc=4ULHYltC164Q7kNvwG_-RjY&_nc_oc=AdlJ7_yXhGCr767rP3VPdK3ZGG3lR6Afin45NLSUgzMlL75fNQ_JprnMQHEuQfRZbiE&_nc_zt=24&_nc_ht=scontent.fops1-1.fna&_nc_gid=JUkSvHIC39RXTdBq61Zu_w&oh=00_AfVoQWydGFS3o2Kqm2_VEB6-S1XJxEJAI5kNUNy5i6z7Jg&oe=68AF2932",
+    "coverPhotoUrl": null,
+    "locale": null,
+    "isVerified": false,
+    "isEmployee": false,
+    "userId": "61577311965014"
+  },
+  "tokens": {
+    "fb_dtsg": "NAfsPkftHV6nW3VSfIFP6VNuvxrIsgCloINI53Q8Pm9P8YkAAJ7Yyqw:44:1755931416",
+    "lsd": "U8jMzDjs3fpP9AQ1JOEm6l",
+    "jazoest": "25469",
+    "spin_r": null,
+    "spin_t": null,
+    "hsi": null,
+    "csrf_token": null,
+    "access_token": null
+  },
+  "browserInfo": {
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+    "language": "pt-BR",
+    "platform": "Win32",
+    "cookieEnabled": true,
+    "onLine": true,
+    "screenResolution": "1920x1080",
+    "windowSize": "1309x911",
+    "timezone": "America/Cuiaba"
+  },
+  "metadata": {
+    "extractedAt": "2025-08-23T06:44:51.940Z",
+    "completeness": 100,
+    "version": "2.0.0"
+  }
+}
+VM1286:567 
+============================================================
+VM1286:568 ✅ Extração concluída! Dados prontos para implementação.
+VM1286:569 💡 Dica: Use window.extractedSessionData para acessar os dados

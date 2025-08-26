@@ -3,10 +3,10 @@
   "timestamp": "2025-08-24T20:58:27.383Z",
   "userInfo": {
     "id": "61578151491865",
-    "name": "Seus classificados"
+    "name": "Linha do tempo de Pedro Santos Alves"
   },
   "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
-  "url": "https://www.facebook.com/marketplace/you/selling",
+  "url": "https://www.facebook.com/",
   "source": "auto-extension",
   "cookies": [
     {
@@ -171,16 +171,16 @@
       "type": "json",
       "value": {}
     },
-    "hb_timestamp": {
-      "type": "json",
-      "value": 1756068151080
-    },
     "bdz_playback_state": {
       "type": "json",
       "value": {
         "session_key": "mebv8lop",
         "buffer_length": 60
       }
+    },
+    "hb_timestamp": {
+      "type": "json",
+      "value": 1756068151080
     },
     "_oz_bandwidthAndTTFBSamples": {
       "type": "json",
@@ -253,9 +253,21 @@
     "signal_flush_timestamp": {
       "type": "json",
       "value": 1756068151137
+    },
+    "ps:61578151491865:04ea3fb5-3dad-42b2-91c5-c1d3c9fb30e7": {
+      "type": "string",
+      "value": "abe7c1b0-bcc8-48e1-ada1-58c17e64c15a:1755989170556"
     }
   },
   "sessionStorage": {
+    "TabId": {
+      "type": "string",
+      "value": "4r95kq"
+    },
+    "ps:tabID": {
+      "type": "string",
+      "value": "04ea3fb5-3dad-42b2-91c5-c1d3c9fb30e7"
+    },
     "sp_pi": {
       "type": "json",
       "value": {
@@ -271,16 +283,14 @@
         "clickPoint": null,
         "time": 1756068158540
       }
-    },
-    "TabId": {
-      "type": "string",
-      "value": "4r95kq"
     }
   },
   "metadata": {
     "captureMethod": "automatic",
     "tabId": 554830289,
     "extensionVersion": "3.0.0",
+    "lastMerged": "2025-08-24T20:58:27.384Z",
+    "mergeCount": 10,
     "cookieCount": 11,
     "hasRequiredCookies": true,
     "requiredCookies": [
