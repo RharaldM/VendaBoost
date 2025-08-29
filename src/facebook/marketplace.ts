@@ -3,6 +3,7 @@ import { t } from '../utils/i18n.js';
 import { wait, waitWithLog, info, warn, error, debug } from '../logger.js';
 import * as path from 'node:path';
 import * as fs from 'node:fs';
+import { CategoryFactory } from './categories/factory.js';
 
 /**
  * Interface para dados do anúncio
@@ -15,6 +16,7 @@ export interface ListingData {
   category?: string;
   condition?: string;
   location?: string;
+  brand?: string; // Campo para marca
 }
 
 /**
@@ -47,10 +49,27 @@ export class MarketplaceAutomation {
       await this.fillTitle(data.title);
       await this.fillPrice(data.price);
       
-      // Selecionar categoria logo após o preço
+      // Selecionar categoria usando o sistema modular
       if (data.category) {
-        info(`🏷️ Selecionando categoria: ${data.category}`);
-        await this.selectCategory(data.category);
+        const categoryHandler = CategoryFactory.getCategory(data.category);
+        
+        if (categoryHandler) {
+          // Validar dados antes de selecionar
+          if (categoryHandler.validate && !categoryHandler.validate(data)) {
+            warn('⚠️ Dados inválidos para a categoria selecionada');
+          }
+          
+          // Selecionar a categoria
+          await categoryHandler.select(this.page);
+          
+          // Preencher campos específicos da categoria
+          if (categoryHandler.fillSpecificFields) {
+            await categoryHandler.fillSpecificFields(this.page, data);
+          }
+        } else {
+          error(`❌ Categoria não implementada: ${data.category}`);
+          throw new Error(`Categoria "${data.category}" não está disponível no sistema modular`);
+        }
       } else {
         info('⚠️ Campo category não encontrado no flow.json');
       }
@@ -454,117 +473,6 @@ export class MarketplaceAutomation {
     }
   }
 
-  /**
-   * Mapeamento de categorias do painel para textos do Facebook Marketplace
-   */
-  private getCategoryDisplayName(category: string): string {
-    const categoryMap: Record<string, string> = {
-      'tools': 'Ferramentas',
-      'electronics': 'Eletrônicos',
-      'clothing': 'Roupas',
-      'home': 'Casa e jardim',
-      'sports': 'Esportes',
-      'vehicles': 'Veículos',
-      'books': 'Livros',
-      'toys': 'Brinquedos',
-      'music': 'Música',
-      'other': 'Outros'
-    };
-    
-    return categoryMap[category] || category;
-  }
-
-  /**
-   * Seleciona categoria do produto
-   */
-  private async selectCategory(category: string): Promise<void> {
-    const displayCategory = this.getCategoryDisplayName(category);
-    info(`🔍 Iniciando seleção de categoria: ${category} -> ${displayCategory}`);
-    
-    try {
-      // Passo 1: Encontrar e clicar no botão "Categoria" para abrir o dropdown
-      info('🎯 Passo 1: Procurando botão "Categoria" para abrir dropdown...');
-      
-      const categoryButtonStrategies = [
-        // Estratégia que funciona: Label com role combobox contendo "Categoria"
-        () => this.page.locator('label[role="combobox"]').filter({ hasText: 'Categoria' })
-      ];
-
-      let categoryButtonClicked = false;
-      
-      try {
-        info(`🔄 Clicando no botão "Categoria"...`);
-        const strategy = categoryButtonStrategies[0];
-        if (!strategy) throw new Error('Estratégia não definida');
-        
-        const categoryButton = strategy();
-        
-        if (await categoryButton.isVisible({ timeout: 3000 })) {
-          await categoryButton.scrollIntoViewIfNeeded();
-          await wait(100);
-          await wait(300);
-          await categoryButton.click();
-          info(`✅ Botão "Categoria" clicado com sucesso`);
-          categoryButtonClicked = true;
-        }
-      } catch (err) {
-        warn(`⚠️ Falha ao clicar no botão "Categoria":`, err);
-      }
-      
-      if (!categoryButtonClicked) {
-        throw new Error('Não foi possível encontrar ou clicar no botão "Categoria"');
-      }
-      
-      // Passo 2: Aguardar dropdown abrir e selecionar a categoria desejada
-      info(`🎯 Passo 2: Aguardando dropdown abrir e procurando categoria "${displayCategory}"...`);
-      await wait(1000); // Aguardar dropdown abrir
-
-      const categoryOptionStrategies = [
-        // Estratégia que funciona: Texto exato da categoria
-        () => this.page.getByText(displayCategory, { exact: true })
-      ];
-
-      let categorySelected = false;
-
-      try {
-        info(`🔄 Selecionando categoria "${displayCategory}"...`);
-        const strategy = categoryOptionStrategies[0];
-        if (!strategy) throw new Error('Estratégia não definida');
-
-        const categoryOption = strategy();
-
-        if (await categoryOption.isVisible({ timeout: 3000 })) {
-          // Não fazer scroll para evitar que a categoria saia da view em dropdowns
-          // await categoryOption.scrollIntoViewIfNeeded();
-          
-          // Tentar hover primeiro para garantir que está acessível
-          try {
-            await categoryOption.hover();
-            await wait(200);
-          } catch (hoverErr) {
-            debug('Hover falhou, tentando click direto');
-          }
-          
-          await wait(100);
-          await categoryOption.click();
-          info(`✅ Categoria "${displayCategory}" selecionada com sucesso`);
-          categorySelected = true;
-        }
-      } catch (err) {
-        warn(`⚠️ Falha ao selecionar categoria "${displayCategory}":`, err);
-      }
-
-      if (!categorySelected) {
-        warn(`⚠️ Não foi possível selecionar a categoria "${displayCategory}" no dropdown`);
-      }
-      
-      await wait(500); // Aguardar seleção ser processada
-      
-    } catch (err) {
-      error('Erro ao selecionar categoria:', err);
-      throw err;
-    }
-  }
 
   /**
    * Seleciona condição do produto

@@ -43,8 +43,12 @@ export default function PublishPage() {
       condition: 'new' as const,
       location: '',
       images: [] as string[],
+      brand: '', // Adicionar brand aos valores padrão
     },
   });
+  
+  // Watch para detectar mudanças na categoria
+  const selectedCategory = form.watch('category');
 
   const onSubmit = async (data: ListingFormData) => {
     if (!selectedSession) {
@@ -122,6 +126,59 @@ export default function PublishPage() {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              {/* Categoria - Primeiro campo */}
+              <FormField
+                control={form.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Categoria *</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione uma categoria" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="electronics">Eletrônicos</SelectItem>
+                        <SelectItem value="vehicles">Veículos</SelectItem>
+                        <SelectItem value="home">Casa e Jardim</SelectItem>
+                        <SelectItem value="clothing">Roupas e Acessórios</SelectItem>
+                        <SelectItem value="sports">Esportes</SelectItem>
+                        <SelectItem value="books">Livros</SelectItem>
+                        <SelectItem value="tools">Ferramentas</SelectItem>
+                        <SelectItem value="diversos">Diversos</SelectItem>
+                        <SelectItem value="other">Outros</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Campo de Marca - Aparece apenas para categoria Ferramentas */}
+              {selectedCategory === 'tools' && (
+                <FormField
+                  control={form.control}
+                  name="brand"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Marca</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Ex: DeWalt, Makita, Bosch..."
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Informe a marca da ferramenta
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+
               <div className="grid gap-4 md:grid-cols-2">
                 <FormField
                  control={form.control}
@@ -184,35 +241,7 @@ export default function PublishPage() {
                 )}
               />
 
-              <div className="grid gap-4 md:grid-cols-3">
-                <FormField
-                   control={form.control}
-                   name="category"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Categoria *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecione uma categoria" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="electronics">Eletrônicos</SelectItem>
-                          <SelectItem value="vehicles">Veículos</SelectItem>
-                          <SelectItem value="home">Casa e Jardim</SelectItem>
-                          <SelectItem value="clothing">Roupas e Acessórios</SelectItem>
-                          <SelectItem value="sports">Esportes</SelectItem>
-                          <SelectItem value="books">Livros</SelectItem>
-                          <SelectItem value="tools">Ferramentas</SelectItem>
-                          <SelectItem value="other">Outros</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
+              <div className="grid gap-4 md:grid-cols-2">
                 <FormField
                    control={form.control}
                    name="condition"

@@ -9,6 +9,7 @@ export const listingSchema = z.object({
   location: z.string().min(1, 'Localização é obrigatória'),
   images: z.array(z.string()).default([]),
   condition: z.enum(['new', 'used', 'refurbished']).default('used'),
+  brand: z.string().optional(), // Campo opcional para marca
 });
 
 export const jobCreateSchema = z.object({
